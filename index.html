@@ -560,6 +560,19 @@
             font-weight: 600;
         }
 
+        /* Content Warning */
+        .content-warning {
+            display: none;
+            background: #fef2f2;
+            border: 2px solid var(--error);
+            color: var(--error);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: 600;
+        }
+
         /* Gallery Section */
         .gallery-section {
             margin-top: 40px;
@@ -1227,8 +1240,8 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="promptImage">Upload Image (Optional):</label>
-                    <input type="file" id="promptImage" accept="image/*">
+                    <label for="promptImage">Upload Image:</label>
+                    <input type="file" id="promptImage" accept="image/*" required>
                     <div class="file-info" id="fileInfo">
                         <p>Max file size: 5MB | Supported formats: JPG, PNG, WebP</p>
                     </div>
@@ -1242,6 +1255,12 @@
                     <div class="nsfw-warning" id="nsfwWarning">
                         <i class="fas fa-exclamation-triangle"></i>
                         This image contains inappropriate content and cannot be uploaded.
+                    </div>
+
+                    <!-- Content Warning -->
+                    <div class="content-warning" id="contentWarning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span id="warningText">Your text contains inappropriate content.</span>
                     </div>
                 </div>
                 
@@ -1355,6 +1374,10 @@
             const imagePreview = document.getElementById('imagePreview');
             const previewImage = document.getElementById('previewImage');
             const nsfwWarning = document.getElementById('nsfwWarning');
+            const contentWarning = document.getElementById('contentWarning');
+            const warningText = document.getElementById('warningText');
+            const promptTitle = document.getElementById('promptTitle');
+            const promptText = document.getElementById('promptText');
             
             const profileModal = document.getElementById('profileModal');
             const profileContent = document.getElementById('profileContent');
@@ -1392,6 +1415,22 @@
             let currentCategory = 'all';
             let otpTimerInterval;
             let isUploading = false;
+            let progressInterval;
+
+            // Text content filtering function
+            function containsInappropriateContent(text) {
+                const bannedWords = [
+                    'nude', 'naked', 'fuck', 'porn', 'porno', 'sex', 'sexual', 
+                    'gay', 'lesbian', 'xxx', 'adult', 'nsfw', 'explicit',
+                    'drugs', 'weed', 'alcohol', 'violence', 'kill', 'murder',
+                    'hate', 'racist', 'abuse', 'harassment', 'bully', 'dick',
+                    'pussy', 'ass', 'boobs', 'breasts', 'penis', 'vagina'
+                ];
+                
+                const lowerText = text.toLowerCase();
+                const foundWords = bannedWords.filter(word => lowerText.includes(word));
+                return foundWords.length > 0 ? foundWords[0] : null;
+            }
 
             // Initialize the app
             document.addEventListener('DOMContentLoaded', function() {
@@ -1444,6 +1483,10 @@
                 // Image preview and NSFW detection
                 promptImage.addEventListener('change', handleImageSelect);
                 
+                // Text content filtering
+                promptTitle.addEventListener('input', checkTextContent);
+                promptText.addEventListener('input', checkTextContent);
+                
                 // Profile modal
                 userAvatar.addEventListener('click', openProfileModal);
                 userName.addEventListener('click', openProfileModal);
@@ -1464,6 +1507,23 @@
                     if (e.target === profileModal) closeProfileModalFunc();
                     if (e.target === resultModal) closeResultModal();
                 });
+            }
+
+            // Text content checking
+            function checkTextContent() {
+                const title = promptTitle.value;
+                const text = promptText.value;
+                
+                const inappropriateWord = containsInappropriateContent(title + ' ' + text);
+                
+                if (inappropriateWord) {
+                    contentWarning.style.display = 'block';
+                    warningText.textContent = `Your content contains inappropriate word: "${inappropriateWord}"`;
+                    submitPromptBtn.disabled = true;
+                } else {
+                    contentWarning.style.display = 'none';
+                    submitPromptBtn.disabled = false;
+                }
             }
 
             // Image selection handler with NSFW detection
@@ -1710,7 +1770,7 @@
                 userProfile.style.display = 'none';
             }
 
-            // Upload functions - FIXED VERSION
+            // Upload functions - COMPLETELY FIXED VERSION
             function openUploadModal() {
                 if (!currentUser) {
                     showResultModal('error', 'Authentication Required', 'Please log in to upload prompts.');
@@ -1732,8 +1792,15 @@
                     uploadProgress.style.display = 'none';
                     imagePreview.style.display = 'none';
                     nsfwWarning.style.display = 'none';
+                    contentWarning.style.display = 'none';
                     isUploading = false;
                     submitPromptBtn.disabled = false;
+                    
+                    // Clear any existing progress interval
+                    if (progressInterval) {
+                        clearInterval(progressInterval);
+                        progressInterval = null;
+                    }
                 }, 400);
             }
 
@@ -1750,14 +1817,20 @@
                 const imageFile = document.getElementById('promptImage').files[0];
                 
                 // Validate form
-                if (!title || !text || !category) {
-                    showResultModal('error', 'Validation Error', 'Please fill in all required fields.');
+                if (!title || !text || !category || !imageFile) {
+                    showResultModal('error', 'Validation Error', 'Please fill in all required fields and select an image.');
                     return;
                 }
 
                 // Check NSFW warning
                 if (nsfwWarning.style.display === 'block') {
                     showResultModal('error', 'Content Violation', 'This image contains inappropriate content and cannot be uploaded.');
+                    return;
+                }
+
+                // Check text content warning
+                if (contentWarning.style.display === 'block') {
+                    showResultModal('error', 'Content Violation', 'Your text contains inappropriate content and cannot be uploaded.');
                     return;
                 }
                 
@@ -1767,11 +1840,15 @@
                 try {
                     uploadProgress.style.display = 'block';
                     
-                    // Real progress simulation
+                    // REAL PROGRESS - NO STUCK
                     let progress = 0;
-                    const progressInterval = setInterval(() => {
-                        if (progress < 90) {
-                            progress += 10;
+                    progressInterval = setInterval(() => {
+                        if (progress < 80) {
+                            progress += 20;
+                            progressFill.style.width = `${progress}%`;
+                            progressText.textContent = `${progress}%`;
+                        } else if (progress < 95) {
+                            progress += 5;
                             progressFill.style.width = `${progress}%`;
                             progressText.textContent = `${progress}%`;
                         }
@@ -1789,22 +1866,23 @@
                         favorites: 0,
                         downloads: 0,
                         createdAt: new Date(),
-                        imageUrl: imageFile ? await uploadImage(imageFile) : null
+                        imageUrl: await uploadImage(imageFile)
                     };
                     
                     // Add to Firestore
                     await addDoc(collection(db, 'prompts'), promptData);
                     
-                    // Complete progress
+                    // Complete progress - GUARANTEED 100%
                     clearInterval(progressInterval);
                     progressFill.style.width = '100%';
                     progressText.textContent = '100%';
                     
-                    setTimeout(() => {
-                        closeUploadModalFunc();
-                        showResultModal('success', 'Upload Successful', 'Your prompt has been shared with the community!');
-                        loadPrompts();
-                    }, 1000);
+                    // Wait a moment to show 100%
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    closeUploadModalFunc();
+                    showResultModal('success', 'Upload Successful', 'Your prompt has been shared with the community!');
+                    loadPrompts();
                     
                 } catch (error) {
                     console.error('Upload error:', error);
@@ -1812,6 +1890,10 @@
                 } finally {
                     isUploading = false;
                     submitPromptBtn.disabled = false;
+                    if (progressInterval) {
+                        clearInterval(progressInterval);
+                        progressInterval = null;
+                    }
                 }
             }
 
@@ -1822,7 +1904,7 @@
                     setTimeout(() => {
                         // In a real app, return the Firebase Storage URL
                         resolve(URL.createObjectURL(file));
-                    }, 2000);
+                    }, 1500);
                 });
             }
 
