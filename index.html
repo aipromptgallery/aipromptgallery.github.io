@@ -22,11 +22,15 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
+    <!-- Cropper.js for image cropping -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    
     <!-- Firebase SDK - WITH AUTHENTICATION -->
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, orderBy, query, onSnapshot, deleteDoc, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, orderBy, query, onSnapshot, deleteDoc, doc, updateDoc, increment, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, sendEmailVerification, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         
         // Your web app's Firebase configuration
@@ -49,6 +53,7 @@
         window.firebaseApp = { 
             db, auth, googleProvider,
             collection, addDoc, getDocs, orderBy, query, onSnapshot, deleteDoc, doc, updateDoc, increment,
+            arrayUnion, arrayRemove,
             createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile,
             sendEmailVerification, signInWithPopup
         };
@@ -890,6 +895,7 @@
             object-fit: cover;
             border: 4px solid var(--primary);
             margin-bottom: 15px;
+            cursor: pointer;
         }
 
         .profile-name {
@@ -897,6 +903,7 @@
             font-weight: 700;
             color: var(--dark);
             margin-bottom: 5px;
+            cursor: pointer;
         }
 
         .profile-email {
@@ -928,6 +935,194 @@
             font-size: 0.8rem;
             color: var(--secondary);
             text-transform: uppercase;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .profile-action-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .follow-btn {
+            background: var(--primary);
+            color: white;
+        }
+
+        .follow-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .following-btn {
+            background: var(--success);
+            color: white;
+        }
+
+        .following-btn:hover {
+            background: #0da271;
+        }
+
+        /* Edit Profile Modal */
+        .edit-profile-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .edit-profile-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: all 0.4s ease;
+        }
+
+        .edit-profile-content.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        /* Image Cropping Modal */
+        .crop-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .crop-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: all 0.4s ease;
+        }
+
+        .crop-content.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        .crop-container {
+            width: 100%;
+            height: 400px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .crop-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .crop-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .crop-confirm {
+            background: var(--success);
+            color: white;
+        }
+
+        .crop-confirm:hover {
+            background: #0da271;
+        }
+
+        .crop-cancel {
+            background: var(--error);
+            color: white;
+        }
+
+        .crop-cancel:hover {
+            background: #dc2626;
+        }
+
+        /* Drag and Drop Area */
+        .drop-area {
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .drop-area.active {
+            display: block;
+        }
+
+        .drop-area.highlight {
+            border-color: var(--primary);
+            background-color: rgba(37, 99, 235, 0.05);
+        }
+
+        .drop-area i {
+            font-size: 3rem;
+            color: #cbd5e1;
+            margin-bottom: 15px;
+        }
+
+        .drop-area p {
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .drop-area .browse-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .drop-area .browse-btn:hover {
+            background: var(--primary-dark);
         }
 
         /* Loading Spinner */
@@ -1042,7 +1237,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
-        .empty-state, .favorites-empty, .uploads-empty {
+        .empty-state, .favorites-empty, .uploads-empty, .following-empty {
             text-align: center;
             color: var(--secondary);
             padding: 60px 20px;
@@ -1050,7 +1245,7 @@
             grid-column: 1 / -1;
         }
 
-        .empty-state i, .favorites-empty i, .uploads-empty i {
+        .empty-state i, .favorites-empty i, .uploads-empty i, .following-empty i {
             font-size: 4rem;
             margin-bottom: 20px;
             color: #cbd5e1;
@@ -1128,6 +1323,14 @@
             .profile-stats {
                 grid-template-columns: 1fr;
             }
+            
+            .profile-actions {
+                flex-direction: column;
+            }
+            
+            .crop-container {
+                height: 300px;
+            }
         }
     </style>
 </head>
@@ -1158,6 +1361,9 @@
             </button>
             <button class="nav-btn" data-page="my-uploads">
                 <i class="fas fa-user"></i> My Uploads
+            </button>
+            <button class="nav-btn" data-page="following">
+                <i class="fas fa-users"></i> Following
             </button>
         </div>
 
@@ -1213,6 +1419,18 @@
                     <div class="uploads-empty" id="myUploadsEmpty">
                         <i class="fas fa-upload"></i>
                         <p>You haven't uploaded any prompts yet. Click the + button to get started!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="page" id="followingPage">
+            <div class="gallery-section">
+                <h2><i class="fas fa-users"></i> Following</h2>
+                <div class="gallery" id="followingGallery">
+                    <div class="following-empty" id="followingEmpty">
+                        <i class="fas fa-users"></i>
+                        <p>You're not following anyone yet. Follow users to see their prompts here!</p>
                     </div>
                 </div>
             </div>
@@ -1308,6 +1526,14 @@
                 </button>
             </div>
             <form class="upload-form" id="uploadForm">
+                <!-- Drag and Drop Area (Desktop only) -->
+                <div class="drop-area" id="dropArea">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Drag & Drop your image here</p>
+                    <p>or</p>
+                    <button type="button" class="browse-btn" id="browseBtn">Browse Files</button>
+                </div>
+                
                 <div class="form-group">
                     <label for="promptTitle">Prompt Title:</label>
                     <input type="text" id="promptTitle" required placeholder="Enter a descriptive title">
@@ -1372,6 +1598,29 @@
         </div>
     </div>
 
+    <!-- Image Cropping Modal -->
+    <div class="crop-modal" id="cropModal">
+        <div class="crop-content" id="cropContent">
+            <div class="modal-header">
+                <h2>Crop Image</h2>
+                <button class="close-btn" id="closeCropModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="crop-container">
+                <img id="cropImage" src="" alt="Image to crop">
+            </div>
+            <div class="crop-actions">
+                <button class="crop-btn crop-confirm" id="confirmCrop">
+                    <i class="fas fa-check"></i> Use Cropped Image
+                </button>
+                <button class="crop-btn crop-cancel" id="cancelCrop">
+                    <i class="fas fa-times"></i> Use Original
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Profile Modal -->
     <div class="profile-modal" id="profileModal">
         <div class="profile-content" id="profileContent">
@@ -1379,6 +1628,11 @@
                 <img src="https://ui-avatars.com/api/?name=User&background=2563eb&color=fff" alt="User" class="profile-avatar" id="profileAvatar">
                 <h2 class="profile-name" id="profileName">User Name</h2>
                 <p class="profile-email" id="profileEmail">user@example.com</p>
+            </div>
+            
+            <div class="profile-actions" id="profileActions">
+                <button class="profile-action-btn follow-btn" id="followBtn">Follow</button>
+                <button class="profile-action-btn edit-btn" id="editProfileBtn">Edit Profile</button>
             </div>
             
             <div class="profile-stats">
@@ -1399,6 +1653,36 @@
             <div class="result-buttons">
                 <button class="result-btn primary-btn" id="closeProfileModal">Close</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="edit-profile-modal" id="editProfileModal">
+        <div class="edit-profile-content" id="editProfileContent">
+            <div class="modal-header">
+                <h2>Edit Profile</h2>
+                <button class="close-btn" id="closeEditProfileModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form class="upload-form" id="editProfileForm">
+                <div class="form-group">
+                    <label for="editProfileName">Display Name:</label>
+                    <input type="text" id="editProfileName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editProfileAvatar">Profile Picture:</label>
+                    <input type="file" id="editProfileAvatar" accept="image/*">
+                    <div class="file-info">
+                        <p>Max file size: 2MB | Supported formats: JPG, PNG, WebP</p>
+                    </div>
+                </div>
+                
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </form>
         </div>
     </div>
 
@@ -1471,6 +1755,15 @@
             const warningText = document.getElementById('warningText');
             const promptTitle = document.getElementById('promptTitle');
             const promptText = document.getElementById('promptText');
+            const dropArea = document.getElementById('dropArea');
+            const browseBtn = document.getElementById('browseBtn');
+            
+            const cropModal = document.getElementById('cropModal');
+            const cropContent = document.getElementById('cropContent');
+            const cropImage = document.getElementById('cropImage');
+            const closeCropModal = document.getElementById('closeCropModal');
+            const confirmCrop = document.getElementById('confirmCrop');
+            const cancelCrop = document.getElementById('cancelCrop');
             
             const profileModal = document.getElementById('profileModal');
             const profileContent = document.getElementById('profileContent');
@@ -1481,6 +1774,16 @@
             const statLikes = document.getElementById('statLikes');
             const statFavorites = document.getElementById('statFavorites');
             const closeProfileModal = document.getElementById('closeProfileModal');
+            const followBtn = document.getElementById('followBtn');
+            const editProfileBtn = document.getElementById('editProfileBtn');
+            const profileActions = document.getElementById('profileActions');
+            
+            const editProfileModal = document.getElementById('editProfileModal');
+            const editProfileContent = document.getElementById('editProfileContent');
+            const closeEditProfileModal = document.getElementById('closeEditProfileModal');
+            const editProfileForm = document.getElementById('editProfileForm');
+            const editProfileName = document.getElementById('editProfileName');
+            const editProfileAvatar = document.getElementById('editProfileAvatar');
             
             const resultModal = document.getElementById('resultModal');
             const resultContent = document.getElementById('resultContent');
@@ -1498,12 +1801,15 @@
             const favoritesEmpty = document.getElementById('favoritesEmpty');
             const myUploadsGallery = document.getElementById('myUploadsGallery');
             const myUploadsEmpty = document.getElementById('myUploadsEmpty');
+            const followingGallery = document.getElementById('followingGallery');
+            const followingEmpty = document.getElementById('followingEmpty');
             const navBtns = document.querySelectorAll('.nav-btn');
             
             // Firebase imports
             const {
                 db, auth, googleProvider,
                 collection, addDoc, getDocs, orderBy, query, onSnapshot, deleteDoc, doc, updateDoc, increment,
+                arrayUnion, arrayRemove,
                 createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile,
                 sendEmailVerification, signInWithPopup
             } = window.firebaseApp;
@@ -1517,20 +1823,61 @@
             let isUploading = false;
             let likedPrompts = new Set();
             let favoritedPrompts = new Set();
+            let followingUsers = new Set();
+            let cropper = null;
+            let currentProfileUserId = null;
+            let selectedImageFile = null;
 
-            // Text content filtering function
+            // Improved text content filtering function
             function containsInappropriateContent(text) {
+                // List of banned words with context checking
                 const bannedWords = [
                     'nude', 'naked', 'fuck', 'porn', 'porno', 'sex', 'sexual', 
                     'gay', 'lesbian', 'xxx', 'adult', 'nsfw', 'explicit',
                     'drugs', 'weed', 'alcohol', 'violence', 'kill', 'murder',
-                    'hate', 'racist', 'abuse', 'harassment', 'bully', 'dick',
-                    'pussy', 'ass', 'boobs', 'breasts', 'penis', 'vagina'
+                    'hate', 'racist', 'abuse', 'harassment', 'bully'
+                ];
+                
+                // Words that need context checking (not always inappropriate)
+                const contextWords = [
+                    { word: 'ass', allowed: ['grass', 'class', 'pass', 'glass', 'mass', 'brass'] },
+                    { word: 'dick', allowed: ['dickens', 'dickinson'] },
+                    { word: 'pussy', allowed: ['pussycat', 'pussy willow'] },
+                    { word: 'boobs', allowed: ['boob tube'] },
+                    { word: 'breasts', allowed: ['chicken breasts'] },
+                    { word: 'penis', allowed: [] },
+                    { word: 'vagina', allowed: [] }
                 ];
                 
                 const lowerText = text.toLowerCase();
-                const foundWords = bannedWords.filter(word => lowerText.includes(word));
-                return foundWords.length > 0 ? foundWords[0] : null;
+                
+                // Check for banned words
+                for (const word of bannedWords) {
+                    if (lowerText.includes(word)) {
+                        return word;
+                    }
+                }
+                
+                // Check for context words
+                for (const { word, allowed } of contextWords) {
+                    if (lowerText.includes(word)) {
+                        // Check if the word appears in an allowed context
+                        let isAllowed = false;
+                        for (const allowedWord of allowed) {
+                            if (lowerText.includes(allowedWord)) {
+                                isAllowed = true;
+                                break;
+                            }
+                        }
+                        
+                        // If not in an allowed context, flag it
+                        if (!isAllowed) {
+                            return word;
+                        }
+                    }
+                }
+                
+                return null;
             }
 
             // Initialize the app
@@ -1538,7 +1885,16 @@
                 initAuth();
                 initEventListeners();
                 loadPrompts();
+                checkDragAndDropSupport();
             });
+
+            // Check if drag and drop is supported (desktop)
+            function checkDragAndDropSupport() {
+                const isDesktop = window.innerWidth > 768;
+                if (isDesktop) {
+                    dropArea.classList.add('active');
+                }
+            }
 
             // Initialize authentication state
             function initAuth() {
@@ -1565,12 +1921,16 @@
                 
                 const userLikes = localStorage.getItem(`likedPrompts_${currentUser.uid}`);
                 const userFavorites = localStorage.getItem(`favoritedPrompts_${currentUser.uid}`);
+                const userFollowing = localStorage.getItem(`followingUsers_${currentUser.uid}`);
                 
                 if (userLikes) {
                     likedPrompts = new Set(JSON.parse(userLikes));
                 }
                 if (userFavorites) {
                     favoritedPrompts = new Set(JSON.parse(userFavorites));
+                }
+                if (userFollowing) {
+                    followingUsers = new Set(JSON.parse(userFollowing));
                 }
             }
 
@@ -1580,6 +1940,7 @@
                 
                 localStorage.setItem(`likedPrompts_${currentUser.uid}`, JSON.stringify([...likedPrompts]));
                 localStorage.setItem(`favoritedPrompts_${currentUser.uid}`, JSON.stringify([...favoritedPrompts]));
+                localStorage.setItem(`followingUsers_${currentUser.uid}`, JSON.stringify([...followingUsers]));
             }
 
             // Initialize event listeners
@@ -1609,14 +1970,63 @@
                 // Image preview and NSFW detection
                 promptImage.addEventListener('change', handleImageSelect);
                 
+                // Drag and drop
+                browseBtn.addEventListener('click', () => promptImage.click());
+                
+                // Drag and drop events
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    dropArea.addEventListener(eventName, preventDefaults, false);
+                });
+                
+                function preventDefaults(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    dropArea.addEventListener(eventName, highlight, false);
+                });
+                
+                ['dragleave', 'drop'].forEach(eventName => {
+                    dropArea.addEventListener(eventName, unhighlight, false);
+                });
+                
+                function highlight() {
+                    dropArea.classList.add('highlight');
+                }
+                
+                function unhighlight() {
+                    dropArea.classList.remove('highlight');
+                }
+                
+                dropArea.addEventListener('drop', handleDrop, false);
+                
+                function handleDrop(e) {
+                    const dt = e.dataTransfer;
+                    const files = dt.files;
+                    promptImage.files = files;
+                    handleImageSelect({ target: promptImage });
+                }
+                
                 // Text content filtering
                 promptTitle.addEventListener('input', checkTextContent);
                 promptText.addEventListener('input', checkTextContent);
                 
+                // Crop modal
+                closeCropModal.addEventListener('click', closeCropModalFunc);
+                confirmCrop.addEventListener('click', handleCropConfirm);
+                cancelCrop.addEventListener('click', handleCropCancel);
+                
                 // Profile modal
-                userAvatar.addEventListener('click', openProfileModal);
-                userName.addEventListener('click', openProfileModal);
+                userAvatar.addEventListener('click', openMyProfileModal);
+                userName.addEventListener('click', openMyProfileModal);
                 closeProfileModal.addEventListener('click', closeProfileModalFunc);
+                followBtn.addEventListener('click', handleFollow);
+                editProfileBtn.addEventListener('click', openEditProfileModal);
+                
+                // Edit profile modal
+                closeEditProfileModal.addEventListener('click', closeEditProfileModalFunc);
+                editProfileForm.addEventListener('submit', handleEditProfile);
                 
                 // Result modal
                 resultOkBtn.addEventListener('click', closeResultModal);
@@ -1635,7 +2045,9 @@
                 window.addEventListener('click', (e) => {
                     if (e.target === authModal) closeAuthModal();
                     if (e.target === uploadModal) closeUploadModalFunc();
+                    if (e.target === cropModal) closeCropModalFunc();
                     if (e.target === profileModal) closeProfileModalFunc();
+                    if (e.target === editProfileModal) closeEditProfileModalFunc();
                     if (e.target === resultModal) closeResultModal();
                 });
             }
@@ -1661,6 +2073,8 @@
                     loadFavorites();
                 } else if (page === 'my-uploads') {
                     loadMyUploads();
+                } else if (page === 'following') {
+                    loadFollowing();
                 }
             }
 
@@ -1700,6 +2114,29 @@
                     myPrompts.forEach(prompt => {
                         const promptCard = createPromptCard(prompt);
                         myUploadsGallery.appendChild(promptCard);
+                    });
+                }
+            }
+
+            // Load following
+            function loadFollowing() {
+                if (!currentUser || followingUsers.size === 0) {
+                    followingEmpty.style.display = 'block';
+                    followingGallery.innerHTML = '';
+                    return;
+                }
+                
+                const followingPrompts = prompts.filter(prompt => followingUsers.has(prompt.authorId));
+                
+                if (followingPrompts.length === 0) {
+                    followingEmpty.style.display = 'block';
+                    followingGallery.innerHTML = '';
+                } else {
+                    followingEmpty.style.display = 'none';
+                    followingGallery.innerHTML = '';
+                    followingPrompts.forEach(prompt => {
+                        const promptCard = createPromptCard(prompt);
+                        followingGallery.appendChild(promptCard);
                     });
                 }
             }
@@ -1745,16 +2182,94 @@
                     return;
                 }
 
+                // Store the file for cropping
+                selectedImageFile = file;
+
                 // Show preview
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     previewImage.src = e.target.result;
                     imagePreview.style.display = 'block';
                     
+                    // Open crop modal
+                    openCropModal(e.target.result);
+                    
                     // Basic NSFW detection using image analysis
                     detectNSFWContent(previewImage, file);
                 };
                 reader.readAsDataURL(file);
+            }
+
+            // Open crop modal
+            function openCropModal(imageSrc) {
+                cropImage.src = imageSrc;
+                cropModal.style.display = 'block';
+                
+                setTimeout(() => {
+                    cropContent.classList.add('active');
+                    
+                    // Initialize cropper
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+                    
+                    cropper = new Cropper(cropImage, {
+                        aspectRatio: 1,
+                        viewMode: 1,
+                        autoCropArea: 0.8,
+                        responsive: true,
+                        restore: false,
+                        guides: true,
+                        center: true,
+                        highlight: false,
+                        cropBoxMovable: true,
+                        cropBoxResizable: true,
+                        toggleDragModeOnDblclick: false,
+                    });
+                }, 10);
+            }
+
+            // Close crop modal
+            function closeCropModalFunc() {
+                cropContent.classList.remove('active');
+                setTimeout(() => {
+                    cropModal.style.display = 'none';
+                    if (cropper) {
+                        cropper.destroy();
+                        cropper = null;
+                    }
+                }, 400);
+            }
+
+            // Handle crop confirmation
+            function handleCropConfirm() {
+                if (cropper) {
+                    const canvas = cropper.getCroppedCanvas();
+                    canvas.toBlob((blob) => {
+                        // Create a new file from the cropped blob
+                        const croppedFile = new File([blob], selectedImageFile.name, {
+                            type: selectedImageFile.type,
+                            lastModified: Date.now()
+                        });
+                        
+                        // Update the file input with the cropped file
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(croppedFile);
+                        promptImage.files = dataTransfer.files;
+                        
+                        // Update preview
+                        previewImage.src = canvas.toDataURL();
+                        
+                        // Close crop modal
+                        closeCropModalFunc();
+                    }, selectedImageFile.type);
+                }
+            }
+
+            // Handle crop cancellation
+            function handleCropCancel() {
+                // Keep the original file
+                closeCropModalFunc();
             }
 
             // Basic NSFW content detection
@@ -2006,6 +2521,7 @@
                     submitPromptBtn.disabled = false;
                     progressFill.style.width = '0%';
                     progressText.textContent = '0%';
+                    selectedImageFile = null;
                 }, 400);
             }
 
@@ -2107,15 +2623,40 @@
             }
 
             // Profile functions
-            function openProfileModal() {
+            function openMyProfileModal() {
                 if (!currentUser) return;
+                openProfileModal(currentUser);
+            }
+
+            function openProfileModal(user) {
+                currentProfileUserId = user.uid;
                 
-                profileName.textContent = currentUser.displayName || 'User';
-                profileEmail.textContent = currentUser.email;
-                profileAvatar.src = currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'User')}&background=2563eb&color=fff`;
+                profileName.textContent = user.displayName || 'User';
+                profileEmail.textContent = user.email;
+                profileAvatar.src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'User')}&background=2563eb&color=fff`;
+                
+                // Show/hide edit button based on whether it's the current user's profile
+                if (currentUser && user.uid === currentUser.uid) {
+                    editProfileBtn.style.display = 'block';
+                    followBtn.style.display = 'none';
+                } else {
+                    editProfileBtn.style.display = 'none';
+                    followBtn.style.display = 'block';
+                    
+                    // Update follow button text
+                    if (followingUsers.has(user.uid)) {
+                        followBtn.textContent = 'Following';
+                        followBtn.classList.remove('follow-btn');
+                        followBtn.classList.add('following-btn');
+                    } else {
+                        followBtn.textContent = 'Follow';
+                        followBtn.classList.remove('following-btn');
+                        followBtn.classList.add('follow-btn');
+                    }
+                }
                 
                 // Calculate user stats
-                const userPrompts = prompts.filter(p => p.authorId === currentUser.uid);
+                const userPrompts = prompts.filter(p => p.authorId === user.uid);
                 const totalLikes = userPrompts.reduce((sum, p) => sum + p.likes, 0);
                 const totalFavorites = userPrompts.reduce((sum, p) => sum + p.favorites, 0);
                 
@@ -2133,7 +2674,96 @@
                 profileContent.classList.remove('active');
                 setTimeout(() => {
                     profileModal.style.display = 'none';
+                    currentProfileUserId = null;
                 }, 400);
+            }
+
+            // Follow/Unfollow function
+            function handleFollow() {
+                if (!currentUser || !currentProfileUserId) return;
+                
+                if (followingUsers.has(currentProfileUserId)) {
+                    // Unfollow
+                    followingUsers.delete(currentProfileUserId);
+                    followBtn.textContent = 'Follow';
+                    followBtn.classList.remove('following-btn');
+                    followBtn.classList.add('follow-btn');
+                    showResultModal('success', 'Unfollowed', 'You have unfollowed this user.');
+                } else {
+                    // Follow
+                    followingUsers.add(currentProfileUserId);
+                    followBtn.textContent = 'Following';
+                    followBtn.classList.remove('follow-btn');
+                    followBtn.classList.add('following-btn');
+                    showResultModal('success', 'Following', 'You are now following this user.');
+                }
+                
+                saveUserPreferences();
+                
+                // Update following page if open
+                if (currentPage === 'following') {
+                    loadFollowing();
+                }
+            }
+
+            // Edit profile functions
+            function openEditProfileModal() {
+                if (!currentUser) return;
+                
+                editProfileName.value = currentUser.displayName || '';
+                
+                editProfileModal.style.display = 'block';
+                setTimeout(() => {
+                    editProfileContent.classList.add('active');
+                }, 10);
+            }
+
+            function closeEditProfileModalFunc() {
+                editProfileContent.classList.remove('active');
+                setTimeout(() => {
+                    editProfileModal.style.display = 'none';
+                    editProfileForm.reset();
+                }, 400);
+            }
+
+            async function handleEditProfile(e) {
+                e.preventDefault();
+                
+                if (!currentUser) return;
+                
+                const newName = editProfileName.value;
+                const avatarFile = editProfileAvatar.files[0];
+                
+                try {
+                    let updates = {};
+                    
+                    if (newName && newName !== currentUser.displayName) {
+                        updates.displayName = newName;
+                    }
+                    
+                    if (avatarFile) {
+                        // Convert avatar to base64
+                        const avatarBase64 = await convertImageToBase64(avatarFile);
+                        updates.photoURL = avatarBase64;
+                    }
+                    
+                    if (Object.keys(updates).length > 0) {
+                        await updateProfile(currentUser, updates);
+                        
+                        // Update UI
+                        userName.textContent = newName || currentUser.displayName;
+                        userAvatar.src = updates.photoURL || currentUser.photoURL;
+                        
+                        showResultModal('success', 'Profile Updated', 'Your profile has been updated successfully.');
+                        closeEditProfileModalFunc();
+                        closeProfileModalFunc();
+                    } else {
+                        showResultModal('info', 'No Changes', 'No changes were made to your profile.');
+                    }
+                } catch (error) {
+                    console.error('Error updating profile:', error);
+                    showResultModal('error', 'Update Failed', 'Failed to update profile. Please try again.');
+                }
             }
 
             // Gallery functions
@@ -2218,7 +2848,7 @@
                         <div class="prompt-category">${prompt.category.toUpperCase()}</div>
                         <h3>${prompt.title}</h3>
                         <div class="prompt-text">${prompt.text}</div>
-                        <div class="author-info">
+                        <div class="author-info" data-user-id="${prompt.authorId}">
                             <img src="${prompt.authorAvatar}" alt="${prompt.authorName}" class="author-avatar">
                             <span class="author-name">${prompt.authorName}</span>
                         </div>
@@ -2259,6 +2889,7 @@
                 const favoriteBtn = card.querySelector('.favorite-btn');
                 const deleteBtn = card.querySelector('.delete-btn');
                 const downloadBtns = card.querySelectorAll('.download-btn');
+                const authorInfo = card.querySelector('.author-info');
                 
                 if (likeBtn) {
                     likeBtn.addEventListener('click', () => handleLike(prompt.id, isLiked));
@@ -2270,6 +2901,19 @@
                 
                 if (deleteBtn) {
                     deleteBtn.addEventListener('click', () => handleDeletePrompt(prompt.id));
+                }
+                
+                if (authorInfo) {
+                    authorInfo.addEventListener('click', () => {
+                        // Create a minimal user object for the profile modal
+                        const user = {
+                            uid: prompt.authorId,
+                            displayName: prompt.authorName,
+                            email: '', // Not available in prompt data
+                            photoURL: prompt.authorAvatar
+                        };
+                        openProfileModal(user);
+                    });
                 }
                 
                 downloadBtns.forEach(btn => {
@@ -2333,6 +2977,7 @@
                     renderPrompts();
                     if (currentPage === 'favorites') loadFavorites();
                     if (currentPage === 'my-uploads') loadMyUploads();
+                    if (currentPage === 'following') loadFollowing();
                     
                 } catch (error) {
                     console.error('Error liking prompt:', error);
@@ -2385,6 +3030,7 @@
                     renderPrompts();
                     if (currentPage === 'favorites') loadFavorites();
                     if (currentPage === 'my-uploads') loadMyUploads();
+                    if (currentPage === 'following') loadFollowing();
                     
                 } catch (error) {
                     console.error('Error favoriting prompt:', error);
@@ -2411,6 +3057,7 @@
                     renderPrompts();
                     if (currentPage === 'favorites') loadFavorites();
                     if (currentPage === 'my-uploads') loadMyUploads();
+                    if (currentPage === 'following') loadFollowing();
                     
                     showResultModal('success', 'Prompt Deleted', 'Your prompt has been deleted successfully.');
                 } catch (error) {
