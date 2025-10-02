@@ -166,6 +166,115 @@
             font-weight: 300;
         }
 
+        /* Navigation */
+        .navigation {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 12px 25px;
+            border: 2px solid var(--primary);
+            background: white;
+            color: var(--primary);
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn:hover,
+        .nav-btn.active {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .nav-btn i {
+            font-size: 1rem;
+        }
+
+        /* Pages */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Categories */
+        .categories {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .category-btn {
+            padding: 12px 24px;
+            border: 2px solid var(--primary);
+            background: white;
+            color: var(--primary);
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .category-btn:hover,
+        .category-btn.active {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Upload Button */
+        .upload-container {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            z-index: 1000;
+        }
+
+        .upload-btn-main {
+            width: 70px;
+            height: 70px;
+            background: var(--gradient);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+
+        .upload-btn-main:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 12px 35px rgba(37, 99, 235, 0.6);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4); }
+            50% { box-shadow: 0 8px 30px rgba(37, 99, 235, 0.7); }
+            100% { box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4); }
+        }
+
         /* Auth Modal */
         .auth-modal {
             display: none;
@@ -299,71 +408,6 @@
         .google-icon {
             width: 20px;
             height: 20px;
-        }
-
-        /* Categories */
-        .categories {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 40px;
-        }
-
-        .category-btn {
-            padding: 12px 24px;
-            border: 2px solid var(--primary);
-            background: white;
-            color: var(--primary);
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .category-btn:hover,
-        .category-btn.active {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
-        }
-
-        /* Upload Button */
-        .upload-container {
-            position: fixed;
-            bottom: 40px;
-            right: 40px;
-            z-index: 1000;
-        }
-
-        .upload-btn-main {
-            width: 70px;
-            height: 70px;
-            background: var(--gradient);
-            border: none;
-            border-radius: 50%;
-            color: white;
-            font-size: 2rem;
-            cursor: pointer;
-            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: pulse 2s infinite;
-        }
-
-        .upload-btn-main:hover {
-            transform: scale(1.1) rotate(90deg);
-            box-shadow: 0 12px 35px rgba(37, 99, 235, 0.6);
-        }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4); }
-            50% { box-shadow: 0 8px 30px rgba(37, 99, 235, 0.7); }
-            100% { box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4); }
         }
 
         /* Upload Modal */
@@ -998,7 +1042,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
-        .empty-state {
+        .empty-state, .favorites-empty, .uploads-empty {
             text-align: center;
             color: var(--secondary);
             padding: 60px 20px;
@@ -1006,7 +1050,7 @@
             grid-column: 1 / -1;
         }
 
-        .empty-state i {
+        .empty-state i, .favorites-empty i, .uploads-empty i {
             font-size: 4rem;
             margin-bottom: 20px;
             color: #cbd5e1;
@@ -1036,6 +1080,16 @@
                 position: static;
                 justify-content: center;
                 margin-top: 20px;
+            }
+            
+            .navigation {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .nav-btn {
+                width: 200px;
+                justify-content: center;
             }
             
             .gallery {
@@ -1094,32 +1148,72 @@
             <p>Professional Platform for AI Art & Prompt Sharing</p>
         </div>
 
-        <!-- Categories -->
-        <div class="categories">
-            <button class="category-btn active" data-category="all">All</button>
-            <button class="category-btn" data-category="male">Male</button>
-            <button class="category-btn" data-category="female">Female</button>
-            <button class="category-btn" data-category="couple">Couple</button>
-            <button class="category-btn" data-category="kid">Kids</button>
-            <button class="category-btn" data-category="game">Games</button>
-            <button class="category-btn" data-category="film">Films</button>
-            <button class="category-btn" data-category="others">Others</button>
+        <!-- Navigation Menu -->
+        <div class="navigation">
+            <button class="nav-btn active" data-page="gallery">
+                <i class="fas fa-images"></i> All Prompts
+            </button>
+            <button class="nav-btn" data-page="favorites">
+                <i class="fas fa-star"></i> My Favorites
+            </button>
+            <button class="nav-btn" data-page="my-uploads">
+                <i class="fas fa-user"></i> My Uploads
+            </button>
         </div>
 
-        <!-- Gallery Section -->
-        <div class="gallery-section">
-            <h2>Featured Prompts</h2>
-            <div class="gallery" id="gallery">
-                <!-- Loading Spinner -->
-                <div class="loading-spinner" id="loadingSpinner">
-                    <div class="spinner"></div>
-                    <p>Loading prompts...</p>
+        <!-- Pages -->
+        <div class="page active" id="galleryPage">
+            <!-- Categories -->
+            <div class="categories">
+                <button class="category-btn active" data-category="all">All</button>
+                <button class="category-btn" data-category="male">Male</button>
+                <button class="category-btn" data-category="female">Female</button>
+                <button class="category-btn" data-category="couple">Couple</button>
+                <button class="category-btn" data-category="kid">Kids</button>
+                <button class="category-btn" data-category="game">Games</button>
+                <button class="category-btn" data-category="film">Films</button>
+                <button class="category-btn" data-category="others">Others</button>
+            </div>
+
+            <!-- Gallery Section -->
+            <div class="gallery-section">
+                <h2>Featured Prompts</h2>
+                <div class="gallery" id="gallery">
+                    <!-- Loading Spinner -->
+                    <div class="loading-spinner" id="loadingSpinner">
+                        <div class="spinner"></div>
+                        <p>Loading prompts...</p>
+                    </div>
+                    
+                    <!-- Prompt cards will be added here dynamically -->
+                    <div class="empty-state" id="emptyState">
+                        <i class="fas fa-images"></i>
+                        <p>No prompts uploaded yet. Click the + button to get started!</p>
+                    </div>
                 </div>
-                
-                <!-- Prompt cards will be added here dynamically -->
-                <div class="empty-state" id="emptyState">
-                    <i class="fas fa-images"></i>
-                    <p>No prompts uploaded yet. Click the + button to get started!</p>
+            </div>
+        </div>
+
+        <div class="page" id="favoritesPage">
+            <div class="gallery-section">
+                <h2><i class="fas fa-star"></i> My Favorite Prompts</h2>
+                <div class="gallery" id="favoritesGallery">
+                    <div class="favorites-empty" id="favoritesEmpty">
+                        <i class="fas fa-star"></i>
+                        <p>No favorite prompts yet. Start liking prompts to see them here!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="page" id="myUploadsPage">
+            <div class="gallery-section">
+                <h2><i class="fas fa-user"></i> My Uploaded Prompts</h2>
+                <div class="gallery" id="myUploadsGallery">
+                    <div class="uploads-empty" id="myUploadsEmpty">
+                        <i class="fas fa-upload"></i>
+                        <p>You haven't uploaded any prompts yet. Click the + button to get started!</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1400,6 +1494,12 @@
             const emptyState = document.getElementById('emptyState');
             const categoryBtns = document.querySelectorAll('.category-btn');
             
+            const favoritesGallery = document.getElementById('favoritesGallery');
+            const favoritesEmpty = document.getElementById('favoritesEmpty');
+            const myUploadsGallery = document.getElementById('myUploadsGallery');
+            const myUploadsEmpty = document.getElementById('myUploadsEmpty');
+            const navBtns = document.querySelectorAll('.nav-btn');
+            
             // Firebase imports
             const {
                 db, auth, googleProvider,
@@ -1412,8 +1512,11 @@
             let currentUser = null;
             let prompts = [];
             let currentCategory = 'all';
+            let currentPage = 'gallery';
             let otpTimerInterval;
             let isUploading = false;
+            let likedPrompts = new Set();
+            let favoritedPrompts = new Set();
 
             // Text content filtering function
             function containsInappropriateContent(text) {
@@ -1498,6 +1601,11 @@
                     btn.addEventListener('click', () => filterPrompts(btn.dataset.category));
                 });
                 
+                // Navigation
+                navBtns.forEach(btn => {
+                    btn.addEventListener('click', () => switchPage(btn.dataset.page));
+                });
+                
                 // Close modals when clicking outside
                 window.addEventListener('click', (e) => {
                     if (e.target === authModal) closeAuthModal();
@@ -1505,6 +1613,70 @@
                     if (e.target === profileModal) closeProfileModalFunc();
                     if (e.target === resultModal) closeResultModal();
                 });
+            }
+
+            // Page switching function
+            function switchPage(page) {
+                currentPage = page;
+                
+                // Update active nav button
+                navBtns.forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-page="${page}"]`).classList.add('active');
+                
+                // Show active page
+                document.querySelectorAll('.page').forEach(pageEl => {
+                    pageEl.classList.remove('active');
+                });
+                document.getElementById(`${page}Page`).classList.add('active');
+                
+                // Load appropriate content
+                if (page === 'favorites') {
+                    loadFavorites();
+                } else if (page === 'my-uploads') {
+                    loadMyUploads();
+                }
+            }
+
+            // Load favorites
+            function loadFavorites() {
+                const favoritePrompts = prompts.filter(prompt => favoritedPrompts.has(prompt.id));
+                
+                if (favoritePrompts.length === 0) {
+                    favoritesEmpty.style.display = 'block';
+                    favoritesGallery.innerHTML = '';
+                } else {
+                    favoritesEmpty.style.display = 'none';
+                    favoritesGallery.innerHTML = '';
+                    favoritePrompts.forEach(prompt => {
+                        const promptCard = createPromptCard(prompt);
+                        favoritesGallery.appendChild(promptCard);
+                    });
+                }
+            }
+
+            // Load my uploads
+            function loadMyUploads() {
+                if (!currentUser) {
+                    myUploadsEmpty.style.display = 'block';
+                    myUploadsGallery.innerHTML = '';
+                    return;
+                }
+                
+                const myPrompts = prompts.filter(prompt => prompt.authorId === currentUser.uid);
+                
+                if (myPrompts.length === 0) {
+                    myUploadsEmpty.style.display = 'block';
+                    myUploadsGallery.innerHTML = '';
+                } else {
+                    myUploadsEmpty.style.display = 'none';
+                    myUploadsGallery.innerHTML = '';
+                    myPrompts.forEach(prompt => {
+                        const promptCard = createPromptCard(prompt);
+                        myUploadsGallery.appendChild(promptCard);
+                    });
+                }
             }
 
             // Text content checking
@@ -1998,6 +2170,10 @@
                 // Handle base64 images
                 const imageSrc = prompt.imageUrl || 'https://via.placeholder.com/400x300?text=No+Image';
                 
+                // Check if liked/favorited
+                const isLiked = likedPrompts.has(prompt.id);
+                const isFavorited = favoritedPrompts.has(prompt.id);
+                
                 card.innerHTML = `
                     ${isNew ? '<div class="new-tag">NEW</div>' : ''}
                     ${currentUser && prompt.authorId === currentUser.uid ? 
@@ -2015,14 +2191,14 @@
                         </div>
                         <div class="prompt-stats">
                             <div class="stat-item">
-                                <button class="like-btn" data-id="${prompt.id}" ${!currentUser ? 'disabled' : ''}>
+                                <button class="like-btn ${isLiked ? 'liked' : ''}" data-id="${prompt.id}" ${!currentUser ? 'disabled' : ''}>
                                     <i class="fas fa-heart stat-icon"></i>
                                 </button>
                                 <span class="stat-count">${prompt.likes}</span>
                                 <span class="stat-label">Likes</span>
                             </div>
                             <div class="stat-item">
-                                <button class="favorite-btn" data-id="${prompt.id}" ${!currentUser ? 'disabled' : ''}>
+                                <button class="favorite-btn ${isFavorited ? 'favorited' : ''}" data-id="${prompt.id}" ${!currentUser ? 'disabled' : ''}>
                                     <i class="fas fa-star stat-icon"></i>
                                 </button>
                                 <span class="stat-count">${prompt.favorites}</span>
@@ -2079,9 +2255,16 @@
                 renderPrompts();
             }
 
+            // Like handler with duplicate prevention
             async function handleLike(promptId) {
                 if (!currentUser) {
                     showResultModal('error', 'Authentication Required', 'Please log in to like prompts.');
+                    return;
+                }
+                
+                // Check if already liked
+                if (likedPrompts.has(promptId)) {
+                    showResultModal('error', 'Already Liked', 'You have already liked this prompt!');
                     return;
                 }
                 
@@ -2091,21 +2274,35 @@
                         likes: increment(1)
                     });
                     
+                    // Add to liked set
+                    likedPrompts.add(promptId);
+                    
                     // Update local data and UI
                     const promptIndex = prompts.findIndex(p => p.id === promptId);
                     if (promptIndex !== -1) {
                         prompts[promptIndex].likes += 1;
                         renderPrompts();
+                        if (currentPage === 'favorites') loadFavorites();
+                        if (currentPage === 'my-uploads') loadMyUploads();
                     }
+                    
+                    showResultModal('success', 'Liked!', 'Prompt liked successfully!');
                 } catch (error) {
                     console.error('Error liking prompt:', error);
                     showResultModal('error', 'Action Failed', 'Failed to like prompt. Please try again.');
                 }
             }
 
+            // Favorite handler with duplicate prevention
             async function handleFavorite(promptId) {
                 if (!currentUser) {
                     showResultModal('error', 'Authentication Required', 'Please log in to favorite prompts.');
+                    return;
+                }
+                
+                // Check if already favorited
+                if (favoritedPrompts.has(promptId)) {
+                    showResultModal('error', 'Already Favorited', 'You have already favorited this prompt!');
                     return;
                 }
                 
@@ -2115,12 +2312,19 @@
                         favorites: increment(1)
                     });
                     
+                    // Add to favorited set
+                    favoritedPrompts.add(promptId);
+                    
                     // Update local data and UI
                     const promptIndex = prompts.findIndex(p => p.id === promptId);
                     if (promptIndex !== -1) {
                         prompts[promptIndex].favorites += 1;
                         renderPrompts();
+                        if (currentPage === 'favorites') loadFavorites();
+                        if (currentPage === 'my-uploads') loadMyUploads();
                     }
+                    
+                    showResultModal('success', 'Favorited!', 'Prompt added to favorites!');
                 } catch (error) {
                     console.error('Error favoriting prompt:', error);
                     showResultModal('error', 'Action Failed', 'Failed to favorite prompt. Please try again.');
@@ -2139,6 +2343,8 @@
                     // Update local data and UI
                     prompts = prompts.filter(p => p.id !== promptId);
                     renderPrompts();
+                    if (currentPage === 'favorites') loadFavorites();
+                    if (currentPage === 'my-uploads') loadMyUploads();
                     
                     showResultModal('success', 'Prompt Deleted', 'Your prompt has been deleted successfully.');
                 } catch (error) {
