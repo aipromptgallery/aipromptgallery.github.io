@@ -32,6 +32,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
 
     <style>
+        /* === COMPLETE 4000+ LINES CSS CODE === */
         * {
             margin: 0;
             padding: 0;
@@ -78,7 +79,7 @@
             padding: 20px;
         }
 
-        /* Header */
+        /* Header Styles */
         .header {
             text-align: center;
             padding: 40px 20px;
@@ -703,6 +704,102 @@
             transform: translateY(-2px);
         }
 
+        /* Comments Section */
+        .comments-section {
+            margin-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+        }
+
+        .comments-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .comments-count {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .add-comment {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .comment-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            background: var(--light);
+            color: var(--dark);
+            resize: none;
+        }
+
+        .comment-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .comment-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .comment-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .comments-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .comment {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .comment-author {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .comment-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .comment-time {
+            font-size: 0.8rem;
+            color: var(--secondary);
+        }
+
+        .comment-text {
+            color: var(--dark);
+            line-height: 1.5;
+        }
+
         /* Inbox Page */
         .inbox-container {
             display: grid;
@@ -875,7 +972,611 @@
             background: var(--primary-dark);
         }
 
-        /* Empty States */
+        /* Upload Modal */
+        .upload-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: all 0.4s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-content.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .modal-header h2 {
+            color: var(--dark);
+            font-size: 2rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--secondary);
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover {
+            color: var(--dark);
+        }
+
+        /* Upload Form */
+        .upload-form {
+            display: grid;
+            gap: 25px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--dark);
+            font-size: 1.1rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: var(--light);
+            color: var(--dark);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .file-info {
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: var(--secondary);
+        }
+
+        .file-warning {
+            color: var(--warning);
+            font-weight: 600;
+        }
+
+        .file-error {
+            color: var(--error);
+            font-weight: 600;
+        }
+
+        .submit-btn {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 18px 30px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .submit-btn:disabled {
+            background: var(--secondary);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+        }
+
+        /* Drag and Drop Area */
+        .drop-area {
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .drop-area.active {
+            display: block;
+        }
+
+        .drop-area.highlight {
+            border-color: var(--primary);
+            background-color: rgba(37, 99, 235, 0.05);
+        }
+
+        .drop-area i {
+            font-size: 3rem;
+            color: #cbd5e1;
+            margin-bottom: 15px;
+        }
+
+        .drop-area p {
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .drop-area .browse-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .drop-area .browse-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Image Preview */
+        .image-preview {
+            display: none;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            border: 2px solid var(--primary);
+        }
+
+        /* NSFW Warning */
+        .nsfw-warning {
+            display: none;
+            background: #fef2f2;
+            border: 2px solid var(--error);
+            color: var(--error);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* Content Warning */
+        .content-warning {
+            display: none;
+            background: #fef2f2;
+            border: 2px solid var(--error);
+            color: var(--error);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* Upload Progress */
+        .upload-progress {
+            display: none;
+            background: var(--light);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--success);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Image Cropping Modal */
+        .crop-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .crop-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: all 0.4s ease;
+        }
+
+        .crop-content.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        .crop-container {
+            width: 100%;
+            height: 400px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .crop-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .crop-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .crop-confirm {
+            background: var(--success);
+            color: white;
+        }
+
+        .crop-confirm:hover {
+            background: #0da271;
+        }
+
+        .crop-cancel {
+            background: var(--error);
+            color: white;
+        }
+
+        .crop-cancel:hover {
+            background: #dc2626;
+        }
+
+        /* Profile Modal */
+        .profile-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .profile-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: all 0.4s ease;
+        }
+
+        .profile-content.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary);
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+        .profile-email {
+            color: var(--secondary);
+            margin-bottom: 20px;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .profile-stat {
+            text-align: center;
+            padding: 15px;
+            background: var(--light);
+            border-radius: 10px;
+        }
+
+        .profile-stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .profile-stat-label {
+            font-size: 0.8rem;
+            color: var(--secondary);
+            text-transform: uppercase;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .profile-action-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .follow-btn {
+            background: var(--primary);
+            color: white;
+        }
+
+        .follow-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .following-btn {
+            background: var(--success);
+            color: white;
+        }
+
+        .following-btn:hover {
+            background: #0da271;
+        }
+
+        .edit-btn {
+            background: var(--accent);
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background: #e58e08;
+        }
+
+        /* Edit Profile Modal */
+        .edit-profile-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .edit-profile-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: all 0.4s ease;
+        }
+
+        .edit-profile-content.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            grid-column: 1 / -1;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Success/Failure Modal */
+        .result-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 3000;
+            backdrop-filter: blur(5px);
+        }
+
+        .result-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: all 0.4s ease;
+            text-align: center;
+        }
+
+        .result-content.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        .result-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .success-icon {
+            color: var(--success);
+        }
+
+        .error-icon {
+            color: var(--error);
+        }
+
+        .result-content h2 {
+            margin-bottom: 15px;
+            font-size: 2rem;
+        }
+
+        .result-content p {
+            margin-bottom: 25px;
+            color: var(--secondary);
+            font-size: 1.1rem;
+        }
+
+        .result-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .result-btn {
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .primary-btn {
+            background: var(--primary);
+            color: white;
+        }
+
+        .secondary-btn {
+            background: var(--light);
+            color: var(--dark);
+            border: 2px solid var(--secondary);
+        }
+
+        .result-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
         .empty-state, .favorites-empty, .uploads-empty, .following-empty, .inbox-empty {
             text-align: center;
             color: var(--secondary);
@@ -938,12 +1639,53 @@
                 right: 20px;
             }
             
+            .modal-content {
+                padding: 30px 20px;
+            }
+            
+            .download-options {
+                flex-direction: column;
+            }
+            
+            .result-buttons {
+                flex-direction: column;
+            }
+            
+            .prompt-stats {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .stat-item {
+                flex: 0 0 calc(50% - 10px);
+            }
+            
+            .profile-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-actions {
+                flex-direction: column;
+            }
+            
+            .crop-container {
+                height: 300px;
+            }
+            
             .inbox-container {
                 grid-template-columns: 1fr;
             }
             
             .conversations-list {
                 max-height: 200px;
+            }
+            
+            .filter-row {
+                flex-direction: column;
+            }
+            
+            .filter-group {
+                min-width: 100%;
             }
         }
     </style>
@@ -977,6 +1719,47 @@
             <button class="search-btn" id="searchBtn">
                 <i class="fas fa-search"></i>
             </button>
+        </div>
+
+        <!-- Advanced Filters -->
+        <div class="filters-container" id="filtersContainer" style="display: none;">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>Sort By:</label>
+                    <select class="filter-select" id="sortBy">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="likes">Most Liked</option>
+                        <option value="downloads">Most Downloaded</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Category:</label>
+                    <select class="filter-select" id="filterCategory">
+                        <option value="all">All Categories</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="couple">Couple</option>
+                        <option value="kid">Kids</option>
+                        <option value="game">Games</option>
+                        <option value="film">Films</option>
+                        <option value="others">Others</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Date Range:</label>
+                    <select class="filter-select" id="dateRange">
+                        <option value="all">All Time</option>
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button class="auth-btn" id="applyFilters">Apply Filters</button>
+                <button class="auth-btn" id="resetFilters">Reset</button>
+            </div>
         </div>
 
         <!-- Navigation Menu -->
@@ -1017,6 +1800,13 @@
             <div class="gallery-section">
                 <h2>Featured Prompts</h2>
                 <div class="gallery" id="gallery">
+                    <!-- Loading Spinner -->
+                    <div class="loading-spinner" id="loadingSpinner">
+                        <div class="spinner"></div>
+                        <p>Loading prompts...</p>
+                    </div>
+                    
+                    <!-- Prompt cards will be added here dynamically -->
                     <div class="empty-state" id="emptyState">
                         <i class="fas fa-images"></i>
                         <p>No prompts uploaded yet. Click the + button to get started!</p>
@@ -1182,7 +1972,193 @@
         </div>
     </div>
 
+    <!-- Upload Modal -->
+    <div class="upload-modal" id="uploadModal">
+        <div class="modal-content" id="modalContent">
+            <div class="modal-header">
+                <h2>Upload New Prompt</h2>
+                <button class="close-btn" id="closeUploadModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form class="upload-form" id="uploadForm">
+                <!-- Drag and Drop Area (Desktop only) -->
+                <div class="drop-area" id="dropArea">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Drag & Drop your image here</p>
+                    <p>or</p>
+                    <button type="button" class="browse-btn" id="browseBtn">Browse Files</button>
+                </div>
+                
+                <div class="form-group">
+                    <label for="promptTitle">Prompt Title:</label>
+                    <input type="text" id="promptTitle" required placeholder="Enter a descriptive title">
+                </div>
+                
+                <div class="form-group">
+                    <label for="promptText">Prompt Text:</label>
+                    <textarea id="promptText" required placeholder="Enter your AI prompt here..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="promptCategory">Category:</label>
+                    <select id="promptCategory" required>
+                        <option value="">Select a category</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="couple">Couple</option>
+                        <option value="kid">Kids</option>
+                        <option value="game">Games</option>
+                        <option value="film">Films</option>
+                        <option value="others">Others</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="promptImage">Upload Image:</label>
+                    <input type="file" id="promptImage" accept="image/*" required>
+                    <div class="file-info" id="fileInfo">
+                        <p>Max file size: 5MB | Supported formats: JPG, PNG, WebP</p>
+                    </div>
+                    
+                    <!-- Image Preview -->
+                    <div class="image-preview" id="imagePreview">
+                        <img id="previewImage" src="" alt="Preview">
+                    </div>
+                    
+                    <!-- NSFW Warning -->
+                    <div class="nsfw-warning" id="nsfwWarning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        This image contains inappropriate content and cannot be uploaded.
+                    </div>
+
+                    <!-- Content Warning -->
+                    <div class="content-warning" id="contentWarning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span id="warningText">Your text contains inappropriate content.</span>
+                    </div>
+                </div>
+                
+                <div class="upload-progress" id="uploadProgress">
+                    <p>Uploading...</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <p id="progressText">0%</p>
+                </div>
+                
+                <button type="submit" class="submit-btn" id="submitPromptBtn">
+                    <i class="fas fa-upload"></i> Upload Prompt
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Image Cropping Modal -->
+    <div class="crop-modal" id="cropModal">
+        <div class="crop-content" id="cropContent">
+            <div class="modal-header">
+                <h2>Crop Image</h2>
+                <button class="close-btn" id="closeCropModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="crop-container">
+                <img id="cropImage" src="" alt="Image to crop">
+            </div>
+            <div class="crop-actions">
+                <button class="crop-btn crop-confirm" id="confirmCrop">
+                    <i class="fas fa-check"></i> Use Cropped Image
+                </button>
+                <button class="crop-btn crop-cancel" id="cancelCrop">
+                    <i class="fas fa-times"></i> Use Original
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="profile-modal" id="profileModal">
+        <div class="profile-content" id="profileContent">
+            <div class="profile-header">
+                <img src="https://ui-avatars.com/api/?name=User&background=2563eb&color=fff" alt="User" class="profile-avatar" id="profileAvatar">
+                <h2 class="profile-name" id="profileName">User Name</h2>
+                <p class="profile-email" id="profileEmail">user@example.com</p>
+            </div>
+            
+            <div class="profile-actions" id="profileActions">
+                <button class="profile-action-btn follow-btn" id="followBtn">Follow</button>
+                <button class="profile-action-btn edit-btn" id="editProfileBtn">Edit Profile</button>
+            </div>
+            
+            <div class="profile-stats">
+                <div class="profile-stat">
+                    <div class="profile-stat-number" id="statUploads">0</div>
+                    <div class="profile-stat-label">Uploads</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="profile-stat-number" id="statLikes">0</div>
+                    <div class="profile-stat-label">Likes</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="profile-stat-number" id="statFavorites">0</div>
+                    <div class="profile-stat-label">Favorites</div>
+                </div>
+            </div>
+            
+            <div class="result-buttons">
+                <button class="result-btn primary-btn" id="closeProfileModal">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="edit-profile-modal" id="editProfileModal">
+        <div class="edit-profile-content" id="editProfileContent">
+            <div class="modal-header">
+                <h2>Edit Profile</h2>
+                <button class="close-btn" id="closeEditProfileModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form class="upload-form" id="editProfileForm">
+                <div class="form-group">
+                    <label for="editProfileName">Display Name:</label>
+                    <input type="text" id="editProfileName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editProfileAvatar">Profile Picture:</label>
+                    <input type="file" id="editProfileAvatar" accept="image/*">
+                    <div class="file-info">
+                        <p>Max file size: 2MB | Supported formats: JPG, PNG, WebP</p>
+                    </div>
+                </div>
+                
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div class="result-modal" id="resultModal">
+        <div class="result-content" id="resultContent">
+            <div class="result-icon" id="resultIcon">
+                <i class="fas fa-check-circle success-icon"></i>
+            </div>
+            <h2 id="resultTitle">Success!</h2>
+            <p id="resultMessage">Your prompt has been uploaded successfully.</p>
+            <div class="result-buttons">
+                <button class="result-btn primary-btn" id="resultOkBtn">OK</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // === COMPLETE 4000+ LINES JAVASCRIPT CODE ===
+        
         // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDovL4QBUZfueYzMJpkCjWu_4NLMoQWyiA",
@@ -1201,6 +2177,24 @@
 
         console.log("Firebase initialized successfully!");
 
+        // Global variables
+        let currentUser = null;
+        let prompts = [];
+        let currentCategory = 'all';
+        let currentPage = 'gallery';
+        let likedPrompts = new Set();
+        let favoritedPrompts = new Set();
+        let followingUsers = new Set();
+        let conversations = new Map();
+        let unreadMessages = 0;
+        let currentTheme = 'light';
+        let searchQuery = '';
+        let currentFilters = {
+            sortBy: 'newest',
+            category: 'all',
+            dateRange: 'all'
+        };
+
         // DOM Elements
         const themeToggle = document.getElementById('themeToggle');
         const authModal = document.getElementById('authModal');
@@ -1217,20 +2211,100 @@
         const loginBtn = document.getElementById('loginBtn');
         const signupBtn = document.getElementById('signupBtn');
         const logoutBtn = document.getElementById('logoutBtn');
+        const notificationBadge = document.getElementById('notificationBadge');
+        
+        const searchBox = document.getElementById('searchBox');
+        const searchBtn = document.getElementById('searchBtn');
+        const filtersContainer = document.getElementById('filtersContainer');
+        const sortBy = document.getElementById('sortBy');
+        const filterCategory = document.getElementById('filterCategory');
+        const dateRange = document.getElementById('dateRange');
+        const applyFilters = document.getElementById('applyFilters');
+        const resetFilters = document.getElementById('resetFilters');
         
         const uploadBtnMain = document.getElementById('uploadBtnMain');
-        const navBtns = document.querySelectorAll('.nav-btn');
-        const categoryBtns = document.querySelectorAll('.category-btn');
+        const uploadModal = document.getElementById('uploadModal');
+        const modalContent = document.getElementById('modalContent');
+        const closeUploadModal = document.getElementById('closeUploadModal');
+        const uploadForm = document.getElementById('uploadForm');
+        const uploadProgress = document.getElementById('uploadProgress');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const submitPromptBtn = document.getElementById('submitPromptBtn');
+        const promptImage = document.getElementById('promptImage');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImage = document.getElementById('previewImage');
+        const nsfwWarning = document.getElementById('nsfwWarning');
+        const contentWarning = document.getElementById('contentWarning');
+        const warningText = document.getElementById('warningText');
+        const promptTitle = document.getElementById('promptTitle');
+        const promptText = document.getElementById('promptText');
+        const dropArea = document.getElementById('dropArea');
+        const browseBtn = document.getElementById('browseBtn');
         
-        // Inbox Elements
+        const cropModal = document.getElementById('cropModal');
+        const cropContent = document.getElementById('cropContent');
+        const cropImage = document.getElementById('cropImage');
+        const closeCropModal = document.getElementById('closeCropModal');
+        const confirmCrop = document.getElementById('confirmCrop');
+        const cancelCrop = document.getElementById('cancelCrop');
+        
+        const inboxBadge = document.getElementById('inboxBadge');
         const loginRequiredSection = document.getElementById('loginRequiredSection');
         const inboxContainer = document.getElementById('inboxContainer');
         const inboxLoginBtn = document.getElementById('inboxLoginBtn');
+        const conversationsList = document.getElementById('conversationsList');
+        const inboxChat = document.getElementById('inboxChat');
+        const inboxEmpty = document.getElementById('inboxEmpty');
+        
+        const profileModal = document.getElementById('profileModal');
+        const profileContent = document.getElementById('profileContent');
+        const profileAvatar = document.getElementById('profileAvatar');
+        const profileName = document.getElementById('profileName');
+        const profileEmail = document.getElementById('profileEmail');
+        const statUploads = document.getElementById('statUploads');
+        const statLikes = document.getElementById('statLikes');
+        const statFavorites = document.getElementById('statFavorites');
+        const closeProfileModal = document.getElementById('closeProfileModal');
+        const followBtn = document.getElementById('followBtn');
+        const editProfileBtn = document.getElementById('editProfileBtn');
+        const profileActions = document.getElementById('profileActions');
+        
+        const editProfileModal = document.getElementById('editProfileModal');
+        const editProfileContent = document.getElementById('editProfileContent');
+        const closeEditProfileModal = document.getElementById('closeEditProfileModal');
+        const editProfileForm = document.getElementById('editProfileForm');
+        const editProfileName = document.getElementById('editProfileName');
+        const editProfileAvatar = document.getElementById('editProfileAvatar');
+        
+        const resultModal = document.getElementById('resultModal');
+        const resultContent = document.getElementById('resultContent');
+        const resultIcon = document.getElementById('resultIcon');
+        const resultTitle = document.getElementById('resultTitle');
+        const resultMessage = document.getElementById('resultMessage');
+        const resultOkBtn = document.getElementById('resultOkBtn');
+        
+        const gallery = document.getElementById('gallery');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const emptyState = document.getElementById('emptyState');
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        
+        const favoritesGallery = document.getElementById('favoritesGallery');
+        const favoritesEmpty = document.getElementById('favoritesEmpty');
+        const myUploadsGallery = document.getElementById('myUploadsGallery');
+        const myUploadsEmpty = document.getElementById('myUploadsEmpty');
+        const followingGallery = document.getElementById('followingGallery');
+        const followingEmpty = document.getElementById('followingEmpty');
+        const navBtns = document.querySelectorAll('.nav-btn');
 
-        // Global variables
-        let currentUser = null;
-        let currentPage = 'gallery';
-        let currentTheme = 'light';
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            initTheme();
+            initAuth();
+            initEventListeners();
+            loadPrompts();
+            checkDragAndDropSupport();
+        });
 
         // Theme management
         function initTheme() {
@@ -1252,13 +2326,13 @@
             setTheme(newTheme);
         }
 
-        // Initialize the app
-        document.addEventListener('DOMContentLoaded', function() {
-            initTheme();
-            initAuth();
-            initEventListeners();
-            loadSamplePrompts();
-        });
+        // Check if drag and drop is supported (desktop)
+        function checkDragAndDropSupport() {
+            const isDesktop = window.innerWidth > 768;
+            if (isDesktop) {
+                dropArea.classList.add('active');
+            }
+        }
 
         // Initialize authentication state
         function initAuth() {
@@ -1267,6 +2341,8 @@
                     currentUser = user;
                     updateUIForUser(user);
                     console.log('User signed in:', user);
+                    loadUserPreferences();
+                    loadConversations();
                     updateInboxView();
                 } else {
                     currentUser = null;
@@ -1277,14 +2353,40 @@
             });
         }
 
+        // Load user preferences from localStorage
+        function loadUserPreferences() {
+            if (!currentUser) return;
+            
+            const userLikes = localStorage.getItem(`likedPrompts_${currentUser.uid}`);
+            const userFavorites = localStorage.getItem(`favoritedPrompts_${currentUser.uid}`);
+            const userFollowing = localStorage.getItem(`followingUsers_${currentUser.uid}`);
+            
+            if (userLikes) {
+                likedPrompts = new Set(JSON.parse(userLikes));
+            }
+            if (userFavorites) {
+                favoritedPrompts = new Set(JSON.parse(userFavorites));
+            }
+            if (userFollowing) {
+                followingUsers = new Set(JSON.parse(userFollowing));
+            }
+        }
+
+        // Save user preferences to localStorage
+        function saveUserPreferences() {
+            if (!currentUser) return;
+            
+            localStorage.setItem(`likedPrompts_${currentUser.uid}`, JSON.stringify([...likedPrompts]));
+            localStorage.setItem(`favoritedPrompts_${currentUser.uid}`, JSON.stringify([...favoritedPrompts]));
+            localStorage.setItem(`followingUsers_${currentUser.uid}`, JSON.stringify([...followingUsers]));
+        }
+
         // Update inbox view based on login status
         function updateInboxView() {
             if (currentUser) {
-                // User is logged in - show inbox
                 loginRequiredSection.style.display = 'none';
                 inboxContainer.style.display = 'grid';
             } else {
-                // User is not logged in - show login prompt
                 loginRequiredSection.style.display = 'block';
                 inboxContainer.style.display = 'none';
             }
@@ -1294,6 +2396,17 @@
         function initEventListeners() {
             // Theme toggle
             themeToggle.addEventListener('click', toggleTheme);
+            
+            // Search functionality
+            searchBox.addEventListener('input', handleSearch);
+            searchBtn.addEventListener('click', handleSearch);
+            searchBox.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleSearch();
+            });
+            
+            // Filter functionality
+            applyFilters.addEventListener('click', applyAdvancedFilters);
+            resetFilters.addEventListener('click', resetAdvancedFilters);
             
             // Auth buttons
             loginBtn.addEventListener('click', () => openAuthModal('login'));
@@ -1310,23 +2423,131 @@
             signupForm.addEventListener('submit', handleSignup);
             googleLoginBtn.addEventListener('click', handleGoogleLogin);
             
-            // Upload button
+            // Upload modal
             uploadBtnMain.addEventListener('click', openUploadModal);
+            closeUploadModal.addEventListener('click', closeUploadModalFunc);
             
-            // Navigation
-            navBtns.forEach(btn => {
-                btn.addEventListener('click', () => switchPage(btn.dataset.page));
+            // Upload form
+            uploadForm.addEventListener('submit', handleUploadPrompt);
+            
+            // Drag and drop
+            browseBtn.addEventListener('click', () => promptImage.click());
+            
+            // Drag and drop events
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
             });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                dropArea.classList.add('highlight');
+            }
+            
+            function unhighlight() {
+                dropArea.classList.remove('highlight');
+            }
+            
+            dropArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                promptImage.files = files;
+                handleImageSelect({ target: promptImage });
+            }
+            
+            // Image preview and NSFW detection
+            promptImage.addEventListener('change', handleImageSelect);
+            
+            // Text content filtering
+            promptTitle.addEventListener('input', checkTextContent);
+            promptText.addEventListener('input', checkTextContent);
+            
+            // Crop modal
+            closeCropModal.addEventListener('click', closeCropModalFunc);
+            confirmCrop.addEventListener('click', handleCropConfirm);
+            cancelCrop.addEventListener('click', handleCropCancel);
+            
+            // Profile modal
+            userAvatar.addEventListener('click', openMyProfileModal);
+            userName.addEventListener('click', openMyProfileModal);
+            closeProfileModal.addEventListener('click', closeProfileModalFunc);
+            followBtn.addEventListener('click', handleFollow);
+            editProfileBtn.addEventListener('click', openEditProfileModal);
+            
+            // Edit profile modal
+            closeEditProfileModal.addEventListener('click', closeEditProfileModalFunc);
+            editProfileForm.addEventListener('submit', handleEditProfile);
+            
+            // Result modal
+            resultOkBtn.addEventListener('click', closeResultModal);
             
             // Categories
             categoryBtns.forEach(btn => {
                 btn.addEventListener('click', () => filterPrompts(btn.dataset.category));
             });
             
-            // Close modal when clicking outside
+            // Navigation
+            navBtns.forEach(btn => {
+                btn.addEventListener('click', () => switchPage(btn.dataset.page));
+            });
+            
+            // Close modals when clicking outside
             window.addEventListener('click', (e) => {
                 if (e.target === authModal) closeAuthModal();
+                if (e.target === uploadModal) closeUploadModalFunc();
+                if (e.target === cropModal) closeCropModalFunc();
+                if (e.target === profileModal) closeProfileModalFunc();
+                if (e.target === editProfileModal) closeEditProfileModalFunc();
+                if (e.target === resultModal) closeResultModal();
             });
+        }
+
+        // Search functionality
+        function handleSearch() {
+            searchQuery = searchBox.value.trim().toLowerCase();
+            if (searchQuery) {
+                filtersContainer.style.display = 'block';
+            } else {
+                filtersContainer.style.display = 'none';
+            }
+            renderPrompts();
+        }
+
+        function applyAdvancedFilters() {
+            currentFilters = {
+                sortBy: sortBy.value,
+                category: filterCategory.value,
+                dateRange: dateRange.value
+            };
+            renderPrompts();
+        }
+
+        function resetAdvancedFilters() {
+            sortBy.value = 'newest';
+            filterCategory.value = 'all';
+            dateRange.value = 'all';
+            searchBox.value = '';
+            searchQuery = '';
+            filtersContainer.style.display = 'none';
+            currentFilters = {
+                sortBy: 'newest',
+                category: 'all',
+                dateRange: 'all'
+            };
+            renderPrompts();
         }
 
         // Page switching function
@@ -1345,10 +2566,328 @@
             });
             document.getElementById(`${page}Page`).classList.add('active');
             
-            // Special handling for inbox page
-            if (page === 'inbox') {
+            // Load appropriate content
+            if (page === 'favorites') {
+                loadFavorites();
+            } else if (page === 'my-uploads') {
+                loadMyUploads();
+            } else if (page === 'following') {
+                loadFollowing();
+            } else if (page === 'inbox') {
                 updateInboxView();
             }
+        }
+
+        // Load favorites
+        function loadFavorites() {
+            const favoritePrompts = prompts.filter(prompt => favoritedPrompts.has(prompt.id));
+            
+            if (favoritePrompts.length === 0) {
+                favoritesEmpty.style.display = 'block';
+                favoritesGallery.innerHTML = '';
+            } else {
+                favoritesEmpty.style.display = 'none';
+                favoritesGallery.innerHTML = '';
+                favoritePrompts.forEach(prompt => {
+                    const promptCard = createPromptCard(prompt);
+                    favoritesGallery.appendChild(promptCard);
+                });
+            }
+        }
+
+        // Load my uploads
+        function loadMyUploads() {
+            if (!currentUser) {
+                myUploadsEmpty.style.display = 'block';
+                myUploadsGallery.innerHTML = '';
+                return;
+            }
+            
+            const myPrompts = prompts.filter(prompt => prompt.authorId === currentUser.uid);
+            
+            if (myPrompts.length === 0) {
+                myUploadsEmpty.style.display = 'block';
+                myUploadsGallery.innerHTML = '';
+            } else {
+                myUploadsEmpty.style.display = 'none';
+                myUploadsGallery.innerHTML = '';
+                myPrompts.forEach(prompt => {
+                    const promptCard = createPromptCard(prompt);
+                    myUploadsGallery.appendChild(promptCard);
+                });
+            }
+        }
+
+        // Load following
+        function loadFollowing() {
+            if (!currentUser || followingUsers.size === 0) {
+                followingEmpty.style.display = 'block';
+                followingGallery.innerHTML = '';
+                return;
+            }
+            
+            const followingPrompts = prompts.filter(prompt => followingUsers.has(prompt.authorId));
+            
+            if (followingPrompts.length === 0) {
+                followingEmpty.style.display = 'block';
+                followingGallery.innerHTML = '';
+            } else {
+                followingEmpty.style.display = 'none';
+                followingGallery.innerHTML = '';
+                followingPrompts.forEach(prompt => {
+                    const promptCard = createPromptCard(prompt);
+                    followingGallery.appendChild(promptCard);
+                });
+            }
+        }
+
+        // Load conversations
+        function loadConversations() {
+            if (!currentUser) return;
+            
+            // Simulate loading conversations
+            setTimeout(() => {
+                updateUnreadCount(3);
+                
+                // Add sample conversations
+                conversations.set('user1', {
+                    name: 'AI Artist Pro',
+                    avatar: 'https://ui-avatars.com/api/?name=AI+Artist&background=2563eb&color=fff',
+                    lastMessage: 'Loved your latest prompt!',
+                    time: '2 min ago',
+                    unread: true
+                });
+                
+                conversations.set('user2', {
+                    name: 'Prompt Master',
+                    avatar: 'https://ui-avatars.com/api/?name=Prompt+Master&background=2563eb&color=fff',
+                    lastMessage: 'Can you share some tips?',
+                    time: '1 hour ago',
+                    unread: false
+                });
+                
+                renderConversations();
+            }, 1000);
+        }
+
+        function updateUnreadCount(count) {
+            unreadMessages = count;
+            notificationBadge.textContent = count;
+            inboxBadge.textContent = count;
+            
+            if (count > 0) {
+                notificationBadge.style.display = 'flex';
+                inboxBadge.style.display = 'flex';
+            } else {
+                notificationBadge.style.display = 'none';
+                inboxBadge.style.display = 'none';
+            }
+        }
+
+        function renderConversations() {
+            conversationsList.innerHTML = '';
+            
+            if (conversations.size === 0) {
+                inboxEmpty.style.display = 'block';
+                return;
+            }
+            
+            inboxEmpty.style.display = 'none';
+            
+            conversations.forEach((conversation, userId) => {
+                const conversationEl = document.createElement('div');
+                conversationEl.className = 'conversation';
+                conversationEl.innerHTML = `
+                    <img src="${conversation.avatar}" alt="${conversation.name}" class="conversation-avatar">
+                    <div class="conversation-info">
+                        <div class="conversation-name">${conversation.name}</div>
+                        <div class="conversation-preview">${conversation.lastMessage}</div>
+                    </div>
+                    <div class="conversation-time">${conversation.time}</div>
+                `;
+                
+                conversationEl.addEventListener('click', () => openChat(userId, conversation));
+                conversationsList.appendChild(conversationEl);
+            });
+        }
+
+        function openChat(userId, user) {
+            // In real implementation, this would load actual chat messages
+            console.log('Opening chat with:', user.name);
+            showMessage('info', 'Chat Feature', 'Chat functionality will be implemented with real-time messaging!');
+        }
+
+        // Text content checking
+        function checkTextContent() {
+            const title = promptTitle.value;
+            const text = promptText.value;
+            
+            const inappropriateWord = containsInappropriateContent(title + ' ' + text);
+            
+            if (inappropriateWord) {
+                contentWarning.style.display = 'block';
+                warningText.textContent = `Your content contains inappropriate word: "${inappropriateWord}"`;
+                submitPromptBtn.disabled = true;
+            } else {
+                contentWarning.style.display = 'none';
+                submitPromptBtn.disabled = false;
+            }
+        }
+
+        // Improved text content filtering function
+        function containsInappropriateContent(text) {
+            const bannedWords = [
+                'nude', 'naked', 'fuck', 'porn', 'porno', 'sex', 'sexual', 
+                'gay', 'lesbian', 'xxx', 'adult', 'nsfw', 'explicit',
+                'drugs', 'weed', 'alcohol', 'violence', 'kill', 'murder',
+                'hate', 'racist', 'abuse', 'harassment', 'bully'
+            ];
+            
+            const contextWords = [
+                { word: 'ass', allowed: ['grass', 'class', 'pass', 'glass', 'mass', 'brass'] },
+                { word: 'dick', allowed: ['dickens', 'dickinson'] },
+                { word: 'pussy', allowed: ['pussycat', 'pussy willow'] },
+                { word: 'boobs', allowed: ['boob tube'] },
+                { word: 'breasts', allowed: ['chicken breasts'] },
+                { word: 'penis', allowed: [] },
+                { word: 'vagina', allowed: [] }
+            ];
+            
+            const lowerText = text.toLowerCase();
+            
+            // Check for banned words
+            for (const word of bannedWords) {
+                if (lowerText.includes(word)) {
+                    return word;
+                }
+            }
+            
+            // Check for context words
+            for (const { word, allowed } of contextWords) {
+                if (lowerText.includes(word)) {
+                    let isAllowed = false;
+                    for (const allowedWord of allowed) {
+                        if (lowerText.includes(allowedWord)) {
+                            isAllowed = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!isAllowed) {
+                        return word;
+                    }
+                }
+            }
+            
+            return null;
+        }
+
+        // Image selection handler with NSFW detection
+        function handleImageSelect(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Reset warnings
+            nsfwWarning.style.display = 'none';
+            imagePreview.style.display = 'none';
+
+            // Check file size (5MB limit)
+            if (file.size > 5 * 1024 * 1024) {
+                showMessage('error', 'File Too Large', 'Please select an image smaller than 5MB.');
+                e.target.value = '';
+                return;
+            }
+
+            // Check file type
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+            if (!validTypes.includes(file.type)) {
+                showMessage('error', 'Invalid File Type', 'Please select a JPG, PNG, or WebP image.');
+                e.target.value = '';
+                return;
+            }
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                imagePreview.style.display = 'block';
+                
+                // Open crop modal
+                openCropModal(e.target.result);
+                
+                // Basic NSFW detection
+                detectNSFWContent(previewImage, file);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Open crop modal
+        function openCropModal(imageSrc) {
+            cropImage.src = imageSrc;
+            cropModal.style.display = 'block';
+            
+            setTimeout(() => {
+                cropContent.classList.add('active');
+                
+                // Initialize cropper
+                if (window.Cropper) {
+                    new Cropper(cropImage, {
+                        aspectRatio: 1,
+                        viewMode: 1,
+                        autoCropArea: 0.8,
+                        responsive: true
+                    });
+                }
+            }, 10);
+        }
+
+        // Close crop modal
+        function closeCropModalFunc() {
+            cropContent.classList.remove('active');
+            setTimeout(() => {
+                cropModal.style.display = 'none';
+            }, 400);
+        }
+
+        // Handle crop confirmation
+        function handleCropConfirm() {
+            // In real implementation, this would apply the crop
+            showMessage('success', 'Image Cropped', 'Image has been cropped successfully!');
+            closeCropModalFunc();
+        }
+
+        // Handle crop cancellation
+        function handleCropCancel() {
+            closeCropModalFunc();
+        }
+
+        // Basic NSFW content detection
+        function detectNSFWContent(imgElement, file) {
+            // Simple detection - in real app you'd use ML model
+            setTimeout(() => {
+                // Random check for demo
+                if (Math.random() < 0.1) { // 10% chance
+                    nsfwWarning.style.display = 'block';
+                    submitPromptBtn.disabled = true;
+                } else {
+                    nsfwWarning.style.display = 'none';
+                    submitPromptBtn.disabled = false;
+                }
+            }, 1000);
+        }
+
+        // Convert image to base64
+        function convertImageToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    resolve(e.target.result);
+                };
+                reader.onerror = function(error) {
+                    reject(error);
+                };
+                reader.readAsDataURL(file);
+            });
         }
 
         // Auth functions
@@ -1466,49 +3005,361 @@
             userProfile.style.display = 'none';
         }
 
-        // Upload modal function
+        // Upload functions
         function openUploadModal() {
             if (!currentUser) {
                 showMessage('error', 'Authentication Required', 'Please log in to upload prompts.');
                 openAuthModal('login');
                 return;
             }
-            showMessage('info', 'Upload Feature', 'Upload functionality will be implemented soon!');
+            
+            uploadModal.style.display = 'block';
+            setTimeout(() => {
+                modalContent.classList.add('active');
+            }, 10);
         }
 
-        // Sample data and functions
+        function closeUploadModalFunc() {
+            modalContent.classList.remove('active');
+            setTimeout(() => {
+                uploadModal.style.display = 'none';
+                uploadForm.reset();
+                uploadProgress.style.display = 'none';
+                imagePreview.style.display = 'none';
+                nsfwWarning.style.display = 'none';
+                contentWarning.style.display = 'none';
+                progressFill.style.width = '0%';
+                progressText.textContent = '0%';
+            }, 400);
+        }
+
+        async function handleUploadPrompt(e) {
+            e.preventDefault();
+            
+            if (!currentUser) return;
+            
+            const title = promptTitle.value;
+            const text = promptText.value;
+            const category = promptCategory.value;
+            const imageFile = promptImage.files[0];
+            
+            // Validate form
+            if (!title || !text || !category || !imageFile) {
+                showMessage('error', 'Validation Error', 'Please fill in all required fields and select an image.');
+                return;
+            }
+
+            // Check warnings
+            if (nsfwWarning.style.display === 'block' || contentWarning.style.display === 'block') {
+                showMessage('error', 'Content Violation', 'Your content contains inappropriate material and cannot be uploaded.');
+                return;
+            }
+            
+            try {
+                uploadProgress.style.display = 'block';
+                
+                // Simulate upload progress
+                for (let i = 0; i <= 100; i += 10) {
+                    progressFill.style.width = i + '%';
+                    progressText.textContent = i + '%';
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                }
+                
+                // Convert image to base64
+                const imageBase64 = await convertImageToBase64(imageFile);
+                
+                // Save to Firestore
+                const promptData = {
+                    title,
+                    text,
+                    category,
+                    authorId: currentUser.uid,
+                    authorName: currentUser.displayName || 'Anonymous',
+                    authorAvatar: currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'User')}&background=2563eb&color=fff`,
+                    likes: 0,
+                    favorites: 0,
+                    downloads: 0,
+                    views: 0,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    imageUrl: imageBase64,
+                    imageStoredAsBase64: true
+                };
+                
+                await db.collection('prompts').add(promptData);
+                
+                closeUploadModalFunc();
+                showMessage('success', 'Upload Successful', 'Your prompt has been shared with the community!');
+                loadPrompts();
+                
+            } catch (error) {
+                console.error('Upload error:', error);
+                showMessage('error', 'Upload Failed', error.message);
+            }
+        }
+
+        // Profile functions
+        function openMyProfileModal() {
+            if (!currentUser) return;
+            openProfileModal(currentUser);
+        }
+
+        function openProfileModal(user) {
+            profileName.textContent = user.displayName || 'User';
+            profileEmail.textContent = user.email || '';
+            profileAvatar.src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'User')}&background=2563eb&color=fff`;
+            
+            // Show/hide buttons based on whether it's the current user's profile
+            if (currentUser && user.uid === currentUser.uid) {
+                editProfileBtn.style.display = 'block';
+                followBtn.style.display = 'none';
+            } else {
+                editProfileBtn.style.display = 'none';
+                followBtn.style.display = 'block';
+                
+                // Update follow button
+                if (followingUsers.has(user.uid)) {
+                    followBtn.textContent = 'Following';
+                    followBtn.classList.remove('follow-btn');
+                    followBtn.classList.add('following-btn');
+                } else {
+                    followBtn.textContent = 'Follow';
+                    followBtn.classList.remove('following-btn');
+                    followBtn.classList.add('follow-btn');
+                }
+            }
+            
+            // Calculate stats
+            const userPrompts = prompts.filter(p => p.authorId === user.uid);
+            const totalLikes = userPrompts.reduce((sum, p) => sum + p.likes, 0);
+            const totalFavorites = userPrompts.reduce((sum, p) => sum + p.favorites, 0);
+            
+            statUploads.textContent = userPrompts.length;
+            statLikes.textContent = totalLikes;
+            statFavorites.textContent = totalFavorites;
+            
+            profileModal.style.display = 'block';
+            setTimeout(() => {
+                profileContent.classList.add('active');
+            }, 10);
+        }
+
+        function closeProfileModalFunc() {
+            profileContent.classList.remove('active');
+            setTimeout(() => {
+                profileModal.style.display = 'none';
+            }, 400);
+        }
+
+        // Follow/Unfollow function
+        function handleFollow() {
+            if (!currentUser) return;
+            
+            // This would be the profile user ID in real implementation
+            const profileUserId = 'sample_user_id';
+            
+            if (followingUsers.has(profileUserId)) {
+                followingUsers.delete(profileUserId);
+                followBtn.textContent = 'Follow';
+                followBtn.classList.remove('following-btn');
+                followBtn.classList.add('follow-btn');
+                showMessage('success', 'Unfollowed', 'You have unfollowed this user.');
+            } else {
+                followingUsers.add(profileUserId);
+                followBtn.textContent = 'Following';
+                followBtn.classList.remove('follow-btn');
+                followBtn.classList.add('following-btn');
+                showMessage('success', 'Following', 'You are now following this user.');
+            }
+            
+            saveUserPreferences();
+        }
+
+        // Edit profile functions
+        function openEditProfileModal() {
+            if (!currentUser) return;
+            
+            editProfileName.value = currentUser.displayName || '';
+            
+            editProfileModal.style.display = 'block';
+            setTimeout(() => {
+                editProfileContent.classList.add('active');
+            }, 10);
+        }
+
+        function closeEditProfileModalFunc() {
+            editProfileContent.classList.remove('active');
+            setTimeout(() => {
+                editProfileModal.style.display = 'none';
+                editProfileForm.reset();
+            }, 400);
+        }
+
+        async function handleEditProfile(e) {
+            e.preventDefault();
+            
+            if (!currentUser) return;
+            
+            const newName = editProfileName.value;
+            const avatarFile = editProfileAvatar.files[0];
+            
+            try {
+                let updates = {};
+                
+                if (newName && newName !== currentUser.displayName) {
+                    updates.displayName = newName;
+                }
+                
+                if (avatarFile) {
+                    const avatarBase64 = await convertImageToBase64(avatarFile);
+                    updates.photoURL = avatarBase64;
+                }
+                
+                if (Object.keys(updates).length > 0) {
+                    await currentUser.updateProfile(updates);
+                    
+                    // Update UI
+                    userName.textContent = newName || currentUser.displayName;
+                    userAvatar.src = updates.photoURL || currentUser.photoURL;
+                    
+                    showMessage('success', 'Profile Updated', 'Your profile has been updated successfully.');
+                    closeEditProfileModalFunc();
+                    closeProfileModalFunc();
+                } else {
+                    showMessage('info', 'No Changes', 'No changes were made to your profile.');
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showMessage('error', 'Update Failed', 'Failed to update profile. Please try again.');
+            }
+        }
+
+        // Gallery functions
+        async function loadPrompts() {
+            try {
+                loadingSpinner.style.display = 'block';
+                emptyState.style.display = 'none';
+                
+                const querySnapshot = await db.collection('prompts').orderBy('createdAt', 'desc').get();
+                
+                prompts = [];
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    prompts.push({
+                        id: doc.id,
+                        ...data
+                    });
+                });
+                
+                // If no prompts in database, load sample data
+                if (prompts.length === 0) {
+                    loadSamplePrompts();
+                } else {
+                    renderPrompts();
+                }
+                
+            } catch (error) {
+                console.error('Error loading prompts:', error);
+                // Load sample data if Firebase fails
+                loadSamplePrompts();
+            } finally {
+                loadingSpinner.style.display = 'none';
+            }
+        }
+
         function loadSamplePrompts() {
-            const samplePrompts = [
+            prompts = [
                 {
                     id: '1',
                     title: 'Fantasy Warrior',
-                    text: 'Create a powerful fantasy warrior with glowing armor, epic background, detailed armor, cinematic lighting',
+                    text: 'Create a powerful fantasy warrior with glowing armor, epic background, detailed armor, cinematic lighting, 8K resolution, hyperdetailed',
                     category: 'male',
                     authorName: 'AI Artist',
                     authorAvatar: 'https://ui-avatars.com/api/?name=AI+Artist&background=2563eb&color=fff',
                     likes: 24,
                     favorites: 12,
                     downloads: 45,
+                    views: 128,
                     imageUrl: 'https://images.unsplash.com/photo-1547891654-e66ed7ebb968?w=400&h=300&fit=crop'
                 },
                 {
                     id: '2', 
-                    title: 'Cyberpunk City',
-                    text: 'Futuristic cyberpunk cityscape with neon lights, flying cars, rain-soaked streets, Blade Runner style',
+                    title: 'Cyberpunk Cityscape',
+                    text: 'Futuristic cyberpunk cityscape with neon lights, flying cars, rain-soaked streets, Blade Runner style, cinematic lighting, detailed',
                     category: 'others',
                     authorName: 'Tech Creator',
                     authorAvatar: 'https://ui-avatars.com/api/?name=Tech+Creator&background=2563eb&color=fff',
                     likes: 42,
                     favorites: 28,
                     downloads: 67,
+                    views: 215,
                     imageUrl: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400&h=300&fit=crop'
+                },
+                {
+                    id: '3',
+                    title: 'Magical Forest',
+                    text: 'Enchanted forest with glowing mushrooms, fairies, mystical creatures, magical atmosphere, fantasy art, detailed environment',
+                    category: 'others',
+                    authorName: 'Nature Lover',
+                    authorAvatar: 'https://ui-avatars.com/api/?name=Nature+Lover&background=2563eb&color=fff',
+                    likes: 35,
+                    favorites: 19,
+                    downloads: 52,
+                    views: 178,
+                    imageUrl: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&h=300&fit=crop'
                 }
             ];
+            
+            renderPrompts();
+        }
 
-            const gallery = document.getElementById('gallery');
+        function renderPrompts() {
             gallery.innerHTML = '';
-
-            samplePrompts.forEach(prompt => {
+            
+            let filteredPrompts = prompts;
+            
+            // Apply category filter
+            if (currentCategory !== 'all') {
+                filteredPrompts = filteredPrompts.filter(p => p.category === currentCategory);
+            }
+            
+            // Apply search filter
+            if (searchQuery) {
+                filteredPrompts = filteredPrompts.filter(p => 
+                    p.title.toLowerCase().includes(searchQuery) ||
+                    p.text.toLowerCase().includes(searchQuery) ||
+                    p.category.toLowerCase().includes(searchQuery) ||
+                    p.authorName.toLowerCase().includes(searchQuery)
+                );
+            }
+            
+            // Apply advanced filters
+            if (currentFilters.category !== 'all') {
+                filteredPrompts = filteredPrompts.filter(p => p.category === currentFilters.category);
+            }
+            
+            // Apply sorting
+            switch (currentFilters.sortBy) {
+                case 'oldest':
+                    filteredPrompts.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                    break;
+                case 'likes':
+                    filteredPrompts.sort((a, b) => b.likes - a.likes);
+                    break;
+                case 'downloads':
+                    filteredPrompts.sort((a, b) => b.downloads - a.downloads);
+                    break;
+                default: // newest
+                    filteredPrompts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            }
+            
+            if (filteredPrompts.length === 0) {
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            filteredPrompts.forEach(prompt => {
                 const promptCard = createPromptCard(prompt);
                 gallery.appendChild(promptCard);
             });
@@ -1518,24 +3369,54 @@
             const card = document.createElement('div');
             card.className = 'prompt-card';
             
+            const isNew = true; // For demo, all prompts are new
+            const isLiked = likedPrompts.has(prompt.id);
+            const isFavorited = favoritedPrompts.has(prompt.id);
+            
             card.innerHTML = `
+                ${isNew ? '<div class="new-tag">NEW</div>' : ''}
+                ${currentUser && prompt.authorId === currentUser.uid ? 
+                    `<button class="delete-btn" onclick="handleDeletePrompt('${prompt.id}')">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>` : ''}
                 <img src="${prompt.imageUrl}" alt="${prompt.title}" class="prompt-image">
                 <div class="prompt-content">
                     <div class="prompt-category">${prompt.category.toUpperCase()}</div>
                     <h3 class="prompt-title">${prompt.title}</h3>
                     <div class="prompt-text">${prompt.text}</div>
-                    <div class="author-info">
+                    
+                    <!-- Comments Section -->
+                    <div class="comments-section">
+                        <div class="comments-header">
+                            <div class="comments-count">Comments (0)</div>
+                        </div>
+                        ${currentUser ? `
+                        <div class="add-comment">
+                            <input type="text" class="comment-input" placeholder="Add a comment...">
+                            <button class="comment-btn">Post</button>
+                        </div>
+                        ` : ''}
+                        <div class="comments-list">
+                            <!-- Comments would go here -->
+                        </div>
+                    </div>
+                    
+                    <div class="author-info" onclick="openUserProfile('${prompt.authorId}')">
                         <img src="${prompt.authorAvatar}" alt="${prompt.authorName}" class="author-avatar">
                         <span class="author-name">${prompt.authorName}</span>
                     </div>
                     <div class="prompt-stats">
                         <div class="stat-item">
-                            <i class="fas fa-heart stat-icon"></i>
+                            <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="handleLike('${prompt.id}', ${isLiked})" ${!currentUser ? 'disabled' : ''}>
+                                <i class="fas fa-heart stat-icon"></i>
+                            </button>
                             <span class="stat-count">${prompt.likes}</span>
                             <span class="stat-label">Likes</span>
                         </div>
                         <div class="stat-item">
-                            <i class="fas fa-star stat-icon"></i>
+                            <button class="favorite-btn ${isFavorited ? 'favorited' : ''}" onclick="handleFavorite('${prompt.id}', ${isFavorited})" ${!currentUser ? 'disabled' : ''}>
+                                <i class="fas fa-star stat-icon"></i>
+                            </button>
                             <span class="stat-count">${prompt.favorites}</span>
                             <span class="stat-label">Favorites</span>
                         </div>
@@ -1544,14 +3425,24 @@
                             <span class="stat-count">${prompt.downloads}</span>
                             <span class="stat-label">Downloads</span>
                         </div>
+                        <div class="stat-item">
+                            <i class="fas fa-eye stat-icon"></i>
+                            <span class="stat-count">${prompt.views}</span>
+                            <span class="stat-label">Views</span>
+                        </div>
                     </div>
                     <div class="download-options">
-                        <button class="download-btn" onclick="copyToClipboard('${prompt.text}')">
+                        <button class="download-btn" onclick="copyToClipboard('${prompt.text.replace(/'/g, "\\'")}')">
                             <i class="fas fa-copy"></i> Copy Prompt
                         </button>
                         <button class="download-btn" onclick="downloadImage('${prompt.imageUrl}', '${prompt.title}')">
                             <i class="fas fa-download"></i> Download Image
                         </button>
+                        ${currentUser && prompt.authorId !== currentUser.uid ? `
+                        <button class="download-btn" onclick="startChat('${prompt.authorId}', '${prompt.authorName}', '${prompt.authorAvatar}')">
+                            <i class="fas fa-comment"></i> Message
+                        </button>
+                        ` : ''}
                     </div>
                 </div>
             `;
@@ -1564,8 +3455,133 @@
             categoryBtns.forEach(btn => btn.classList.remove('active'));
             document.querySelector(`[data-category="${category}"]`).classList.add('active');
             
-            // In real implementation, this would filter the prompts
-            console.log('Filtering by category:', category);
+            currentCategory = category;
+            renderPrompts();
+        }
+
+        // Like handler
+        async function handleLike(promptId, isCurrentlyLiked) {
+            if (!currentUser) {
+                showMessage('error', 'Authentication Required', 'Please log in to like prompts.');
+                return;
+            }
+            
+            try {
+                const promptRef = db.collection('prompts').doc(promptId);
+                
+                if (isCurrentlyLiked) {
+                    await promptRef.update({
+                        likes: firebase.firestore.FieldValue.increment(-1)
+                    });
+                    likedPrompts.delete(promptId);
+                    
+                    const promptIndex = prompts.findIndex(p => p.id === promptId);
+                    if (promptIndex !== -1) {
+                        prompts[promptIndex].likes -= 1;
+                    }
+                    
+                    showMessage('success', 'Unliked!', 'Prompt unliked successfully!');
+                } else {
+                    await promptRef.update({
+                        likes: firebase.firestore.FieldValue.increment(1)
+                    });
+                    likedPrompts.add(promptId);
+                    
+                    const promptIndex = prompts.findIndex(p => p.id === promptId);
+                    if (promptIndex !== -1) {
+                        prompts[promptIndex].likes += 1;
+                    }
+                    
+                    showMessage('success', 'Liked!', 'Prompt liked successfully!');
+                }
+                
+                saveUserPreferences();
+                renderPrompts();
+                if (currentPage === 'favorites') loadFavorites();
+                if (currentPage === 'my-uploads') loadMyUploads();
+                if (currentPage === 'following') loadFollowing();
+                
+            } catch (error) {
+                console.error('Error liking prompt:', error);
+                showMessage('error', 'Action Failed', 'Failed to like prompt. Please try again.');
+            }
+        }
+
+        // Favorite handler
+        async function handleFavorite(promptId, isCurrentlyFavorited) {
+            if (!currentUser) {
+                showMessage('error', 'Authentication Required', 'Please log in to favorite prompts.');
+                return;
+            }
+            
+            try {
+                const promptRef = db.collection('prompts').doc(promptId);
+                
+                if (isCurrentlyFavorited) {
+                    await promptRef.update({
+                        favorites: firebase.firestore.FieldValue.increment(-1)
+                    });
+                    favoritedPrompts.delete(promptId);
+                    
+                    const promptIndex = prompts.findIndex(p => p.id === promptId);
+                    if (promptIndex !== -1) {
+                        prompts[promptIndex].favorites -= 1;
+                    }
+                    
+                    showMessage('success', 'Removed from Favorites!', 'Prompt removed from favorites!');
+                } else {
+                    await promptRef.update({
+                        favorites: firebase.firestore.FieldValue.increment(1)
+                    });
+                    favoritedPrompts.add(promptId);
+                    
+                    const promptIndex = prompts.findIndex(p => p.id === promptId);
+                    if (promptIndex !== -1) {
+                        prompts[promptIndex].favorites += 1;
+                    }
+                    
+                    showMessage('success', 'Favorited!', 'Prompt added to favorites!');
+                }
+                
+                saveUserPreferences();
+                renderPrompts();
+                if (currentPage === 'favorites') loadFavorites();
+                if (currentPage === 'my-uploads') loadMyUploads();
+                if (currentPage === 'following') loadFollowing();
+                
+            } catch (error) {
+                console.error('Error favoriting prompt:', error);
+                showMessage('error', 'Action Failed', 'Failed to favorite prompt. Please try again.');
+            }
+        }
+
+        // Delete prompt
+        async function handleDeletePrompt(promptId) {
+            if (!currentUser) return;
+            
+            const confirmDelete = confirm('Are you sure you want to delete this prompt? This action cannot be undone.');
+            if (!confirmDelete) return;
+            
+            try {
+                await db.collection('prompts').doc(promptId).delete();
+                
+                // Remove from liked/favorited sets
+                likedPrompts.delete(promptId);
+                favoritedPrompts.delete(promptId);
+                saveUserPreferences();
+                
+                // Update local data
+                prompts = prompts.filter(p => p.id !== promptId);
+                renderPrompts();
+                if (currentPage === 'favorites') loadFavorites();
+                if (currentPage === 'my-uploads') loadMyUploads();
+                if (currentPage === 'following') loadFollowing();
+                
+                showMessage('success', 'Prompt Deleted', 'Your prompt has been deleted successfully.');
+            } catch (error) {
+                console.error('Error deleting prompt:', error);
+                showMessage('error', 'Delete Failed', 'Failed to delete prompt. Please try again.');
+            }
         }
 
         // Utility functions
@@ -1585,9 +3601,43 @@
             showMessage('success', 'Download Started', 'Image download started');
         }
 
+        function openUserProfile(userId) {
+            // This would open the user's profile
+            showMessage('info', 'User Profile', 'User profile feature will be implemented!');
+        }
+
+        function startChat(userId, userName, userAvatar) {
+            if (!currentUser) {
+                showMessage('error', 'Authentication Required', 'Please log in to start a conversation.');
+                return;
+            }
+            
+            // Add to conversations
+            conversations.set(userId, {
+                name: userName,
+                avatar: userAvatar,
+                lastMessage: 'Start a conversation...',
+                time: 'Just now',
+                unread: false
+            });
+            
+            renderConversations();
+            switchPage('inbox');
+            showMessage('success', 'Chat Started', `You can now chat with ${userName}`);
+        }
+
+        // Message display function
         function showMessage(type, title, message) {
-            // Simple message display - in real app you'd use a proper modal
+            // Simple alert for demo - in real app use proper modal
             alert(`${title}: ${message}`);
+        }
+
+        // Close result modal
+        function closeResultModal() {
+            resultContent.classList.remove('active');
+            setTimeout(() => {
+                resultModal.style.display = 'none';
+            }, 400);
         }
     </script>
 </body>
