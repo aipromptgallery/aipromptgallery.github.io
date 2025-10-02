@@ -28,7 +28,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, orderBy, query, onSnapshot, deleteDoc, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, sendEmailVerification, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
         
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -44,20 +43,19 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
-        const storage = getStorage(app);
         const googleProvider = new GoogleAuthProvider();
         
         // Make Firebase available globally
         window.firebaseApp = { 
-            db, auth, storage, googleProvider,
+            db, auth, googleProvider,
             collection, addDoc, getDocs, orderBy, query, onSnapshot, deleteDoc, doc, updateDoc, increment,
             createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile,
-            sendEmailVerification, signInWithPopup, ref, uploadBytesResumable, getDownloadURL
+            sendEmailVerification, signInWithPopup
         };
         
         // Set a flag to indicate Firebase is ready
         window.firebaseReady = true;
-        console.log("Firebase initialized successfully with Authentication!");
+        console.log("Firebase initialized successfully!");
         
         // Dispatch a custom event to notify that Firebase is ready
         document.dispatchEvent(new Event('firebaseReady'));
@@ -1404,10 +1402,10 @@
             
             // Firebase imports
             const {
-                db, auth, storage, googleProvider,
+                db, auth, googleProvider,
                 collection, addDoc, getDocs, orderBy, query, onSnapshot, deleteDoc, doc, updateDoc, increment,
                 createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile,
-                sendEmailVerification, signInWithPopup, ref, uploadBytesResumable, getDownloadURL
+                sendEmailVerification, signInWithPopup
             } = window.firebaseApp;
 
             // Global variables
@@ -1416,7 +1414,6 @@
             let currentCategory = 'all';
             let otpTimerInterval;
             let isUploading = false;
-            let progressInterval;
 
             // Text content filtering function
             function containsInappropriateContent(text) {
@@ -1607,6 +1604,20 @@
                 };
             }
 
+            // Convert image to base64
+            function convertImageToBase64(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        resolve(e.target.result);
+                    };
+                    reader.onerror = function(error) {
+                        reject(error);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
             // Auth functions
             function openAuthModal(tab = 'login') {
                 authModal.style.display = 'block';
@@ -1771,7 +1782,7 @@
                 userProfile.style.display = 'none';
             }
 
-            // Upload functions - COMPLETELY FIXED VERSION
+            // Upload functions - REAL PROGRESS WITH BASE64
             function openUploadModal() {
                 if (!currentUser) {
                     showResultModal('error', 'Authentication Required', 'Please log in to upload prompts.');
@@ -1796,12 +1807,8 @@
                     contentWarning.style.display = 'none';
                     isUploading = false;
                     submitPromptBtn.disabled = false;
-                    
-                    // Clear any existing progress interval
-                    if (progressInterval) {
-                        clearInterval(progressInterval);
-                        progressInterval = null;
-                    }
+                    progressFill.style.width = '0%';
+                    progressText.textContent = '0%';
                 }, 400);
             }
 
@@ -1841,27 +1848,21 @@
                 try {
                     uploadProgress.style.display = 'block';
                     
-                    // FIXED PROGRESS SIMULATION - 100% TAK PAHUNCHEGA
-                    let progress = 0;
-                    progressInterval = setInterval(() => {
-                        if (progress < 70) {
-                            progress += 10;
-                        } else if (progress < 90) {
-                            progress += 5;
-                        } else if (progress < 100) {
-                            progress += 2;
-                        } else {
-                            clearInterval(progressInterval);
-                        }
-                        
-                        progressFill.style.width = `${progress}%`;
-                        progressText.textContent = `${progress}%`;
-                    }, 200);
+                    // **REAL PROGRESS - NO FAKE SIMULATION**
+                    console.log('Starting upload process...');
                     
-                    // REAL IMAGE UPLOAD TO FIREBASE STORAGE
-                    const imageUrl = await uploadImageToFirebase(imageFile);
+                    // Step 1: Convert image to base64 with progress
+                    progressFill.style.width = '30%';
+                    progressText.textContent = '30%';
+                    console.log('Converting image to base64...');
                     
-                    // Prepare prompt data
+                    const imageBase64 = await convertImageToBase64(imageFile);
+                    
+                    progressFill.style.width = '60%';
+                    progressText.textContent = '60%';
+                    console.log('Image converted successfully');
+                    
+                    // Step 2: Save to Firestore
                     const promptData = {
                         title,
                         text,
@@ -1873,16 +1874,20 @@
                         favorites: 0,
                         downloads: 0,
                         createdAt: new Date(),
-                        imageUrl: imageUrl
+                        imageUrl: imageBase64, // Store as base64
+                        imageStoredAsBase64: true // Flag to identify base64 images
                     };
                     
-                    // Add to Firestore
+                    progressFill.style.width = '80%';
+                    progressText.textContent = '80%';
+                    console.log('Saving to Firestore...');
+                    
                     await addDoc(collection(db, 'prompts'), promptData);
                     
-                    // Complete progress - GUARANTEED 100%
-                    clearInterval(progressInterval);
+                    // **REAL 100% COMPLETE**
                     progressFill.style.width = '100%';
                     progressText.textContent = '100%';
+                    console.log('Upload completed successfully!');
                     
                     // Wait a moment to show 100%
                     await new Promise(resolve => setTimeout(resolve, 500));
@@ -1894,52 +1899,14 @@
                 } catch (error) {
                     console.error('Upload error:', error);
                     showResultModal('error', 'Upload Failed', error.message);
+                    
+                    // Reset progress on error
+                    progressFill.style.width = '0%';
+                    progressText.textContent = '0%';
                 } finally {
                     isUploading = false;
                     submitPromptBtn.disabled = false;
-                    if (progressInterval) {
-                        clearInterval(progressInterval);
-                        progressInterval = null;
-                    }
                 }
-            }
-
-            // REAL Firebase Storage Upload Function
-            function uploadImageToFirebase(file) {
-                return new Promise((resolve, reject) => {
-                    // Create a unique filename
-                    const filename = `prompt_${Date.now()}_${file.name}`;
-                    const storageRef = ref(storage, `prompt-images/${filename}`);
-                    
-                    // Upload file with progress tracking
-                    const uploadTask = uploadBytesResumable(storageRef, file);
-                    
-                    uploadTask.on('state_changed',
-                        (snapshot) => {
-                            // Real upload progress
-                            const realProgress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                            console.log('Upload is ' + realProgress + '% done');
-                            
-                            // Update progress bar with real progress
-                            progressFill.style.width = `${realProgress}%`;
-                            progressText.textContent = `${Math.round(realProgress)}%`;
-                        },
-                        (error) => {
-                            console.error('Upload failed:', error);
-                            reject(error);
-                        },
-                        async () => {
-                            // Upload completed successfully, get download URL
-                            try {
-                                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                                console.log('File available at:', downloadURL);
-                                resolve(downloadURL);
-                            } catch (error) {
-                                reject(error);
-                            }
-                        }
-                    );
-                });
             }
 
             // Profile functions
@@ -2028,17 +1995,16 @@
                 // Check if prompt is new (created in last 24 hours)
                 const isNew = (new Date() - new Date(prompt.createdAt)) < 24 * 60 * 60 * 1000;
                 
+                // Handle base64 images
+                const imageSrc = prompt.imageUrl || 'https://via.placeholder.com/400x300?text=No+Image';
+                
                 card.innerHTML = `
                     ${isNew ? '<div class="new-tag">NEW</div>' : ''}
                     ${currentUser && prompt.authorId === currentUser.uid ? 
                         `<button class="delete-btn" data-id="${prompt.id}">
                             <i class="fas fa-trash"></i> Delete
                         </button>` : ''}
-                    ${prompt.imageUrl ? 
-                        `<img src="${prompt.imageUrl}" alt="${prompt.title}" class="prompt-image">` : 
-                        `<div class="prompt-image" style="background: var(--gradient); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem;">
-                            <i class="fas fa-image"></i>
-                        </div>`}
+                    <img src="${imageSrc}" alt="${prompt.title}" class="prompt-image">
                     <div class="prompt-content">
                         <div class="prompt-category">${prompt.category.toUpperCase()}</div>
                         <h3>${prompt.title}</h3>
@@ -2072,7 +2038,7 @@
                             <button class="download-btn" data-id="${prompt.id}" data-type="text">
                                 <i class="fas fa-copy"></i> Copy Prompt
                             </button>
-                            <button class="download-btn" data-id="${prompt.id}" data-type="image" ${!prompt.imageUrl ? 'disabled' : ''}>
+                            <button class="download-btn" data-id="${prompt.id}" data-type="image">
                                 <i class="fas fa-download"></i> Download Image
                             </button>
                         </div>
@@ -2098,7 +2064,7 @@
                 }
                 
                 downloadBtns.forEach(btn => {
-                    btn.addEventListener('click', () => handleDownload(prompt.id, btn.dataset.type));
+                    btn.addEventListener('click', () => handleDownload(prompt.id, btn.dataset.type, prompt));
                 });
                 
                 return card;
@@ -2181,10 +2147,7 @@
                 }
             }
 
-            function handleDownload(promptId, type) {
-                const prompt = prompts.find(p => p.id === promptId);
-                if (!prompt) return;
-                
+            function handleDownload(promptId, type, prompt) {
                 if (type === 'text') {
                     // Copy prompt text to clipboard
                     navigator.clipboard.writeText(prompt.text)
@@ -2207,8 +2170,8 @@
                             console.error('Failed to copy text: ', err);
                             showResultModal('error', 'Copy Failed', 'Failed to copy prompt text.');
                         });
-                } else if (type === 'image' && prompt.imageUrl) {
-                    // Download image
+                } else if (type === 'image') {
+                    // Download image (works for both URL and base64)
                     const link = document.createElement('a');
                     link.href = prompt.imageUrl;
                     link.download = `ai-prompt-${prompt.title}.jpg`;
