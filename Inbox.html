@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Prompt Gallery | Inbox</title>
+    <title>AI Prompt Gallery | Messages</title>
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -37,9 +37,8 @@
             --shadow: 0 8px 30px rgba(0,0,0,0.08);
             --radius: 16px;
             --transition: all 0.3s ease;
-            --chat-bg: #f1f5f9;
             --message-sent: #3b82f6;
-            --message-received: #ffffff;
+            --message-received: #f1f5f9;
         }
 
         [data-theme="dark"] {
@@ -47,7 +46,6 @@
             --dark: #f8fafc;
             --card-bg: #1e293b;
             --secondary: #94a3b8;
-            --chat-bg: #1e293b;
             --message-received: #334155;
         }
 
@@ -119,6 +117,9 @@
         }
 
         .user-profile {
+            position: absolute;
+            top: 20px;
+            right: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -189,8 +190,8 @@
             transform: translateY(-2px);
         }
 
-        /* Chat System Styles */
-        .chat-container {
+        /* Inbox Container */
+        .inbox-container {
             display: flex;
             height: 70vh;
             background: var(--card-bg);
@@ -199,14 +200,15 @@
             overflow: hidden;
         }
 
-        .chat-sidebar {
+        /* Conversations Sidebar */
+        .conversations-sidebar {
             width: 350px;
             border-right: 1px solid var(--light);
             display: flex;
             flex-direction: column;
         }
 
-        .chat-header {
+        .conversations-header {
             padding: 20px;
             border-bottom: 1px solid var(--light);
             display: flex;
@@ -214,12 +216,12 @@
             align-items: center;
         }
 
-        .chat-header h2 {
+        .conversations-header h2 {
             color: var(--dark);
             font-size: 1.5rem;
         }
 
-        .new-chat-btn {
+        .new-conversation-btn {
             background: var(--primary);
             color: white;
             border: none;
@@ -233,17 +235,17 @@
             justify-content: center;
         }
 
-        .new-chat-btn:hover {
+        .new-conversation-btn:hover {
             background: var(--primary-dark);
             transform: scale(1.1);
         }
 
-        .chat-search {
+        .conversations-search {
             padding: 15px;
             border-bottom: 1px solid var(--light);
         }
 
-        .chat-search-input {
+        .conversations-search-input {
             width: 100%;
             padding: 12px 15px;
             border: 2px solid var(--light);
@@ -254,18 +256,18 @@
             transition: var(--transition);
         }
 
-        .chat-search-input:focus {
+        .conversations-search-input:focus {
             outline: none;
             border-color: var(--primary);
         }
 
-        .chat-list {
+        .conversations-list {
             flex: 1;
             overflow-y: auto;
             padding: 10px 0;
         }
 
-        .chat-item {
+        .conversation-item {
             display: flex;
             align-items: center;
             gap: 15px;
@@ -275,21 +277,21 @@
             border-bottom: 1px solid var(--light);
         }
 
-        .chat-item:hover {
+        .conversation-item:hover {
             background: var(--light);
         }
 
-        .chat-item.active {
+        .conversation-item.active {
             background: var(--primary-light);
             color: white;
         }
 
-        .chat-item.active .chat-name,
-        .chat-item.active .chat-last-message {
+        .conversation-item.active .conversation-name,
+        .conversation-item.active .conversation-last-message {
             color: white;
         }
 
-        .chat-avatar {
+        .conversation-avatar {
             width: 50px;
             height: 50px;
             border-radius: 50%;
@@ -297,12 +299,12 @@
             border: 2px solid var(--primary);
         }
 
-        .chat-info {
+        .conversation-info {
             flex: 1;
             min-width: 0;
         }
 
-        .chat-name {
+        .conversation-name {
             font-weight: 600;
             color: var(--dark);
             margin-bottom: 5px;
@@ -311,7 +313,7 @@
             text-overflow: ellipsis;
         }
 
-        .chat-last-message {
+        .conversation-last-message {
             color: var(--secondary);
             font-size: 0.9rem;
             white-space: nowrap;
@@ -319,7 +321,7 @@
             text-overflow: ellipsis;
         }
 
-        .chat-meta {
+        .conversation-meta {
             text-align: right;
             display: flex;
             flex-direction: column;
@@ -327,12 +329,12 @@
             gap: 5px;
         }
 
-        .chat-time {
+        .conversation-time {
             font-size: 0.8rem;
             color: var(--secondary);
         }
 
-        .chat-unread {
+        .conversation-unread {
             background: var(--primary);
             color: white;
             border-radius: 50%;
@@ -345,17 +347,66 @@
             font-weight: 600;
         }
 
-        .chat-main {
+        /* Chat Area */
+        .chat-area {
             flex: 1;
             display: flex;
             flex-direction: column;
         }
 
-        .chat-messages {
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--light);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .chat-user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .chat-user-info {
+            flex: 1;
+        }
+
+        .chat-user-name {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 1.2rem;
+        }
+
+        .chat-user-status {
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+
+        .chat-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-action-btn {
+            background: none;
+            border: none;
+            color: var(--secondary);
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+
+        .chat-action-btn:hover {
+            color: var(--primary);
+        }
+
+        .messages-container {
             flex: 1;
             padding: 20px;
             overflow-y: auto;
-            background: var(--chat-bg);
+            background: var(--light);
             display: flex;
             flex-direction: column;
             gap: 15px;
@@ -395,13 +446,6 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        .message-sender {
-            font-weight: 600;
-            font-size: 0.8rem;
-            margin-bottom: 5px;
-            opacity: 0.8;
-        }
-
         .message-text {
             line-height: 1.4;
             word-wrap: break-word;
@@ -418,7 +462,7 @@
             text-align: left;
         }
 
-        .chat-input-container {
+        .message-input-container {
             padding: 20px;
             border-top: 1px solid var(--light);
             display: flex;
@@ -426,7 +470,7 @@
             align-items: flex-end;
         }
 
-        .chat-input {
+        .message-input {
             flex: 1;
             padding: 12px 15px;
             border: 2px solid var(--light);
@@ -439,7 +483,7 @@
             transition: var(--transition);
         }
 
-        .chat-input:focus {
+        .message-input:focus {
             outline: none;
             border-color: var(--primary);
         }
@@ -489,6 +533,64 @@
         .empty-chat h3 {
             margin-bottom: 10px;
             font-size: 1.5rem;
+        }
+
+        /* Profile Logo */
+        .profile-logo {
+            position: fixed;
+            bottom: 100px;
+            right: 40px;
+            z-index: 1000;
+        }
+
+        .profile-logo-btn {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-logo-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(37, 99, 235, 0.6);
+        }
+
+        /* Upload Button */
+        .upload-container {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            z-index: 1000;
+        }
+
+        .upload-btn-main {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-btn-main:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 6px 25px rgba(37, 99, 235, 0.6);
         }
 
         /* Modals */
@@ -548,167 +650,7 @@
             transform: rotate(90deg);
         }
 
-        .auth-tabs {
-            display: flex;
-            margin-bottom: 25px;
-            border-bottom: 2px solid var(--light);
-            border-radius: var(--radius);
-            overflow: hidden;
-        }
-
-        .auth-tab {
-            flex: 1;
-            padding: 15px;
-            text-align: center;
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: var(--secondary);
-            font-weight: 600;
-            transition: var(--transition);
-            position: relative;
-        }
-
-        .auth-tab.active {
-            color: var(--primary);
-        }
-
-        .auth-tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--primary);
-            border-radius: 3px;
-        }
-
-        .auth-form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .form-label {
-            font-weight: 600;
-            color: var(--dark);
-            font-size: 0.9rem;
-        }
-
-        .form-input, .form-textarea {
-            padding: 12px 15px;
-            border: 2px solid var(--light);
-            border-radius: var(--radius);
-            background: var(--light);
-            color: var(--dark);
-            font-size: 1rem;
-            transition: var(--transition);
-            resize: vertical;
-        }
-
-        .form-input:focus, .form-textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        .auth-submit-btn {
-            background: var(--gradient);
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: var(--transition);
-            font-weight: 600;
-            font-size: 1rem;
-            margin-top: 10px;
-        }
-
-        .auth-submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
-        }
-
-        .form-options {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9rem;
-        }
-
-        .remember-me {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .forgot-password {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .forgot-password:hover {
-            text-decoration: underline;
-        }
-
-        .auth-divider {
-            text-align: center;
-            margin: 20px 0;
-            position: relative;
-        }
-
-        .auth-divider::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: var(--light);
-        }
-
-        .auth-divider span {
-            background: var(--card-bg);
-            padding: 0 15px;
-            color: var(--secondary);
-            font-size: 0.9rem;
-        }
-
-        .google-auth-btn {
-            width: 100%;
-            background: white;
-            color: var(--dark);
-            border: 2px solid var(--light);
-            padding: 12px;
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-weight: 600;
-        }
-
-        .google-auth-btn:hover {
-            border-color: var(--primary);
-            transform: translateY(-2px);
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        /* New Chat Modal */
+        /* New Conversation Modal */
         .user-list {
             max-height: 400px;
             overflow-y: auto;
@@ -788,18 +730,22 @@
             }
         }
 
+        .hidden {
+            display: none !important;
+        }
+
         @media (max-width: 768px) {
-            .chat-container {
+            .inbox-container {
                 flex-direction: column;
                 height: 80vh;
             }
             
-            .chat-sidebar {
+            .conversations-sidebar {
                 width: 100%;
                 height: 40%;
             }
             
-            .chat-main {
+            .chat-area {
                 height: 60%;
             }
             
@@ -814,6 +760,19 @@
             .auth-buttons {
                 flex-direction: column;
                 gap: 8px;
+            }
+            
+            .upload-btn-main, .profile-logo-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .profile-logo {
+                bottom: 90px;
+                right: 20px;
             }
         }
     </style>
@@ -848,34 +807,49 @@
         <div class="navigation">
             <button class="nav-btn" data-page="home">Home</button>
             <button class="nav-btn" data-page="explore">Explore</button>
-            <button class="nav-btn" data-page="profile" id="profileNavBtn">Profile</button>
-            <button class="nav-btn active" data-page="chat">Messages</button>
+            <button class="nav-btn active" data-page="inbox">Messages</button>
         </div>
 
-        <!-- Chat Page Content -->
-        <div id="chatPage">
-            <div class="chat-container">
-                <!-- Chat Sidebar -->
-                <div class="chat-sidebar">
-                    <div class="chat-header">
+        <!-- Inbox Page Content -->
+        <div id="inboxPage">
+            <div class="inbox-container">
+                <!-- Conversations Sidebar -->
+                <div class="conversations-sidebar">
+                    <div class="conversations-header">
                         <h2>Messages</h2>
-                        <button class="new-chat-btn" id="newChatBtn">
+                        <button class="new-conversation-btn" id="newConversationBtn">
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>
                     
-                    <div class="chat-search">
-                        <input type="text" class="chat-search-input" id="chatSearch" placeholder="Search conversations...">
+                    <div class="conversations-search">
+                        <input type="text" class="conversations-search-input" id="conversationsSearch" placeholder="Search conversations...">
                     </div>
                     
-                    <div class="chat-list" id="chatList">
-                        <!-- Chat items will be loaded here -->
+                    <div class="conversations-list" id="conversationsList">
+                        <!-- Conversation items will be loaded here -->
                     </div>
                 </div>
                 
-                <!-- Chat Main Area -->
-                <div class="chat-main">
-                    <div class="chat-messages" id="chatMessages">
+                <!-- Chat Area -->
+                <div class="chat-area">
+                    <div class="chat-header hidden" id="chatHeader">
+                        <img src="" alt="User" class="chat-user-avatar" id="chatUserAvatar">
+                        <div class="chat-user-info">
+                            <div class="chat-user-name" id="chatUserName">User Name</div>
+                            <div class="chat-user-status" id="chatUserStatus">Online</div>
+                        </div>
+                        <div class="chat-actions">
+                            <button class="chat-action-btn" id="chatInfoBtn">
+                                <i class="fas fa-info-circle"></i>
+                            </button>
+                            <button class="chat-action-btn" id="chatMoreBtn">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="messages-container" id="messagesContainer">
                         <div class="empty-chat">
                             <i class="fas fa-comments"></i>
                             <h3>No conversation selected</h3>
@@ -883,14 +857,28 @@
                         </div>
                     </div>
                     
-                    <div class="chat-input-container hidden" id="chatInputContainer">
-                        <textarea class="chat-input" id="chatInput" placeholder="Type a message..." rows="1"></textarea>
+                    <div class="message-input-container hidden" id="messageInputContainer">
+                        <textarea class="message-input" id="messageInput" placeholder="Type a message..." rows="1"></textarea>
                         <button class="send-btn" id="sendBtn">
                             <i class="fas fa-paper-plane"></i>
                         </button>
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Profile Logo -->
+        <div class="profile-logo">
+            <button class="profile-logo-btn" id="profileLogoBtn">
+                <i class="fas fa-user"></i>
+            </button>
+        </div>
+
+        <!-- Upload Button -->
+        <div class="upload-container">
+            <button class="upload-btn-main" id="uploadBtn">
+                <i class="fas fa-plus"></i>
+            </button>
         </div>
     </div>
 
@@ -954,14 +942,14 @@
         </div>
     </div>
 
-    <!-- New Chat Modal -->
-    <div class="modal" id="newChatModal">
+    <!-- New Conversation Modal -->
+    <div class="modal" id="newConversationModal">
         <div class="modal-content">
             <button class="close-btn">&times;</button>
             <h2 style="margin-bottom: 20px; color: var(--dark);">Start New Conversation</h2>
             
-            <div class="chat-search">
-                <input type="text" class="chat-search-input" id="userSearch" placeholder="Search users...">
+            <div class="conversations-search">
+                <input type="text" class="conversations-search-input" id="userSearch" placeholder="Search users...">
             </div>
             
             <div class="user-list" id="userList">
@@ -989,10 +977,10 @@
 
         // === GLOBAL VARIABLES ===
         let currentUser = null;
-        let currentChat = null;
-        let chats = [];
+        let currentConversation = null;
+        let conversations = [];
         let users = {};
-        let chatListeners = {};
+        let conversationListeners = {};
 
         // === DOM ELEMENTS ===
         const elements = {
@@ -1002,19 +990,24 @@
             loginBtn: document.getElementById('loginBtn'),
             signupBtn: document.getElementById('signupBtn'),
             authModal: document.getElementById('authModal'),
-            newChatModal: document.getElementById('newChatModal'),
+            newConversationModal: document.getElementById('newConversationModal'),
             loginForm: document.getElementById('loginForm'),
             signupForm: document.getElementById('signupForm'),
-            chatList: document.getElementById('chatList'),
-            chatMessages: document.getElementById('chatMessages'),
-            chatInput: document.getElementById('chatInput'),
-            chatInputContainer: document.getElementById('chatInputContainer'),
+            conversationsList: document.getElementById('conversationsList'),
+            messagesContainer: document.getElementById('messagesContainer'),
+            messageInput: document.getElementById('messageInput'),
+            messageInputContainer: document.getElementById('messageInputContainer'),
             sendBtn: document.getElementById('sendBtn'),
-            newChatBtn: document.getElementById('newChatBtn'),
+            newConversationBtn: document.getElementById('newConversationBtn'),
             googleAuthBtn: document.getElementById('googleAuthBtn'),
             userList: document.getElementById('userList'),
             userSearch: document.getElementById('userSearch'),
-            chatSearch: document.getElementById('chatSearch')
+            conversationsSearch: document.getElementById('conversationsSearch'),
+            chatHeader: document.getElementById('chatHeader'),
+            chatUserAvatar: document.getElementById('chatUserAvatar'),
+            chatUserName: document.getElementById('chatUserName'),
+            profileLogoBtn: document.getElementById('profileLogoBtn'),
+            uploadBtn: document.getElementById('uploadBtn')
         };
 
         // === THEME MANAGEMENT ===
@@ -1047,14 +1040,14 @@
                     showUserProfile();
                     showNotification(`Welcome back, ${user.displayName || 'User'}!`, 'success');
                     
-                    // Load chats for the user
-                    loadChats();
+                    // Load conversations for the user
+                    loadConversations();
                 } else {
                     currentUser = null;
                     showAuthButtons();
-                    chats = [];
-                    currentChat = null;
-                    updateChatList();
+                    conversations = [];
+                    currentConversation = null;
+                    updateConversationsList();
                     showEmptyChat();
                 }
             });
@@ -1155,29 +1148,29 @@
             }
         });
 
-        // === CHAT SYSTEM ===
-        async function loadChats() {
+        // === CONVERSATIONS SYSTEM ===
+        async function loadConversations() {
             if (!currentUser) return;
             
             try {
-                // Get chats where current user is a participant
-                const snapshot = await db.collection('chats')
+                // Get conversations where current user is a participant
+                const snapshot = await db.collection('conversations')
                     .where('participants', 'array-contains', currentUser.uid)
                     .orderBy('lastMessageAt', 'desc')
                     .get();
                 
-                chats = [];
+                conversations = [];
                 snapshot.forEach(doc => {
-                    chats.push({ id: doc.id, ...doc.data() });
+                    conversations.push({ id: doc.id, ...doc.data() });
                 });
                 
-                updateChatList();
+                updateConversationsList();
                 
                 // Load user data for all participants
                 await loadParticipantsData();
                 
             } catch (error) {
-                console.error('Error loading chats:', error);
+                console.error('Error loading conversations:', error);
                 showNotification('Error loading conversations', 'error');
             }
         }
@@ -1185,8 +1178,8 @@
         async function loadParticipantsData() {
             const allUserIds = new Set();
             
-            chats.forEach(chat => {
-                chat.participants.forEach(uid => {
+            conversations.forEach(conversation => {
+                conversation.participants.forEach(uid => {
                     if (uid !== currentUser.uid) {
                         allUserIds.add(uid);
                     }
@@ -1205,12 +1198,12 @@
                 }
             });
             
-            updateChatList();
+            updateConversationsList();
         }
 
-        function updateChatList() {
+        function updateConversationsList() {
             if (!currentUser) {
-                elements.chatList.innerHTML = `
+                elements.conversationsList.innerHTML = `
                     <div style="text-align: center; padding: 40px; color: var(--secondary);">
                         <i class="fas fa-sign-in-alt" style="font-size: 2rem; margin-bottom: 15px;"></i>
                         <p>Please login to view messages</p>
@@ -1219,8 +1212,8 @@
                 return;
             }
             
-            if (chats.length === 0) {
-                elements.chatList.innerHTML = `
+            if (conversations.length === 0) {
+                elements.conversationsList.innerHTML = `
                     <div style="text-align: center; padding: 40px; color: var(--secondary);">
                         <i class="fas fa-comments" style="font-size: 2rem; margin-bottom: 15px; opacity: 0.5;"></i>
                         <p>No conversations yet</p>
@@ -1230,71 +1223,79 @@
                 return;
             }
             
-            elements.chatList.innerHTML = chats.map(chat => {
-                const otherParticipantId = chat.participants.find(uid => uid !== currentUser.uid);
+            elements.conversationsList.innerHTML = conversations.map(conversation => {
+                const otherParticipantId = conversation.participants.find(uid => uid !== currentUser.uid);
                 const otherUser = users[otherParticipantId] || { name: 'Unknown User', avatar: 'https://ui-avatars.com/api/?name=User&background=random' };
                 
-                const lastMessage = chat.lastMessage || 'No messages yet';
-                const lastMessageTime = chat.lastMessageAt ? formatTime(chat.lastMessageAt.toDate()) : '';
-                const unreadCount = chat.unreadCount && chat.unreadCount[currentUser.uid] || 0;
+                const lastMessage = conversation.lastMessage || 'No messages yet';
+                const lastMessageTime = conversation.lastMessageAt ? formatTime(conversation.lastMessageAt.toDate()) : '';
+                const unreadCount = conversation.unreadCount && conversation.unreadCount[currentUser.uid] || 0;
                 
                 return `
-                    <div class="chat-item ${currentChat && currentChat.id === chat.id ? 'active' : ''}" 
-                         data-chat-id="${chat.id}">
-                        <img src="${otherUser.avatar}" alt="${otherUser.name}" class="chat-avatar">
-                        <div class="chat-info">
-                            <div class="chat-name">${otherUser.name}</div>
-                            <div class="chat-last-message">${lastMessage}</div>
+                    <div class="conversation-item ${currentConversation && currentConversation.id === conversation.id ? 'active' : ''}" 
+                         data-conversation-id="${conversation.id}">
+                        <img src="${otherUser.avatar}" alt="${otherUser.name}" class="conversation-avatar">
+                        <div class="conversation-info">
+                            <div class="conversation-name">${otherUser.name}</div>
+                            <div class="conversation-last-message">${lastMessage}</div>
                         </div>
-                        <div class="chat-meta">
-                            <div class="chat-time">${lastMessageTime}</div>
-                            ${unreadCount > 0 ? `<div class="chat-unread">${unreadCount}</div>` : ''}
+                        <div class="conversation-meta">
+                            <div class="conversation-time">${lastMessageTime}</div>
+                            ${unreadCount > 0 ? `<div class="conversation-unread">${unreadCount}</div>` : ''}
                         </div>
                     </div>
                 `;
             }).join('');
             
-            // Add click events to chat items
-            document.querySelectorAll('.chat-item').forEach(item => {
+            // Add click events to conversation items
+            document.querySelectorAll('.conversation-item').forEach(item => {
                 item.addEventListener('click', () => {
-                    const chatId = item.dataset.chatId;
-                    selectChat(chatId);
+                    const conversationId = item.dataset.conversationId;
+                    selectConversation(conversationId);
                 });
             });
         }
 
-        async function selectChat(chatId) {
+        async function selectConversation(conversationId) {
             if (!currentUser) return;
             
-            // Stop listening to previous chat
-            if (currentChat && chatListeners[currentChat.id]) {
-                chatListeners[currentChat.id]();
+            // Stop listening to previous conversation
+            if (currentConversation && conversationListeners[currentConversation.id]) {
+                conversationListeners[currentConversation.id]();
             }
             
-            currentChat = chats.find(chat => chat.id === chatId);
-            if (!currentChat) return;
+            currentConversation = conversations.find(conversation => conversation.id === conversationId);
+            if (!currentConversation) return;
             
-            // Update active state in chat list
-            document.querySelectorAll('.chat-item').forEach(item => {
-                item.classList.toggle('active', item.dataset.chatId === chatId);
+            // Update active state in conversations list
+            document.querySelectorAll('.conversation-item').forEach(item => {
+                item.classList.toggle('active', item.dataset.conversationId === conversationId);
             });
             
-            // Show chat input
-            elements.chatInputContainer.classList.remove('hidden');
+            // Show chat header and input
+            elements.chatHeader.classList.remove('hidden');
+            elements.messageInputContainer.classList.remove('hidden');
             
-            // Load messages for this chat
-            await loadMessages(chatId);
+            // Update chat header with user info
+            const otherParticipantId = currentConversation.participants.find(uid => uid !== currentUser.uid);
+            const otherUser = users[otherParticipantId] || { name: 'Unknown User', avatar: 'https://ui-avatars.com/api/?name=User&background=random' };
+            
+            elements.chatUserAvatar.src = otherUser.avatar;
+            elements.chatUserName.textContent = otherUser.name;
+            
+            // Load messages for this conversation
+            await loadMessages(conversationId);
             
             // Mark messages as read
-            await markMessagesAsRead(chatId);
+            await markMessagesAsRead(conversationId);
             
             // Listen for new messages
-            listenForNewMessages(chatId);
+            listenForNewMessages(conversationId);
         }
 
-        async function loadMessages(chatId) {
+        async function loadMessages(conversationId) {
             try {
-                const snapshot = await db.collection('chats').doc(chatId)
+                const snapshot = await db.collection('conversations').doc(conversationId)
                     .collection('messages')
                     .orderBy('timestamp', 'asc')
                     .get();
@@ -1314,7 +1315,7 @@
 
         function displayMessages(messages) {
             if (messages.length === 0) {
-                elements.chatMessages.innerHTML = `
+                elements.messagesContainer.innerHTML = `
                     <div class="empty-chat">
                         <i class="fas fa-comment-slash"></i>
                         <h3>No messages yet</h3>
@@ -1324,14 +1325,12 @@
                 return;
             }
             
-            elements.chatMessages.innerHTML = messages.map(message => {
+            elements.messagesContainer.innerHTML = messages.map(message => {
                 const isSent = message.senderId === currentUser.uid;
-                const sender = users[message.senderId] || { name: 'Unknown User' };
                 const time = message.timestamp ? formatTime(message.timestamp.toDate()) : '';
                 
                 return `
                     <div class="message ${isSent ? 'sent' : 'received'}">
-                        ${!isSent ? `<div class="message-sender">${sender.name}</div>` : ''}
                         <div class="message-text">${message.text}</div>
                         <div class="message-time">${time}</div>
                     </div>
@@ -1339,11 +1338,11 @@
             }).join('');
             
             // Scroll to bottom
-            elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+            elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
         }
 
-        function listenForNewMessages(chatId) {
-            chatListeners[chatId] = db.collection('chats').doc(chatId)
+        function listenForNewMessages(conversationId) {
+            conversationListeners[conversationId] = db.collection('conversations').doc(conversationId)
                 .collection('messages')
                 .orderBy('timestamp', 'asc')
                 .onSnapshot(snapshot => {
@@ -1352,11 +1351,11 @@
                             const message = { id: change.doc.id, ...change.doc.data() };
                             addMessageToChat(message);
                             
-                            // Update last message in chat list
-                            if (currentChat) {
-                                currentChat.lastMessage = message.text;
-                                currentChat.lastMessageAt = message.timestamp;
-                                updateChatList();
+                            // Update last message in conversations list
+                            if (currentConversation) {
+                                currentConversation.lastMessage = message.text;
+                                currentConversation.lastMessageAt = message.timestamp;
+                                updateConversationsList();
                             }
                         }
                     });
@@ -1365,31 +1364,29 @@
 
         function addMessageToChat(message) {
             const isSent = message.senderId === currentUser.uid;
-            const sender = users[message.senderId] || { name: 'Unknown User' };
             const time = message.timestamp ? formatTime(message.timestamp.toDate()) : '';
             
             const messageElement = document.createElement('div');
             messageElement.className = `message ${isSent ? 'sent' : 'received'}`;
             messageElement.innerHTML = `
-                ${!isSent ? `<div class="message-sender">${sender.name}</div>` : ''}
                 <div class="message-text">${message.text}</div>
                 <div class="message-time">${time}</div>
             `;
             
-            elements.chatMessages.appendChild(messageElement);
+            elements.messagesContainer.appendChild(messageElement);
             
             // Scroll to bottom
-            elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+            elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
             
             // Mark as read if it's not our message
-            if (!isSent && currentChat) {
-                markMessagesAsRead(currentChat.id);
+            if (!isSent && currentConversation) {
+                markMessagesAsRead(currentConversation.id);
             }
         }
 
         // Send message
         elements.sendBtn.addEventListener('click', sendMessage);
-        elements.chatInput.addEventListener('keypress', (e) => {
+        elements.messageInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 sendMessage();
@@ -1397,27 +1394,29 @@
         });
 
         async function sendMessage() {
-            if (!currentUser || !currentChat || !elements.chatInput.value.trim()) return;
+            if (!currentUser || !currentConversation || !elements.messageInput.value.trim()) return;
             
-            const messageText = elements.chatInput.value.trim();
+            const messageText = elements.messageInput.value.trim();
             
             try {
                 // Add message to Firestore
-                await db.collection('chats').doc(currentChat.id).collection('messages').add({
+                await db.collection('conversations').doc(currentConversation.id).collection('messages').add({
                     text: messageText,
                     senderId: currentUser.uid,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     read: false
                 });
                 
-                // Update chat's last message
-                await db.collection('chats').doc(currentChat.id).update({
+                // Update conversation's last message
+                await db.collection('conversations').doc(currentConversation.id).update({
                     lastMessage: messageText,
-                    lastMessageAt: firebase.firestore.FieldValue.serverTimestamp()
+                    lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    [`unreadCount.${getOtherParticipantId()}`]: firebase.firestore.FieldValue.increment(1)
                 });
                 
                 // Clear input
-                elements.chatInput.value = '';
+                elements.messageInput.value = '';
+                elements.messageInput.style.height = 'auto';
                 
             } catch (error) {
                 console.error('Error sending message:', error);
@@ -1425,12 +1424,16 @@
             }
         }
 
-        async function markMessagesAsRead(chatId) {
+        function getOtherParticipantId() {
+            return currentConversation.participants.find(uid => uid !== currentUser.uid);
+        }
+
+        async function markMessagesAsRead(conversationId) {
             if (!currentUser) return;
             
             try {
                 // Get unread messages
-                const snapshot = await db.collection('chats').doc(chatId)
+                const snapshot = await db.collection('conversations').doc(conversationId)
                     .collection('messages')
                     .where('senderId', '!=', currentUser.uid)
                     .where('read', '==', false)
@@ -1444,8 +1447,8 @@
                 
                 await batch.commit();
                 
-                // Update unread count in chat
-                await db.collection('chats').doc(chatId).update({
+                // Update unread count in conversation
+                await db.collection('conversations').doc(conversationId).update({
                     [`unreadCount.${currentUser.uid}`]: 0
                 });
                 
@@ -1454,17 +1457,17 @@
             }
         }
 
-        // === NEW CHAT FUNCTIONALITY ===
-        elements.newChatBtn.addEventListener('click', () => {
+        // === NEW CONVERSATION FUNCTIONALITY ===
+        elements.newConversationBtn.addEventListener('click', () => {
             if (!currentUser) {
                 openModal(elements.authModal);
                 showNotification('Please login to start a conversation', 'error');
                 return;
             }
-            openNewChatModal();
+            openNewConversationModal();
         });
 
-        async function openNewChatModal() {
+        async function openNewConversationModal() {
             try {
                 // Load all users (except current user)
                 const snapshot = await db.collection('users').get();
@@ -1477,7 +1480,7 @@
                 });
                 
                 displayUsers(allUsers);
-                openModal(elements.newChatModal);
+                openModal(elements.newConversationModal);
                 
             } catch (error) {
                 console.error('Error loading users:', error);
@@ -1510,30 +1513,30 @@
             document.querySelectorAll('.user-item').forEach(item => {
                 item.addEventListener('click', () => {
                     const userId = item.dataset.userId;
-                    startNewChat(userId);
+                    startNewConversation(userId);
                 });
             });
         }
 
-        async function startNewChat(otherUserId) {
+        async function startNewConversation(otherUserId) {
             if (!currentUser) return;
             
             try {
-                // Check if chat already exists
-                const existingChat = chats.find(chat => 
-                    chat.participants.includes(otherUserId) && 
-                    chat.participants.includes(currentUser.uid)
+                // Check if conversation already exists
+                const existingConversation = conversations.find(conversation => 
+                    conversation.participants.includes(otherUserId) && 
+                    conversation.participants.includes(currentUser.uid)
                 );
                 
-                if (existingChat) {
-                    // Select existing chat
-                    closeModal(elements.newChatModal);
-                    selectChat(existingChat.id);
+                if (existingConversation) {
+                    // Select existing conversation
+                    closeModal(elements.newConversationModal);
+                    selectConversation(existingConversation.id);
                     return;
                 }
                 
-                // Create new chat
-                const chatData = {
+                // Create new conversation
+                const conversationData = {
                     participants: [currentUser.uid, otherUserId],
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     lastMessage: '',
@@ -1544,33 +1547,34 @@
                     }
                 };
                 
-                const chatRef = await db.collection('chats').add(chatData);
+                const conversationRef = await db.collection('conversations').add(conversationData);
                 
-                // Add to local chats and select it
-                const newChat = { id: chatRef.id, ...chatData };
-                chats.unshift(newChat);
-                updateChatList();
+                // Add to local conversations and select it
+                const newConversation = { id: conversationRef.id, ...conversationData };
+                conversations.unshift(newConversation);
+                updateConversationsList();
                 
-                closeModal(elements.newChatModal);
-                selectChat(chatRef.id);
+                closeModal(elements.newConversationModal);
+                selectConversation(conversationRef.id);
                 
                 showNotification('Conversation started!', 'success');
                 
             } catch (error) {
-                console.error('Error starting new chat:', error);
+                console.error('Error starting new conversation:', error);
                 showNotification('Error starting conversation', 'error');
             }
         }
 
         function showEmptyChat() {
-            elements.chatMessages.innerHTML = `
+            elements.messagesContainer.innerHTML = `
                 <div class="empty-chat">
                     <i class="fas fa-comments"></i>
                     <h3>No conversation selected</h3>
                     <p>Select a conversation from the sidebar or start a new one</p>
                 </div>
             `;
-            elements.chatInputContainer.classList.add('hidden');
+            elements.chatHeader.classList.add('hidden');
+            elements.messageInputContainer.classList.add('hidden');
         }
 
         // === UTILITY FUNCTIONS ===
@@ -1623,6 +1627,26 @@
                 showAuthTab('signup');
             });
             
+            // Upload modal
+            elements.uploadBtn.addEventListener('click', () => {
+                if (!currentUser) {
+                    openModal(elements.authModal);
+                    showNotification('Please login to upload prompts', 'error');
+                    return;
+                }
+                showNotification('Upload feature coming soon!', 'info');
+            });
+            
+            // Profile logo
+            elements.profileLogoBtn.addEventListener('click', () => {
+                if (!currentUser) {
+                    openModal(elements.authModal);
+                    showNotification('Please login to view profile', 'error');
+                    return;
+                }
+                showNotification('Profile feature coming soon!', 'info');
+            });
+            
             // Close modals
             document.querySelectorAll('.close-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
@@ -1670,8 +1694,8 @@
                 btn.addEventListener('click', () => {
                     const page = btn.dataset.page;
                     
-                    // For this demo, only chat page is implemented
-                    if (page !== 'chat') {
+                    // For this demo, only inbox page is implemented
+                    if (page !== 'inbox') {
                         showNotification('This page is not implemented in this demo', 'info');
                         return;
                     }
@@ -1684,7 +1708,7 @@
         }
 
         // === AUTO-RESIZE TEXTAREA ===
-        elements.chatInput.addEventListener('input', function() {
+        elements.messageInput.addEventListener('input', function() {
             this.style.height = 'auto';
             this.style.height = (this.scrollHeight) + 'px';
         });
