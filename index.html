@@ -1,9 +1,9 @@
-b<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Prompt Gallery | Deshboard</title>
+    <title>AI Prompt Gallery | Complete Platform</title>
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -114,6 +114,9 @@ b<!DOCTYPE html>
         }
 
         .user-profile {
+            position: absolute;
+            top: 20px;
+            right: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -205,6 +208,39 @@ b<!DOCTYPE html>
             outline: none;
             border-color: var(--primary-dark);
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Categories */
+        .categories {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .category-btn {
+            padding: 10px 20px;
+            border: 2px solid var(--primary);
+            background: var(--card-bg);
+            color: var(--primary);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .category-btn:hover {
+            background: var(--primary-light);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .category-btn.active {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
         }
 
         /* Gallery */
@@ -313,6 +349,64 @@ b<!DOCTYPE html>
             border-color: var(--like);
         }
 
+        /* Profile Logo */
+        .profile-logo {
+            position: fixed;
+            bottom: 100px;
+            right: 40px;
+            z-index: 1000;
+        }
+
+        .profile-logo-btn {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-logo-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(37, 99, 235, 0.6);
+        }
+
+        /* Upload Button */
+        .upload-container {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            z-index: 1000;
+        }
+
+        .upload-btn-main {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-btn-main:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 6px 25px rgba(37, 99, 235, 0.6);
+        }
+
         /* Profile Page */
         .profile-container {
             background: var(--card-bg);
@@ -403,35 +497,6 @@ b<!DOCTYPE html>
         .profile-btn.outline:hover {
             background: var(--primary);
             color: white;
-        }
-
-        /* Upload Button */
-        .upload-container {
-            position: fixed;
-            bottom: 40px;
-            right: 40px;
-            z-index: 1000;
-        }
-
-        .upload-btn-main {
-            width: 60px;
-            height: 60px;
-            background: var(--gradient);
-            border: none;
-            border-radius: 50%;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .upload-btn-main:hover {
-            transform: scale(1.1) rotate(90deg);
-            box-shadow: 0 6px 25px rgba(37, 99, 235, 0.6);
         }
 
         /* Modals */
@@ -545,7 +610,7 @@ b<!DOCTYPE html>
             font-size: 0.9rem;
         }
 
-        .form-input, .form-textarea {
+        .form-input, .form-textarea, .form-select {
             padding: 12px 15px;
             border: 2px solid var(--light);
             border-radius: var(--radius);
@@ -556,7 +621,7 @@ b<!DOCTYPE html>
             resize: vertical;
         }
 
-        .form-input:focus, .form-textarea:focus {
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
@@ -651,71 +716,6 @@ b<!DOCTYPE html>
             display: none !important;
         }
 
-        /* Followers/Following Modal */
-        .follow-list {
-            max-height: 400px;
-            overflow-y: auto;
-            margin-top: 20px;
-        }
-
-        .follow-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px;
-            border-bottom: 1px solid var(--light);
-            transition: var(--transition);
-        }
-
-        .follow-item:hover {
-            background: var(--light);
-            border-radius: var(--radius);
-        }
-
-        .follow-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .follow-info {
-            flex: 1;
-        }
-
-        .follow-name {
-            font-weight: 600;
-            color: var(--dark);
-            margin-bottom: 5px;
-        }
-
-        .follow-bio {
-            font-size: 0.9rem;
-            color: var(--secondary);
-        }
-
-        .follow-btn {
-            padding: 8px 15px;
-            border: 2px solid var(--primary);
-            background: var(--primary);
-            color: white;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: var(--transition);
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .follow-btn:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-
-        .follow-btn.following {
-            background: transparent;
-            color: var(--primary);
-        }
-
         /* Notification */
         .notification {
             position: fixed;
@@ -757,11 +757,16 @@ b<!DOCTYPE html>
                 grid-template-columns: 1fr;
             }
             
-            .upload-btn-main {
+            .upload-btn-main, .profile-logo-btn {
                 width: 50px;
                 height: 50px;
                 font-size: 1.2rem;
                 bottom: 20px;
+                right: 20px;
+            }
+            
+            .profile-logo {
+                bottom: 90px;
                 right: 20px;
             }
             
@@ -781,6 +786,12 @@ b<!DOCTYPE html>
             
             .profile-stats {
                 justify-content: center;
+            }
+            
+            .categories {
+                justify-content: flex-start;
+                overflow-x: auto;
+                padding-bottom: 10px;
             }
         }
     </style>
@@ -816,62 +827,39 @@ b<!DOCTYPE html>
             <input type="text" class="search-box" id="searchBox" placeholder="Search for prompts, categories, or users...">
         </div>
 
+        <!-- Categories -->
+        <div class="categories">
+            <button class="category-btn active" data-category="all">All</button>
+            <button class="category-btn" data-category="male">Male</button>
+            <button class="category-btn" data-category="female">Female</button>
+            <button class="category-btn" data-category="kid">Kid</button>
+            <button class="category-btn" data-category="couple">Couple</button>
+            <button class="category-btn" data-category="selfie">Selfie</button>
+            <button class="category-btn" data-category="game">Game</button>
+            <button class="category-btn" data-category="film">Film</button>
+            <button class="category-btn" data-category="others">Others</button>
+        </div>
+
         <!-- Navigation -->
         <div class="navigation">
             <button class="nav-btn active" data-page="home">Home</button>
             <button class="nav-btn" data-page="explore">Explore</button>
-            <button class="nav-btn" data-page="profile" id="profileNavBtn">Profile</button>
+            <button class="nav-btn" data-page="trending">Trending</button>
         </div>
 
-        <!-- Home Page Content -->
-        <div id="homePage">
-            <!-- Gallery -->
-            <div class="gallery" id="promptsGallery">
-                <div style="text-align: center; padding: 40px; color: var(--secondary);">
-                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 15px;"></i>
-                    <p>Loading amazing AI prompts...</p>
-                </div>
+        <!-- Gallery -->
+        <div class="gallery" id="promptsGallery">
+            <div style="text-align: center; padding: 40px; color: var(--secondary);">
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                <p>Loading amazing AI prompts...</p>
             </div>
         </div>
 
-        <!-- Profile Page Content -->
-        <div id="profilePage" class="hidden">
-            <div class="profile-container" id="profileContainer">
-                <div class="profile-header">
-                    <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile" class="profile-avatar" id="profileAvatar">
-                    <div class="profile-info">
-                        <h1 class="profile-name" id="profileName">User Name</h1>
-                        <p class="profile-bio" id="profileBio">This is my bio. I love creating AI art prompts!</p>
-                        <div class="profile-stats">
-                            <div class="stat">
-                                <div class="stat-value" id="promptsCount">0</div>
-                                <div class="stat-label">Prompts</div>
-                            </div>
-                            <div class="stat">
-                                <div class="stat-value" id="followersCount">0</div>
-                                <div class="stat-label">Followers</div>
-                            </div>
-                            <div class="stat">
-                                <div class="stat-value" id="followingCount">0</div>
-                                <div class="stat-label">Following</div>
-                            </div>
-                            <div class="stat">
-                                <div class="stat-value" id="likesCount">0</div>
-                                <div class="stat-label">Likes</div>
-                            </div>
-                        </div>
-                        <div class="profile-actions" id="profileActions">
-                            <!-- Actions will be populated based on whether it's own profile or others -->
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- User's Prompts -->
-                <h2 style="margin-bottom: 20px; color: var(--dark);">My Prompts</h2>
-                <div class="gallery" id="userPromptsGallery">
-                    <!-- User's prompts will be loaded here -->
-                </div>
-            </div>
+        <!-- Profile Logo -->
+        <div class="profile-logo">
+            <button class="profile-logo-btn" id="profileLogoBtn">
+                <i class="fas fa-user"></i>
+            </button>
         </div>
 
         <!-- Upload Button -->
@@ -959,12 +947,15 @@ b<!DOCTYPE html>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Category</label>
-                    <select class="form-input" id="promptCategory">
-                        <option value="art">Art</option>
-                        <option value="photography">Photography</option>
-                        <option value="design">Design</option>
-                        <option value="anime">Anime</option>
-                        <option value="realistic">Realistic</option>
+                    <select class="form-select" id="promptCategory">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="kid">Kid</option>
+                        <option value="couple">Couple</option>
+                        <option value="selfie">Selfie</option>
+                        <option value="game">Game</option>
+                        <option value="film">Film</option>
+                        <option value="others">Others</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -973,6 +964,49 @@ b<!DOCTYPE html>
                 </div>
                 <button type="submit" class="auth-submit-btn">Upload Prompt</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal" id="profileModal">
+        <div class="modal-content">
+            <button class="close-btn">&times;</button>
+            <div class="profile-container">
+                <div class="profile-header">
+                    <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile" class="profile-avatar" id="modalProfileAvatar">
+                    <div class="profile-info">
+                        <h1 class="profile-name" id="modalProfileName">User Name</h1>
+                        <p class="profile-bio" id="modalProfileBio">This is my bio. I love creating AI art prompts!</p>
+                        <div class="profile-stats">
+                            <div class="stat">
+                                <div class="stat-value" id="modalPromptsCount">0</div>
+                                <div class="stat-label">Prompts</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value" id="modalFollowersCount">0</div>
+                                <div class="stat-label">Followers</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value" id="modalFollowingCount">0</div>
+                                <div class="stat-label">Following</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value" id="modalLikesCount">0</div>
+                                <div class="stat-label">Likes</div>
+                            </div>
+                        </div>
+                        <div class="profile-actions" id="modalProfileActions">
+                            <!-- Actions will be populated based on whether it's own profile or others -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- User's Prompts -->
+                <h2 style="margin-bottom: 20px; color: var(--dark);" id="modalPromptsTitle">My Prompts</h2>
+                <div class="gallery" id="modalUserPromptsGallery">
+                    <!-- User's prompts will be loaded here -->
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1003,18 +1037,6 @@ b<!DOCTYPE html>
         </div>
     </div>
 
-    <!-- Followers/Following Modal -->
-    <div class="modal" id="followModal">
-        <div class="modal-content">
-            <button class="close-btn">&times;</button>
-            <h2 style="margin-bottom: 20px; color: var(--dark);" id="followModalTitle">Followers</h2>
-            
-            <div class="follow-list" id="followList">
-                <!-- Follow list will be populated here -->
-            </div>
-        </div>
-    </div>
-
     <script>
         // === FIREBASE CONFIGURATION ===
         const firebaseConfig = {
@@ -1037,6 +1059,7 @@ b<!DOCTYPE html>
         let currentProfileUser = null;
         let prompts = [];
         let users = {};
+        let currentCategory = 'all';
 
         // === DOM ELEMENTS ===
         const elements = {
@@ -1047,21 +1070,17 @@ b<!DOCTYPE html>
             signupBtn: document.getElementById('signupBtn'),
             authModal: document.getElementById('authModal'),
             uploadModal: document.getElementById('uploadModal'),
+            profileModal: document.getElementById('profileModal'),
             editProfileModal: document.getElementById('editProfileModal'),
-            followModal: document.getElementById('followModal'),
             loginForm: document.getElementById('loginForm'),
             signupForm: document.getElementById('signupForm'),
             uploadForm: document.getElementById('uploadForm'),
             editProfileForm: document.getElementById('editProfileForm'),
             promptsGallery: document.getElementById('promptsGallery'),
-            userPromptsGallery: document.getElementById('userPromptsGallery'),
             uploadBtn: document.getElementById('uploadBtn'),
+            profileLogoBtn: document.getElementById('profileLogoBtn'),
             googleAuthBtn: document.getElementById('googleAuthBtn'),
-            profileNavBtn: document.getElementById('profileNavBtn'),
-            homePage: document.getElementById('homePage'),
-            profilePage: document.getElementById('profilePage'),
-            profileContainer: document.getElementById('profileContainer'),
-            profileActions: document.getElementById('profileActions')
+            categoryButtons: document.querySelectorAll('.category-btn')
         };
 
         // === THEME MANAGEMENT ===
@@ -1093,19 +1112,9 @@ b<!DOCTYPE html>
                     await loadUserData(user.uid);
                     showUserProfile();
                     showNotification(`Welcome back, ${user.displayName || 'User'}!`, 'success');
-                    
-                    // Load current user's profile if on profile page
-                    if (currentProfileUser && currentProfileUser.uid === user.uid) {
-                        loadProfile(user.uid);
-                    }
                 } else {
                     currentUser = null;
                     showAuthButtons();
-                    
-                    // If on profile page, redirect to home
-                    if (!elements.profilePage.classList.contains('hidden')) {
-                        showPage('home');
-                    }
                 }
                 loadPrompts();
             });
@@ -1157,12 +1166,6 @@ b<!DOCTYPE html>
             
             userAvatar.src = currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'User')}&background=random`;
             userName.textContent = currentUser.displayName || 'User';
-            
-            // Add click event to open profile
-            elements.userProfile.onclick = () => {
-                showPage('profile');
-                loadProfile(currentUser.uid);
-            };
         }
 
         function showAuthButtons() {
@@ -1225,48 +1228,42 @@ b<!DOCTYPE html>
             }
         });
 
-        // === PAGE NAVIGATION ===
-        function setupNavigation() {
-            document.querySelectorAll('.nav-btn').forEach(btn => {
+        // === CATEGORY FILTERING ===
+        function setupCategories() {
+            elements.categoryButtons.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    const page = btn.dataset.page;
-                    showPage(page);
+                    const category = btn.dataset.category;
                     
-                    // Update active button
-                    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                    // Update active category
+                    elements.categoryButtons.forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     
-                    // Load specific content for the page
-                    if (page === 'profile' && currentUser) {
-                        loadProfile(currentUser.uid);
-                    }
+                    currentCategory = category;
+                    filterPromptsByCategory();
                 });
             });
         }
 
-        function showPage(page) {
-            if (page === 'home') {
-                elements.homePage.classList.remove('hidden');
-                elements.profilePage.classList.add('hidden');
-            } else if (page === 'profile') {
-                if (!currentUser) {
-                    openModal(elements.authModal);
-                    showNotification('Please login to view profile', 'error');
-                    return;
-                }
-                elements.homePage.classList.add('hidden');
-                elements.profilePage.classList.remove('hidden');
-            } else if (page === 'explore') {
-                // For now, redirect to home
-                showPage('home');
-                document.querySelectorAll('.nav-btn').forEach(b => {
-                    b.classList.toggle('active', b.dataset.page === 'home');
-                });
+        function filterPromptsByCategory() {
+            if (currentCategory === 'all') {
+                displayPrompts(prompts);
+            } else {
+                const filteredPrompts = prompts.filter(prompt => prompt.category === currentCategory);
+                displayPrompts(filteredPrompts);
             }
         }
 
         // === PROFILE SYSTEM ===
-        async function loadProfile(userId) {
+        elements.profileLogoBtn.addEventListener('click', () => {
+            if (!currentUser) {
+                openModal(elements.authModal);
+                showNotification('Please login to view profile', 'error');
+                return;
+            }
+            openProfileModal(currentUser.uid);
+        });
+
+        async function openProfileModal(userId) {
             try {
                 const userDoc = await db.collection('users').doc(userId).get();
                 if (!userDoc.exists) {
@@ -1278,19 +1275,21 @@ b<!DOCTYPE html>
                 currentProfileUser = { uid: userId, ...userData };
                 
                 // Update profile UI
-                document.getElementById('profileName').textContent = userData.name;
-                document.getElementById('profileBio').textContent = userData.bio || "No bio yet";
-                document.getElementById('profileAvatar').src = userData.avatar;
-                document.getElementById('promptsCount').textContent = userData.prompts || 0;
-                document.getElementById('followersCount').textContent = userData.followers ? userData.followers.length : 0;
-                document.getElementById('followingCount').textContent = userData.following ? userData.following.length : 0;
-                document.getElementById('likesCount').textContent = userData.likes || 0;
+                document.getElementById('modalProfileName').textContent = userData.name;
+                document.getElementById('modalProfileBio').textContent = userData.bio || "No bio yet";
+                document.getElementById('modalProfileAvatar').src = userData.avatar;
+                document.getElementById('modalPromptsCount').textContent = userData.prompts || 0;
+                document.getElementById('modalFollowersCount').textContent = userData.followers ? userData.followers.length : 0;
+                document.getElementById('modalFollowingCount').textContent = userData.following ? userData.following.length : 0;
+                document.getElementById('modalLikesCount').textContent = userData.likes || 0;
                 
                 // Setup profile actions
-                setupProfileActions(userId);
+                setupModalProfileActions(userId);
                 
                 // Load user's prompts
-                loadUserPrompts(userId);
+                loadModalUserPrompts(userId);
+                
+                openModal(elements.profileModal);
                 
             } catch (error) {
                 console.error('Error loading profile:', error);
@@ -1298,65 +1297,53 @@ b<!DOCTYPE html>
             }
         }
 
-        function setupProfileActions(userId) {
+        function setupModalProfileActions(userId) {
             const isOwnProfile = currentUser && userId === currentUser.uid;
             
             if (isOwnProfile) {
-                elements.profileActions.innerHTML = `
-                    <button class="profile-btn" id="editProfileBtn">
+                document.getElementById('modalProfileActions').innerHTML = `
+                    <button class="profile-btn" id="modalEditProfileBtn">
                         <i class="fas fa-edit"></i> Edit Profile
                     </button>
-                    <button class="profile-btn outline" id="logoutBtn">
+                    <button class="profile-btn outline" id="modalLogoutBtn">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
                 `;
                 
-                document.getElementById('editProfileBtn').addEventListener('click', () => {
+                document.getElementById('modalEditProfileBtn').addEventListener('click', () => {
+                    closeModal(elements.profileModal);
                     openEditProfileModal();
                 });
                 
-                document.getElementById('logoutBtn').addEventListener('click', () => {
+                document.getElementById('modalLogoutBtn').addEventListener('click', () => {
                     auth.signOut();
+                    closeModal(elements.profileModal);
                     showNotification('Logged out successfully', 'info');
                 });
+                
+                document.getElementById('modalPromptsTitle').textContent = 'My Prompts';
             } else {
                 // Check if current user is following this profile
                 const isFollowing = currentUser && 
                     currentProfileUser.followers && 
                     currentProfileUser.followers.includes(currentUser.uid);
                 
-                elements.profileActions.innerHTML = `
-                    <button class="profile-btn ${isFollowing ? 'following' : ''}" id="followBtn">
+                document.getElementById('modalProfileActions').innerHTML = `
+                    <button class="profile-btn ${isFollowing ? 'following' : ''}" id="modalFollowBtn">
                         <i class="fas fa-${isFollowing ? 'user-check' : 'user-plus'}"></i> 
                         ${isFollowing ? 'Following' : 'Follow'}
                     </button>
-                    <button class="profile-btn outline" id="messageBtn">
+                    <button class="profile-btn outline" id="modalMessageBtn">
                         <i class="fas fa-envelope"></i> Message
                     </button>
                 `;
                 
-                document.getElementById('followBtn').addEventListener('click', () => {
+                document.getElementById('modalFollowBtn').addEventListener('click', () => {
                     toggleFollow(userId);
                 });
+                
+                document.getElementById('modalPromptsTitle').textContent = `${currentProfileUser.name}'s Prompts`;
             }
-            
-            // Add followers/following buttons
-            elements.profileActions.innerHTML += `
-                <button class="profile-btn outline" id="showFollowersBtn">
-                    <i class="fas fa-users"></i> Followers
-                </button>
-                <button class="profile-btn outline" id="showFollowingBtn">
-                    <i class="fas fa-user-friends"></i> Following
-                </button>
-            `;
-            
-            document.getElementById('showFollowersBtn').addEventListener('click', () => {
-                showFollowList(userId, 'followers');
-            });
-            
-            document.getElementById('showFollowingBtn').addEventListener('click', () => {
-                showFollowList(userId, 'following');
-            });
         }
 
         async function toggleFollow(userId) {
@@ -1399,7 +1386,7 @@ b<!DOCTYPE html>
                 }
                 
                 // Reload profile to reflect changes
-                loadProfile(userId);
+                openProfileModal(userId);
                 
             } catch (error) {
                 console.error('Error toggling follow:', error);
@@ -1407,61 +1394,67 @@ b<!DOCTYPE html>
             }
         }
 
-        async function showFollowList(userId, type) {
+        async function loadModalUserPrompts(userId) {
             try {
-                const userDoc = await db.collection('users').doc(userId).get();
-                const userData = userDoc.data();
+                const snapshot = await db.collection('prompts')
+                    .where('authorId', '==', userId)
+                    .orderBy('createdAt', 'desc')
+                    .get();
                 
-                const followIds = type === 'followers' ? userData.followers : userData.following;
+                const userPrompts = [];
+                snapshot.forEach(doc => {
+                    userPrompts.push({ id: doc.id, ...doc.data() });
+                });
                 
-                if (!followIds || followIds.length === 0) {
-                    document.getElementById('followList').innerHTML = `
-                        <div style="text-align: center; padding: 30px; color: var(--secondary);">
-                            <i class="fas fa-users" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i>
-                            <p>No ${type} yet</p>
-                        </div>
-                    `;
-                } else {
-                    // Get user data for each follow
-                    const followPromises = followIds.map(id => db.collection('users').doc(id).get());
-                    const followDocs = await Promise.all(followPromises);
-                    
-                    const followListHTML = followDocs.map(doc => {
-                        if (!doc.exists) return '';
-                        
-                        const user = doc.data();
-                        const isFollowing = currentUser && 
-                            currentProfileUser.followers && 
-                            currentProfileUser.followers.includes(currentUser.uid);
-                        
-                        return `
-                            <div class="follow-item">
-                                <img src="${user.avatar}" alt="${user.name}" class="follow-avatar">
-                                <div class="follow-info">
-                                    <div class="follow-name">${user.name}</div>
-                                    <div class="follow-bio">${user.bio || "No bio yet"}</div>
-                                </div>
-                                ${currentUser && currentUser.uid !== doc.id ? `
-                                    <button class="follow-btn ${isFollowing ? 'following' : ''}" onclick="toggleFollow('${doc.id}')">
-                                        ${isFollowing ? 'Following' : 'Follow'}
-                                    </button>
-                                ` : ''}
-                            </div>
-                        `;
-                    }).join('');
-                    
-                    document.getElementById('followList').innerHTML = followListHTML;
-                }
-                
-                document.getElementById('followModalTitle').textContent = 
-                    type === 'followers' ? 'Followers' : 'Following';
-                
-                openModal(elements.followModal);
-                
+                displayModalUserPrompts(userPrompts);
             } catch (error) {
-                console.error('Error loading follow list:', error);
-                showNotification('Error loading follow list', 'error');
+                console.error('Error loading user prompts:', error);
+                document.getElementById('modalUserPromptsGallery').innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--error);">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                        <p>Error loading prompts. Please try again.</p>
+                    </div>
+                `;
             }
+        }
+
+        function displayModalUserPrompts(promptsToShow) {
+            if (promptsToShow.length === 0) {
+                document.getElementById('modalUserPromptsGallery').innerHTML = `
+                    <div style="text-align: center; padding: 60px; color: var(--secondary);">
+                        <i class="fas fa-images" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                        <h3>No prompts yet</h3>
+                        <p>Start uploading your AI prompts!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            document.getElementById('modalUserPromptsGallery').innerHTML = promptsToShow.map(prompt => `
+                <div class="prompt-card">
+                    <img src="${prompt.imageUrl || 'https://via.placeholder.com/400x300/667eea/white?text=AI+Art'}" 
+                         alt="${prompt.title}" class="prompt-image">
+                    <div class="prompt-content">
+                        <h3 class="prompt-title">${prompt.title}</h3>
+                        <div class="prompt-text">${prompt.text}</div>
+                        
+                        <div class="prompt-meta">
+                            <div style="color: var(--secondary); font-size: 0.9rem;">
+                                ${prompt.createdAt ? new Date(prompt.createdAt.toDate()).toLocaleDateString() : 'Recently'}
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="action-btn like-btn" onclick="toggleLike('${prompt.id}')">
+                                <i class="fas fa-heart"></i> Like (${prompt.likes || 0})
+                            </button>
+                            <button class="action-btn" onclick="showComments('${prompt.id}')">
+                                <i class="fas fa-comment"></i> Comment
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
         }
 
         // === EDIT PROFILE ===
@@ -1538,7 +1531,7 @@ b<!DOCTYPE html>
                 // Refresh UI
                 showUserProfile();
                 if (currentProfileUser && currentProfileUser.uid === currentUser.uid) {
-                    loadProfile(currentUser.uid);
+                    openProfileModal(currentUser.uid);
                 }
                 loadPrompts(); // Refresh prompts to show updated author info
                 
@@ -1637,30 +1630,6 @@ b<!DOCTYPE html>
             }
         }
 
-        async function loadUserPrompts(userId) {
-            try {
-                const snapshot = await db.collection('prompts')
-                    .where('authorId', '==', userId)
-                    .orderBy('createdAt', 'desc')
-                    .get();
-                
-                const userPrompts = [];
-                snapshot.forEach(doc => {
-                    userPrompts.push({ id: doc.id, ...doc.data() });
-                });
-                
-                displayUserPrompts(userPrompts);
-            } catch (error) {
-                console.error('Error loading user prompts:', error);
-                elements.userPromptsGallery.innerHTML = `
-                    <div style="text-align: center; padding: 40px; color: var(--error);">
-                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 15px;"></i>
-                        <p>Error loading prompts. Please try again.</p>
-                    </div>
-                `;
-            }
-        }
-
         function displayPrompts(promptsToShow) {
             if (promptsToShow.length === 0) {
                 elements.promptsGallery.innerHTML = `
@@ -1693,46 +1662,7 @@ b<!DOCTYPE html>
                         </div>
                         
                         <div class="action-buttons">
-                            <button class="action-btn like-btn ${isPromptLiked(prompt.id) ? 'liked' : ''}" onclick="toggleLike('${prompt.id}')">
-                                <i class="fas fa-heart"></i> Like (${prompt.likes || 0})
-                            </button>
-                            <button class="action-btn" onclick="showComments('${prompt.id}')">
-                                <i class="fas fa-comment"></i> Comment
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function displayUserPrompts(promptsToShow) {
-            if (promptsToShow.length === 0) {
-                elements.userPromptsGallery.innerHTML = `
-                    <div style="text-align: center; padding: 60px; color: var(--secondary);">
-                        <i class="fas fa-images" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
-                        <h3>No prompts yet</h3>
-                        <p>Start uploading your AI prompts!</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            elements.userPromptsGallery.innerHTML = promptsToShow.map(prompt => `
-                <div class="prompt-card">
-                    <img src="${prompt.imageUrl || 'https://via.placeholder.com/400x300/667eea/white?text=AI+Art'}" 
-                         alt="${prompt.title}" class="prompt-image">
-                    <div class="prompt-content">
-                        <h3 class="prompt-title">${prompt.title}</h3>
-                        <div class="prompt-text">${prompt.text}</div>
-                        
-                        <div class="prompt-meta">
-                            <div style="color: var(--secondary); font-size: 0.9rem;">
-                                ${prompt.createdAt ? new Date(prompt.createdAt.toDate()).toLocaleDateString() : 'Recently'}
-                            </div>
-                        </div>
-                        
-                        <div class="action-buttons">
-                            <button class="action-btn like-btn ${isPromptLiked(prompt.id) ? 'liked' : ''}" onclick="toggleLike('${prompt.id}')">
+                            <button class="action-btn like-btn" onclick="toggleLike('${prompt.id}')">
                                 <i class="fas fa-heart"></i> Like (${prompt.likes || 0})
                             </button>
                             <button class="action-btn" onclick="showComments('${prompt.id}')">
@@ -1793,12 +1723,6 @@ b<!DOCTYPE html>
                 showNotification('Prompt uploaded successfully!', 'success');
                 loadPrompts();
                 
-                // If on profile page, reload user prompts
-                if (!elements.profilePage.classList.contains('hidden') && 
-                    currentProfileUser && currentProfileUser.uid === currentUser.uid) {
-                    loadUserPrompts(currentUser.uid);
-                }
-                
             } catch (error) {
                 console.error('Upload error:', error);
                 showNotification('Error uploading prompt', 'error');
@@ -1852,22 +1776,10 @@ b<!DOCTYPE html>
                 
                 loadPrompts();
                 
-                // If on profile page and it's the current user's profile, reload
-                if (!elements.profilePage.classList.contains('hidden') && 
-                    currentProfileUser && currentProfileUser.uid === prompt.authorId) {
-                    loadProfile(prompt.authorId);
-                }
-                
             } catch (error) {
                 console.error('Like error:', error);
                 showNotification('Error liking prompt', 'error');
             }
-        }
-
-        function isPromptLiked(promptId) {
-            // This would need to check against a local cache of liked prompts
-            // For now, we'll just return false
-            return false;
         }
 
         // === UTILITY FUNCTIONS ===
@@ -1893,13 +1805,7 @@ b<!DOCTYPE html>
 
         // === PROFILE VIEWING ===
         function viewProfile(userId) {
-            showPage('profile');
-            loadProfile(userId);
-            
-            // Update active nav button
-            document.querySelectorAll('.nav-btn').forEach(b => {
-                b.classList.toggle('active', b.dataset.page === 'profile');
-            });
+            openProfileModal(userId);
         }
 
         // === INITIALIZATION ===
@@ -1907,7 +1813,7 @@ b<!DOCTYPE html>
             initTheme();
             initAuth();
             setupModals();
-            setupNavigation();
+            setupCategories();
             loadPrompts();
         }
 
@@ -1916,7 +1822,6 @@ b<!DOCTYPE html>
 
         // Export functions to global scope
         window.toggleLike = toggleLike;
-        window.toggleFollow = toggleFollow;
         window.viewProfile = viewProfile;
         window.showComments = function(promptId) {
             if (!currentUser) {
