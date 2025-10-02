@@ -668,6 +668,60 @@
             display: none !important;
         }
 
+        /* Profile Modal Styles */
+        .profile-modal-content {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .profile-avatar-large {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .profile-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .profile-stat {
+            text-align: center;
+            padding: 15px;
+            background: var(--light);
+            border-radius: var(--radius);
+            transition: var(--transition);
+        }
+
+        .profile-stat:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--secondary);
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
         /* Notification */
         .notification {
             position: fixed;
@@ -733,6 +787,14 @@
                 justify-content: flex-start;
                 overflow-x: auto;
                 padding-bottom: 10px;
+            }
+
+            .profile-stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-actions {
+                flex-direction: column;
             }
         }
     </style>
@@ -926,34 +988,32 @@
     <div class="modal" id="profileModal">
         <div class="modal-content">
             <button class="close-btn">&times;</button>
-            <h2 style="margin-bottom: 20px; color: var(--dark);">My Profile</h2>
-            
-            <div style="text-align: center; padding: 20px;">
+            <div class="profile-modal-content">
                 <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile" 
-                     class="user-avatar" id="modalProfileAvatar" style="width: 100px; height: 100px; margin-bottom: 15px;">
-                <h3 id="modalProfileName" style="margin-bottom: 10px;">User Name</h3>
+                     class="profile-avatar-large" id="modalProfileAvatar">
+                <h3 id="modalProfileName" style="margin-bottom: 10px; color: var(--dark);">User Name</h3>
                 <p id="modalProfileBio" style="color: var(--secondary); margin-bottom: 20px;">This is my bio</p>
                 
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px;">
-                    <div style="text-align: center;">
-                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary);" id="modalPromptsCount">0</div>
-                        <div style="font-size: 0.9rem; color: var(--secondary);">Prompts</div>
+                <div class="profile-stats-grid">
+                    <div class="profile-stat">
+                        <span class="stat-value" id="modalPromptsCount">0</span>
+                        <span class="stat-label">Prompts</span>
                     </div>
-                    <div style="text-align: center;">
-                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary);" id="modalFollowersCount">0</div>
-                        <div style="font-size: 0.9rem; color: var(--secondary);">Followers</div>
+                    <div class="profile-stat">
+                        <span class="stat-value" id="modalFollowersCount">0</span>
+                        <span class="stat-label">Followers</span>
                     </div>
-                    <div style="text-align: center;">
-                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary);" id="modalFollowingCount">0</div>
-                        <div style="font-size: 0.9rem; color: var(--secondary);">Following</div>
+                    <div class="profile-stat">
+                        <span class="stat-value" id="modalFollowingCount">0</span>
+                        <span class="stat-label">Following</span>
                     </div>
-                    <div style="text-align: center;">
-                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary);" id="modalLikesCount">0</div>
-                        <div style="font-size: 0.9rem; color: var(--secondary);">Likes</div>
+                    <div class="profile-stat">
+                        <span class="stat-value" id="modalLikesCount">0</span>
+                        <span class="stat-label">Likes</span>
                     </div>
                 </div>
                 
-                <div style="display: flex; gap: 10px; justify-content: center;">
+                <div class="profile-actions">
                     <button class="auth-submit-btn" style="background: var(--primary);" id="editProfileBtn">
                         <i class="fas fa-edit"></i> Edit Profile
                     </button>
@@ -962,6 +1022,41 @@
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal" id="editProfileModal">
+        <div class="modal-content">
+            <button class="close-btn">&times;</button>
+            <h2 style="margin-bottom: 20px; color: var(--dark);">Edit Profile</h2>
+            
+            <form class="auth-form" id="editProfileForm">
+                <div class="form-group">
+                    <label class="form-label">Profile Picture</label>
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                        <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile" 
+                             class="profile-avatar-large" id="editProfileAvatar">
+                        <div class="file-input-container" style="flex: 1;">
+                            <input type="file" class="file-input" id="editProfileImage" accept="image/*">
+                            <label for="editProfileImage" class="file-input-label" id="editFileInputLabel">
+                                <i class="fas fa-camera"></i> Change Photo
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-input" id="editProfileName" placeholder="Enter your full name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Bio</label>
+                    <textarea class="form-textarea" id="editProfileBio" placeholder="Tell us about yourself..." rows="3"></textarea>
+                </div>
+                <button type="submit" class="auth-submit-btn">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </form>
         </div>
     </div>
 
@@ -1013,23 +1108,28 @@
             authModal: document.getElementById('authModal'),
             uploadModal: document.getElementById('uploadModal'),
             profileModal: document.getElementById('profileModal'),
+            editProfileModal: document.getElementById('editProfileModal'),
             inboxModal: document.getElementById('inboxModal'),
             loginForm: document.getElementById('loginForm'),
             signupForm: document.getElementById('signupForm'),
             uploadForm: document.getElementById('uploadForm'),
+            editProfileForm: document.getElementById('editProfileForm'),
             promptsGallery: document.getElementById('promptsGallery'),
             uploadBtn: document.getElementById('uploadBtn'),
             profileBtn: document.getElementById('profileBtn'),
             inboxBtn: document.getElementById('inboxBtn'),
+            editProfileBtn: document.getElementById('editProfileBtn'),
+            logoutBtn: document.getElementById('logoutBtn'),
             googleAuthBtn: document.getElementById('googleAuthBtn'),
             categoryButtons: document.querySelectorAll('.category-btn'),
             promptImage: document.getElementById('promptImage'),
-            fileInputLabel: document.getElementById('fileInputLabel')
+            fileInputLabel: document.getElementById('fileInputLabel'),
+            editProfileImage: document.getElementById('editProfileImage'),
+            editFileInputLabel: document.getElementById('editFileInputLabel')
         };
 
         // === PERSISTENT AUTH STATE ===
         function initAuth() {
-            // Check for existing auth state first
             return new Promise((resolve) => {
                 const unsubscribe = auth.onAuthStateChanged(async (user) => {
                     if (user) {
@@ -1054,7 +1154,6 @@
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.body.setAttribute('data-theme', savedTheme);
             
-            // Update icon
             const icon = elements.themeToggle.querySelector('i');
             icon.className = savedTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
         }
@@ -1065,7 +1164,6 @@
             document.body.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             
-            // Update icon
             const icon = elements.themeToggle.querySelector('i');
             icon.className = newTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
         });
@@ -1087,7 +1185,6 @@
                         likes: 0
                     });
                 } else {
-                    // Update user data if needed
                     const userData = userDoc.data();
                     if (currentUser.displayName && userData.name !== currentUser.displayName) {
                         await db.collection('users').doc(uid).update({
@@ -1097,7 +1194,6 @@
                     }
                 }
                 
-                // Store user data in memory
                 users[uid] = userDoc.exists ? userDoc.data() : {
                     name: currentUser.displayName || 'User',
                     avatar: currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'User')}&background=random`,
@@ -1183,31 +1279,6 @@
             }
         });
 
-        // === CATEGORY FILTERING ===
-        function setupCategories() {
-            elements.categoryButtons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const category = btn.dataset.category;
-                    
-                    // Update active category
-                    elements.categoryButtons.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    
-                    currentCategory = category;
-                    filterPromptsByCategory();
-                });
-            });
-        }
-
-        function filterPromptsByCategory() {
-            if (currentCategory === 'all') {
-                displayPrompts(prompts);
-            } else {
-                const filteredPrompts = prompts.filter(prompt => prompt.category === currentCategory);
-                displayPrompts(filteredPrompts);
-            }
-        }
-
         // === DASHBOARD BUTTONS ===
         function setupDashboardButtons() {
             // Upload Button
@@ -1241,10 +1312,16 @@
             });
 
             // Logout Button
-            document.getElementById('logoutBtn').addEventListener('click', () => {
+            elements.logoutBtn.addEventListener('click', () => {
                 auth.signOut();
                 closeModal(elements.profileModal);
                 showNotification('Logged out successfully', 'info');
+            });
+
+            // EDIT PROFILE BUTTON - YEH FIX HAI
+            elements.editProfileBtn.addEventListener('click', () => {
+                closeModal(elements.profileModal);
+                openEditProfileModal();
             });
         }
 
@@ -1257,7 +1334,6 @@
                 if (userDoc.exists) {
                     const userData = userDoc.data();
                     
-                    // Update profile modal
                     document.getElementById('modalProfileName').textContent = userData.name;
                     document.getElementById('modalProfileBio').textContent = userData.bio || "No bio yet";
                     document.getElementById('modalProfileAvatar').src = userData.avatar;
@@ -1275,6 +1351,97 @@
             }
         }
 
+        // === EDIT PROFILE MODAL ===
+        function openEditProfileModal() {
+            if (!currentUser) return;
+            
+            // Populate form with current data
+            document.getElementById('editProfileName').value = currentUser.displayName || '';
+            document.getElementById('editProfileBio').value = users[currentUser.uid]?.bio || '';
+            document.getElementById('editProfileAvatar').src = users[currentUser.uid]?.avatar || 
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'User')}&background=random`;
+            
+            openModal(elements.editProfileModal);
+        }
+
+        // Edit Profile Form Submission
+        elements.editProfileForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!currentUser) return;
+            
+            const name = document.getElementById('editProfileName').value;
+            const bio = document.getElementById('editProfileBio').value;
+            const imageFile = document.getElementById('editProfileImage').files[0];
+            
+            const submitBtn = elements.editProfileForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            submitBtn.disabled = true;
+            
+            try {
+                let avatarUrl = users[currentUser.uid]?.avatar;
+                
+                // Upload new profile image if selected
+                if (imageFile) {
+                    const storageRef = storage.ref();
+                    const imageRef = storageRef.child(`profiles/${currentUser.uid}_${Date.now()}`);
+                    const snapshot = await imageRef.put(imageFile);
+                    avatarUrl = await snapshot.ref.getDownloadURL();
+                }
+                
+                // Update user profile in Firebase Auth
+                await currentUser.updateProfile({
+                    displayName: name,
+                    photoURL: avatarUrl
+                });
+                
+                // Update user data in Firestore
+                await db.collection('users').doc(currentUser.uid).update({
+                    name: name,
+                    bio: bio,
+                    avatar: avatarUrl
+                });
+                
+                // Update all prompts by this user with new profile data
+                const promptsSnapshot = await db.collection('prompts')
+                    .where('authorId', '==', currentUser.uid)
+                    .get();
+                
+                const updatePromises = promptsSnapshot.docs.map(doc => 
+                    doc.ref.update({
+                        authorName: name,
+                        authorAvatar: avatarUrl
+                    })
+                );
+                
+                await Promise.all(updatePromises);
+                
+                // Update local user data
+                users[currentUser.uid] = {
+                    ...users[currentUser.uid],
+                    name: name,
+                    bio: bio,
+                    avatar: avatarUrl
+                };
+                
+                closeModal(elements.editProfileModal);
+                showNotification('Profile updated successfully!', 'success');
+                
+                // Refresh UI
+                showUserProfile();
+                openProfileModal();
+                loadPrompts();
+                
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showNotification('Error updating profile', 'error');
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+
         // === FILE UPLOAD UI ===
         function setupFileUpload() {
             elements.promptImage.addEventListener('change', function() {
@@ -1286,6 +1453,47 @@
                     elements.fileInputLabel.classList.remove('has-file');
                 }
             });
+
+            elements.editProfileImage.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    elements.editFileInputLabel.innerHTML = `<i class="fas fa-check"></i> ${this.files[0].name}`;
+                    elements.editFileInputLabel.classList.add('has-file');
+                    
+                    // Preview the selected image
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.getElementById('editProfileAvatar').src = e.target.result;
+                    }
+                    reader.readAsDataURL(this.files[0]);
+                } else {
+                    elements.editFileInputLabel.innerHTML = '<i class="fas fa-camera"></i> Change Photo';
+                    elements.editFileInputLabel.classList.remove('has-file');
+                }
+            });
+        }
+
+        // === CATEGORY FILTERING ===
+        function setupCategories() {
+            elements.categoryButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const category = btn.dataset.category;
+                    
+                    elements.categoryButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    currentCategory = category;
+                    filterPromptsByCategory();
+                });
+            });
+        }
+
+        function filterPromptsByCategory() {
+            if (currentCategory === 'all') {
+                displayPrompts(prompts);
+            } else {
+                const filteredPrompts = prompts.filter(prompt => prompt.category === currentCategory);
+                displayPrompts(filteredPrompts);
+            }
         }
 
         // === MODAL MANAGEMENT ===
@@ -1425,7 +1633,6 @@
             const category = document.getElementById('promptCategory').value;
             const imageFile = document.getElementById('promptImage').files[0];
             
-            // Show loading state
             const submitBtn = elements.uploadForm.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
@@ -1456,7 +1663,6 @@
                 
                 await db.collection('prompts').add(promptData);
                 
-                // Update user's prompt count
                 await db.collection('users').doc(currentUser.uid).update({
                     prompts: firebase.firestore.FieldValue.increment(1)
                 });
@@ -1473,7 +1679,6 @@
                 console.error('Upload error:', error);
                 showNotification('Error uploading prompt', 'error');
             } finally {
-                // Reset button state
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
             }
@@ -1500,7 +1705,6 @@
                         likes: firebase.firestore.FieldValue.increment(-1)
                     });
                     
-                    // Update user's like count
                     await db.collection('users').doc(prompt.authorId).update({
                         likes: firebase.firestore.FieldValue.increment(-1)
                     });
@@ -1516,7 +1720,6 @@
                         likes: firebase.firestore.FieldValue.increment(1)
                     });
                     
-                    // Update user's like count
                     await db.collection('users').doc(prompt.authorId).update({
                         likes: firebase.firestore.FieldValue.increment(1)
                     });
@@ -1534,7 +1737,6 @@
 
         // === UTILITY FUNCTIONS ===
         function showNotification(message, type = 'info') {
-            // Remove existing notifications
             document.querySelectorAll('.notification').forEach(notif => notif.remove());
             
             const notification = document.createElement('div');
@@ -1561,7 +1763,6 @@
             setupDashboardButtons();
             setupFileUpload();
             
-            // Wait for auth state to be determined
             await initAuth();
             loadPrompts();
         }
