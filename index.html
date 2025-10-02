@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Prompt Gallery | Get Every Type of Prompts</title>
+    <title>AI Prompt Gallery | Ultimate Prompt Sharing Platform</title>
     
     <!-- Favicon and App Icons -->
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
@@ -14,8 +14,8 @@
     <link rel="manifest" href="/site.webmanifest" />
     
     <!-- Additional Meta Tags for Better SEO and PWA -->
-    <meta name="description" content="Professional AI Prompt Gallery - Share and discover amazing AI art prompts">
-    <meta name="keywords" content="AI, prompts, gallery, art, artificial intelligence, midjourney, stable diffusion">
+    <meta name="description" content="Ultimate AI Prompt Gallery - Share, discover and collaborate on amazing AI art prompts">
+    <meta name="keywords" content="AI, prompts, gallery, art, artificial intelligence, midjourney, stable diffusion, chat, community">
     <meta name="author" content="Mk dev">
     <meta name="theme-color" content="#2563eb">
     
@@ -26,11 +26,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     
+    <!-- Emoji Picker -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emoji-picker-element@1.12.0/index.css">
+    <script src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1.12.0/index.js"></script>
+    
     <!-- Firebase SDK - WITH AUTHENTICATION -->
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, orderBy, query, onSnapshot, deleteDoc, doc, updateDoc, increment, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, orderBy, query, onSnapshot, deleteDoc, doc, updateDoc, increment, arrayUnion, arrayRemove, where, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, sendEmailVerification, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         
         // Your web app's Firebase configuration
@@ -53,7 +57,7 @@
         window.firebaseApp = { 
             db, auth, googleProvider,
             collection, addDoc, getDocs, orderBy, query, onSnapshot, deleteDoc, doc, updateDoc, increment,
-            arrayUnion, arrayRemove,
+            arrayUnion, arrayRemove, where, getDoc, setDoc,
             createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile,
             sendEmailVerification, signInWithPopup
         };
@@ -88,12 +92,23 @@
             --warning: #f59e0b;
             --like: #ec4899;
             --favorite: #f59e0b;
+            --shadow: 0 8px 30px rgba(0,0,0,0.08);
+            --radius: 16px;
+        }
+
+        [data-theme="dark"] {
+            --light: #0f172a;
+            --dark: #f8fafc;
+            --card-bg: #1e293b;
+            --secondary: #94a3b8;
+            --shadow: 0 8px 30px rgba(0,0,0,0.3);
         }
 
         body {
             background: var(--light);
             min-height: 100vh;
             color: var(--dark);
+            transition: all 0.3s ease;
         }
 
         .container {
@@ -107,11 +122,30 @@
             text-align: center;
             padding: 40px 20px;
             background: var(--gradient);
-            border-radius: 20px;
+            border-radius: var(--radius);
             margin-bottom: 40px;
             color: white;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
             position: relative;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .theme-toggle:hover {
+            background: white;
+            color: var(--primary);
+            transform: rotate(30deg);
         }
 
         .auth-buttons {
@@ -152,10 +186,27 @@
             border-radius: 50%;
             border: 2px solid white;
             object-fit: cover;
+            cursor: pointer;
         }
 
         .user-name {
             font-weight: 600;
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            background: var(--error);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: -5px;
+            right: -5px;
         }
 
         .header h1 {
@@ -171,6 +222,91 @@
             font-weight: 300;
         }
 
+        /* Search Bar */
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            border: 2px solid var(--primary);
+            border-radius: 25px;
+            font-size: 1rem;
+            background: var(--card-bg);
+            color: var(--dark);
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        /* Advanced Filters */
+        .filters-container {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: var(--radius);
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .filter-select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: var(--light);
+            color: var(--dark);
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
         /* Navigation */
         .navigation {
             display: flex;
@@ -183,7 +319,7 @@
         .nav-btn {
             padding: 12px 25px;
             border: 2px solid var(--primary);
-            background: white;
+            background: var(--card-bg);
             color: var(--primary);
             border-radius: 25px;
             cursor: pointer;
@@ -192,6 +328,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            position: relative;
         }
 
         .nav-btn:hover,
@@ -227,13 +364,13 @@
         .category-btn {
             padding: 12px 24px;
             border: 2px solid var(--primary);
-            background: white;
+            background: var(--card-bg);
             color: var(--primary);
             border-radius: 25px;
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
         }
 
         .category-btn:hover,
@@ -298,9 +435,9 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.8);
-            background: white;
+            background: var(--card-bg);
             padding: 40px;
-            border-radius: 20px;
+            border-radius: var(--radius);
             width: 90%;
             max-width: 450px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
@@ -359,6 +496,8 @@
             border: 2px solid #e2e8f0;
             border-radius: 10px;
             transition: all 0.3s ease;
+            background: var(--light);
+            color: var(--dark);
         }
 
         .otp-input:focus {
@@ -390,7 +529,7 @@
         /* Google Login Button */
         .google-login-btn {
             width: 100%;
-            background: white;
+            background: var(--card-bg);
             color: var(--dark);
             border: 2px solid #e2e8f0;
             padding: 15px;
@@ -406,7 +545,7 @@
         }
 
         .google-login-btn:hover {
-            background: #f8fafc;
+            background: var(--light);
             border-color: var(--primary);
         }
 
@@ -433,14 +572,16 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.8);
-            background: white;
+            background: var(--card-bg);
             padding: 40px;
-            border-radius: 20px;
+            border-radius: var(--radius);
             width: 90%;
             max-width: 600px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             opacity: 0;
             transition: all 0.4s ease;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal-content.active {
@@ -500,6 +641,7 @@
             font-size: 16px;
             transition: all 0.3s ease;
             background: var(--light);
+            color: var(--dark);
         }
 
         .form-group input:focus,
@@ -621,6 +763,53 @@
             font-weight: 600;
         }
 
+        /* Drag and Drop Area */
+        .drop-area {
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .drop-area.active {
+            display: block;
+        }
+
+        .drop-area.highlight {
+            border-color: var(--primary);
+            background-color: rgba(37, 99, 235, 0.05);
+        }
+
+        .drop-area i {
+            font-size: 3rem;
+            color: #cbd5e1;
+            margin-bottom: 15px;
+        }
+
+        .drop-area p {
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .drop-area .browse-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .drop-area .browse-btn:hover {
+            background: var(--primary-dark);
+        }
+
         /* Gallery Section */
         .gallery-section {
             margin-top: 40px;
@@ -642,9 +831,9 @@
 
         .prompt-card {
             background: var(--card-bg);
-            border-radius: 16px;
+            border-radius: var(--radius);
             overflow: hidden;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            box-shadow: var(--shadow);
             transition: all 0.3s ease;
             border: 1px solid #f1f5f9;
             position: relative;
@@ -677,6 +866,13 @@
             margin-bottom: 15px;
         }
 
+        .prompt-title {
+            color: var(--dark);
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
         .prompt-text {
             color: var(--dark);
             font-size: 15px;
@@ -686,6 +882,8 @@
             border-radius: 12px;
             border-left: 4px solid var(--accent);
             margin-bottom: 15px;
+            max-height: 150px;
+            overflow-y: auto;
         }
 
         .author-info {
@@ -694,7 +892,7 @@
             gap: 10px;
             margin-bottom: 15px;
             padding: 10px;
-            background: #f8fafc;
+            background: var(--light);
             border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -724,7 +922,7 @@
             align-items: center;
             margin-bottom: 15px;
             padding: 12px;
-            background: #f8fafc;
+            background: var(--light);
             border-radius: 10px;
             border: 1px solid #e2e8f0;
         }
@@ -762,6 +960,7 @@
             padding: 4px;
             border-radius: 50%;
             transition: all 0.3s ease;
+            color: var(--secondary);
         }
 
         .like-btn:hover {
@@ -850,129 +1049,104 @@
             transform: translateY(-2px);
         }
 
-        /* Profile Modal */
-        .profile-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 2000;
-            backdrop-filter: blur(5px);
+        /* Comments Section */
+        .comments-section {
+            margin-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
         }
 
-        .profile-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.8);
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            opacity: 0;
-            transition: all 0.4s ease;
-        }
-
-        .profile-content.active {
-            transform: translate(-50%, -50%) scale(1);
-            opacity: 1;
-        }
-
-        .profile-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .profile-avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid var(--primary);
+        .comments-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
             margin-bottom: 15px;
-            cursor: pointer;
         }
 
-        .profile-name {
-            font-size: 1.5rem;
-            font-weight: 700;
+        .comments-count {
+            font-weight: 600;
             color: var(--dark);
-            margin-bottom: 5px;
-            cursor: pointer;
         }
 
-        .profile-email {
-            color: var(--secondary);
-            margin-bottom: 20px;
-        }
-
-        .profile-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .profile-stat {
-            text-align: center;
-            padding: 15px;
-            background: #f8fafc;
-            border-radius: 10px;
-        }
-
-        .profile-stat-number {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .profile-stat-label {
-            font-size: 0.8rem;
-            color: var(--secondary);
-            text-transform: uppercase;
-        }
-
-        .profile-actions {
+        .add-comment {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
         }
 
-        .profile-action-btn {
+        .comment-input {
             flex: 1;
-            padding: 10px;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            background: var(--light);
+            color: var(--dark);
+            resize: none;
+        }
+
+        .comment-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .comment-btn {
+            background: var(--primary);
+            color: white;
             border: none;
-            border-radius: 8px;
-            font-weight: 600;
+            padding: 12px 20px;
+            border-radius: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
 
-        .follow-btn {
-            background: var(--primary);
-            color: white;
-        }
-
-        .follow-btn:hover {
+        .comment-btn:hover {
             background: var(--primary-dark);
         }
 
-        .following-btn {
-            background: var(--success);
-            color: white;
+        .comments-list {
+            max-height: 300px;
+            overflow-y: auto;
         }
 
-        .following-btn:hover {
-            background: #0da271;
+        .comment {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
         }
 
-        /* Edit Profile Modal */
-        .edit-profile-modal {
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .comment-author {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .comment-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .comment-time {
+            font-size: 0.8rem;
+            color: var(--secondary);
+        }
+
+        .comment-text {
+            color: var(--dark);
+            line-height: 1.5;
+        }
+
+        /* Chat System */
+        .chat-modal {
             display: none;
             position: fixed;
             top: 0;
@@ -984,24 +1158,188 @@
             backdrop-filter: blur(5px);
         }
 
-        .edit-profile-content {
+        .chat-content {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.8);
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
+            background: var(--card-bg);
             width: 90%;
-            max-width: 500px;
+            max-width: 800px;
+            height: 80vh;
+            border-radius: var(--radius);
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             opacity: 0;
             transition: all 0.4s ease;
+            display: flex;
+            flex-direction: column;
         }
 
-        .edit-profile-content.active {
+        .chat-content.active {
             transform: translate(-50%, -50%) scale(1);
             opacity: 1;
+        }
+
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .chat-user-name {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .chat-status {
+            font-size: 0.8rem;
+            color: var(--success);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            position: relative;
+        }
+
+        .message.sent {
+            align-self: flex-end;
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.received {
+            align-self: flex-start;
+            background: var(--light);
+            color: var(--dark);
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            background: var(--light);
+            color: var(--dark);
+            resize: none;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .chat-send-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chat-send-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Inbox Page */
+        .inbox-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+            height: 70vh;
+        }
+
+        .conversations-list {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            overflow-y: auto;
+            box-shadow: var(--shadow);
+        }
+
+        .conversation {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .conversation:hover {
+            background: var(--light);
+        }
+
+        .conversation.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .conversation-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .conversation-info {
+            flex: 1;
+        }
+
+        .conversation-name {
+            font-weight: 600;
+        }
+
+        .conversation-preview {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .conversation-time {
+            font-size: 0.7rem;
+            opacity: 0.5;
         }
 
         /* Image Cropping Modal */
@@ -1022,9 +1360,9 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.8);
-            background: white;
+            background: var(--card-bg);
             padding: 40px;
-            border-radius: 20px;
+            border-radius: var(--radius);
             width: 90%;
             max-width: 600px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
@@ -1078,51 +1416,167 @@
             background: #dc2626;
         }
 
-        /* Drag and Drop Area */
-        .drop-area {
-            border: 2px dashed #cbd5e1;
-            border-radius: 12px;
-            padding: 40px 20px;
+        /* Profile Modal */
+        .profile-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .profile-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: all 0.4s ease;
+        }
+
+        .profile-content.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        .profile-header {
             text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary);
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+        .profile-email {
+            color: var(--secondary);
+            margin-bottom: 20px;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .profile-stat {
+            text-align: center;
+            padding: 15px;
+            background: var(--light);
+            border-radius: 10px;
+        }
+
+        .profile-stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .profile-stat-label {
+            font-size: 0.8rem;
+            color: var(--secondary);
+            text-transform: uppercase;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .profile-action-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-bottom: 20px;
-            display: none;
         }
 
-        .drop-area.active {
-            display: block;
-        }
-
-        .drop-area.highlight {
-            border-color: var(--primary);
-            background-color: rgba(37, 99, 235, 0.05);
-        }
-
-        .drop-area i {
-            font-size: 3rem;
-            color: #cbd5e1;
-            margin-bottom: 15px;
-        }
-
-        .drop-area p {
-            color: var(--secondary);
-            margin-bottom: 10px;
-        }
-
-        .drop-area .browse-btn {
+        .follow-btn {
             background: var(--primary);
             color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
         }
 
-        .drop-area .browse-btn:hover {
+        .follow-btn:hover {
             background: var(--primary-dark);
+        }
+
+        .following-btn {
+            background: var(--success);
+            color: white;
+        }
+
+        .following-btn:hover {
+            background: #0da271;
+        }
+
+        .edit-btn {
+            background: var(--accent);
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background: #e58e08;
+        }
+
+        /* Edit Profile Modal */
+        .edit-profile-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .edit-profile-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: all 0.4s ease;
+        }
+
+        .edit-profile-content.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
         }
 
         /* Loading Spinner */
@@ -1166,9 +1620,9 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.8);
-            background: white;
+            background: var(--card-bg);
             padding: 40px;
-            border-radius: 20px;
+            border-radius: var(--radius);
             width: 90%;
             max-width: 500px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
@@ -1237,7 +1691,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
-        .empty-state, .favorites-empty, .uploads-empty, .following-empty {
+        .empty-state, .favorites-empty, .uploads-empty, .following-empty, .inbox-empty {
             text-align: center;
             color: var(--secondary);
             padding: 60px 20px;
@@ -1245,7 +1699,7 @@
             grid-column: 1 / -1;
         }
 
-        .empty-state i, .favorites-empty i, .uploads-empty i, .following-empty i {
+        .empty-state i, .favorites-empty i, .uploads-empty i, .following-empty i, .inbox-empty i {
             font-size: 4rem;
             margin-bottom: 20px;
             color: #cbd5e1;
@@ -1331,6 +1785,22 @@
             .crop-container {
                 height: 300px;
             }
+            
+            .inbox-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .conversations-list {
+                max-height: 200px;
+            }
+            
+            .filter-row {
+                flex-direction: column;
+            }
+            
+            .filter-group {
+                min-width: 100%;
+            }
         }
     </style>
 </head>
@@ -1338,17 +1808,72 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
             <div class="auth-buttons" id="authButtons">
                 <button class="auth-btn" id="loginBtn">Login</button>
                 <button class="auth-btn" id="signupBtn">Sign Up</button>
             </div>
             <div class="user-profile" id="userProfile" style="display: none;">
-                <img src="https://ui-avatars.com/api/?name=User&background=2563eb&color=fff" alt="User" class="user-avatar" id="userAvatar">
+                <div style="position: relative;">
+                    <img src="https://ui-avatars.com/api/?name=User&background=2563eb&color=fff" alt="User" class="user-avatar" id="userAvatar">
+                    <div class="notification-badge" id="notificationBadge" style="display: none;">0</div>
+                </div>
                 <span class="user-name" id="userName">User</span>
                 <button class="auth-btn" id="logoutBtn">Logout</button>
             </div>
             <h1>AI Prompt Gallery</h1>
-            <p>Professional Platform for AI Art & Prompt Sharing</p>
+            <p>Ultimate Platform for AI Art & Prompt Sharing</p>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+            <input type="text" class="search-box" id="searchBox" placeholder="Search prompts, titles, categories...">
+            <button class="search-btn" id="searchBtn">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+
+        <!-- Advanced Filters -->
+        <div class="filters-container" id="filtersContainer" style="display: none;">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>Sort By:</label>
+                    <select class="filter-select" id="sortBy">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="likes">Most Liked</option>
+                        <option value="downloads">Most Downloaded</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Category:</label>
+                    <select class="filter-select" id="filterCategory">
+                        <option value="all">All Categories</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="couple">Couple</option>
+                        <option value="kid">Kids</option>
+                        <option value="game">Games</option>
+                        <option value="film">Films</option>
+                        <option value="others">Others</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Date Range:</label>
+                    <select class="filter-select" id="dateRange">
+                        <option value="all">All Time</option>
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button class="auth-btn" id="applyFilters">Apply Filters</button>
+                <button class="auth-btn" id="resetFilters">Reset</button>
+            </div>
         </div>
 
         <!-- Navigation Menu -->
@@ -1364,6 +1889,10 @@
             </button>
             <button class="nav-btn" data-page="following">
                 <i class="fas fa-users"></i> Following
+            </button>
+            <button class="nav-btn" data-page="inbox">
+                <i class="fas fa-inbox"></i> Inbox
+                <div class="notification-badge" id="inboxBadge" style="display: none;">0</div>
             </button>
         </div>
 
@@ -1431,6 +1960,26 @@
                     <div class="following-empty" id="followingEmpty">
                         <i class="fas fa-users"></i>
                         <p>You're not following anyone yet. Follow users to see their prompts here!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="page" id="inboxPage">
+            <div class="gallery-section">
+                <h2><i class="fas fa-inbox"></i> Inbox</h2>
+                <div class="inbox-container" id="inboxContainer">
+                    <div class="conversations-list" id="conversationsList">
+                        <div class="inbox-empty" id="inboxEmpty">
+                            <i class="fas fa-comments"></i>
+                            <p>No conversations yet. Start chatting with other users!</p>
+                        </div>
+                    </div>
+                    <div class="chat-messages" id="inboxChat">
+                        <div class="inbox-empty">
+                            <i class="fas fa-comment"></i>
+                            <p>Select a conversation to start messaging</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1621,6 +2170,33 @@
         </div>
     </div>
 
+    <!-- Chat Modal -->
+    <div class="chat-modal" id="chatModal">
+        <div class="chat-content" id="chatContent">
+            <div class="chat-header">
+                <div class="chat-user">
+                    <img src="" alt="User" class="chat-user-avatar" id="chatUserAvatar">
+                    <div>
+                        <div class="chat-user-name" id="chatUserName">User Name</div>
+                        <div class="chat-status" id="chatStatus">Online</div>
+                    </div>
+                </div>
+                <button class="close-btn" id="closeChatModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <!-- Messages will be added here dynamically -->
+            </div>
+            <div class="chat-input-container">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Type a message...">
+                <button class="chat-send-btn" id="chatSendBtn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Profile Modal -->
     <div class="profile-modal" id="profileModal">
         <div class="profile-content" id="profileContent">
@@ -1720,6 +2296,7 @@
 
         function initApp() {
             // DOM Elements
+            const themeToggle = document.getElementById('themeToggle');
             const authModal = document.getElementById('authModal');
             const authContent = document.getElementById('authContent');
             const authTabs = document.querySelectorAll('.auth-tab');
@@ -1737,6 +2314,16 @@
             const loginBtn = document.getElementById('loginBtn');
             const signupBtn = document.getElementById('signupBtn');
             const logoutBtn = document.getElementById('logoutBtn');
+            const notificationBadge = document.getElementById('notificationBadge');
+            
+            const searchBox = document.getElementById('searchBox');
+            const searchBtn = document.getElementById('searchBtn');
+            const filtersContainer = document.getElementById('filtersContainer');
+            const sortBy = document.getElementById('sortBy');
+            const filterCategory = document.getElementById('filterCategory');
+            const dateRange = document.getElementById('dateRange');
+            const applyFilters = document.getElementById('applyFilters');
+            const resetFilters = document.getElementById('resetFilters');
             
             const uploadBtnMain = document.getElementById('uploadBtnMain');
             const uploadModal = document.getElementById('uploadModal');
@@ -1764,6 +2351,21 @@
             const closeCropModal = document.getElementById('closeCropModal');
             const confirmCrop = document.getElementById('confirmCrop');
             const cancelCrop = document.getElementById('cancelCrop');
+            
+            const chatModal = document.getElementById('chatModal');
+            const chatContent = document.getElementById('chatContent');
+            const closeChatModal = document.getElementById('closeChatModal');
+            const chatMessages = document.getElementById('chatMessages');
+            const chatInput = document.getElementById('chatInput');
+            const chatSendBtn = document.getElementById('chatSendBtn');
+            const chatUserAvatar = document.getElementById('chatUserAvatar');
+            const chatUserName = document.getElementById('chatUserName');
+            const chatStatus = document.getElementById('chatStatus');
+            
+            const inboxBadge = document.getElementById('inboxBadge');
+            const conversationsList = document.getElementById('conversationsList');
+            const inboxChat = document.getElementById('inboxChat');
+            const inboxEmpty = document.getElementById('inboxEmpty');
             
             const profileModal = document.getElementById('profileModal');
             const profileContent = document.getElementById('profileContent');
@@ -1809,9 +2411,7 @@
             const {
                 db, auth, googleProvider,
                 collection, addDoc, getDocs, orderBy, query, onSnapshot, deleteDoc, doc, updateDoc, increment,
-                arrayUnion, arrayRemove,
-                createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile,
-                sendEmailVerification, signInWithPopup
+                arrayUnion, arrayRemove, where, getDoc, setDoc
             } = window.firebaseApp;
 
             // Global variables
@@ -1827,10 +2427,39 @@
             let cropper = null;
             let currentProfileUserId = null;
             let selectedImageFile = null;
+            let currentChatUser = null;
+            let conversations = new Map();
+            let unreadMessages = 0;
+            let currentTheme = 'light';
+            let searchQuery = '';
+            let currentFilters = {
+                sortBy: 'newest',
+                category: 'all',
+                dateRange: 'all'
+            };
+
+            // Theme management
+            function initTheme() {
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                setTheme(savedTheme);
+            }
+
+            function setTheme(theme) {
+                currentTheme = theme;
+                document.body.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+                
+                const icon = theme === 'dark' ? 'fa-sun' : 'fa-moon';
+                themeToggle.innerHTML = `<i class="fas ${icon}"></i>`;
+            }
+
+            function toggleTheme() {
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                setTheme(newTheme);
+            }
 
             // Improved text content filtering function
             function containsInappropriateContent(text) {
-                // List of banned words with context checking
                 const bannedWords = [
                     'nude', 'naked', 'fuck', 'porn', 'porno', 'sex', 'sexual', 
                     'gay', 'lesbian', 'xxx', 'adult', 'nsfw', 'explicit',
@@ -1838,7 +2467,6 @@
                     'hate', 'racist', 'abuse', 'harassment', 'bully'
                 ];
                 
-                // Words that need context checking (not always inappropriate)
                 const contextWords = [
                     { word: 'ass', allowed: ['grass', 'class', 'pass', 'glass', 'mass', 'brass'] },
                     { word: 'dick', allowed: ['dickens', 'dickinson'] },
@@ -1861,7 +2489,6 @@
                 // Check for context words
                 for (const { word, allowed } of contextWords) {
                     if (lowerText.includes(word)) {
-                        // Check if the word appears in an allowed context
                         let isAllowed = false;
                         for (const allowedWord of allowed) {
                             if (lowerText.includes(allowedWord)) {
@@ -1870,7 +2497,6 @@
                             }
                         }
                         
-                        // If not in an allowed context, flag it
                         if (!isAllowed) {
                             return word;
                         }
@@ -1882,6 +2508,7 @@
 
             // Initialize the app
             document.addEventListener('DOMContentLoaded', function() {
+                initTheme();
                 initAuth();
                 initEventListeners();
                 loadPrompts();
@@ -1900,14 +2527,12 @@
             function initAuth() {
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
-                        // User is signed in
                         currentUser = user;
                         updateUIForUser(user);
                         console.log('User signed in:', user);
-                        // Load user's liked and favorited prompts from localStorage
                         loadUserPreferences();
+                        loadConversations();
                     } else {
-                        // User is signed out
                         currentUser = null;
                         updateUIForGuest();
                         console.log('User signed out');
@@ -1945,6 +2570,20 @@
 
             // Initialize event listeners
             function initEventListeners() {
+                // Theme toggle
+                themeToggle.addEventListener('click', toggleTheme);
+                
+                // Search functionality
+                searchBox.addEventListener('input', handleSearch);
+                searchBtn.addEventListener('click', handleSearch);
+                searchBox.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') handleSearch();
+                });
+                
+                // Filter functionality
+                applyFilters.addEventListener('click', applyAdvancedFilters);
+                resetFilters.addEventListener('click', resetAdvancedFilters);
+                
                 // Auth buttons
                 loginBtn.addEventListener('click', () => openAuthModal('login'));
                 signupBtn.addEventListener('click', () => openAuthModal('signup'));
@@ -1966,9 +2605,6 @@
                 
                 // Upload form
                 uploadForm.addEventListener('submit', handleUploadPrompt);
-                
-                // Image preview and NSFW detection
-                promptImage.addEventListener('change', handleImageSelect);
                 
                 // Drag and drop
                 browseBtn.addEventListener('click', () => promptImage.click());
@@ -2008,6 +2644,9 @@
                     handleImageSelect({ target: promptImage });
                 }
                 
+                // Image preview and NSFW detection
+                promptImage.addEventListener('change', handleImageSelect);
+                
                 // Text content filtering
                 promptTitle.addEventListener('input', checkTextContent);
                 promptText.addEventListener('input', checkTextContent);
@@ -2016,6 +2655,13 @@
                 closeCropModal.addEventListener('click', closeCropModalFunc);
                 confirmCrop.addEventListener('click', handleCropConfirm);
                 cancelCrop.addEventListener('click', handleCropCancel);
+                
+                // Chat functionality
+                closeChatModal.addEventListener('click', closeChatModalFunc);
+                chatSendBtn.addEventListener('click', sendMessage);
+                chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') sendMessage();
+                });
                 
                 // Profile modal
                 userAvatar.addEventListener('click', openMyProfileModal);
@@ -2046,10 +2692,46 @@
                     if (e.target === authModal) closeAuthModal();
                     if (e.target === uploadModal) closeUploadModalFunc();
                     if (e.target === cropModal) closeCropModalFunc();
+                    if (e.target === chatModal) closeChatModalFunc();
                     if (e.target === profileModal) closeProfileModalFunc();
                     if (e.target === editProfileModal) closeEditProfileModalFunc();
                     if (e.target === resultModal) closeResultModal();
                 });
+            }
+
+            // Search functionality
+            function handleSearch() {
+                searchQuery = searchBox.value.trim().toLowerCase();
+                if (searchQuery) {
+                    filtersContainer.style.display = 'block';
+                } else {
+                    filtersContainer.style.display = 'none';
+                }
+                renderPrompts();
+            }
+
+            function applyAdvancedFilters() {
+                currentFilters = {
+                    sortBy: sortBy.value,
+                    category: filterCategory.value,
+                    dateRange: dateRange.value
+                };
+                renderPrompts();
+            }
+
+            function resetAdvancedFilters() {
+                sortBy.value = 'newest';
+                filterCategory.value = 'all';
+                dateRange.value = 'all';
+                searchBox.value = '';
+                searchQuery = '';
+                filtersContainer.style.display = 'none';
+                currentFilters = {
+                    sortBy: 'newest',
+                    category: 'all',
+                    dateRange: 'all'
+                };
+                renderPrompts();
             }
 
             // Page switching function
@@ -2075,6 +2757,8 @@
                     loadMyUploads();
                 } else if (page === 'following') {
                     loadFollowing();
+                } else if (page === 'inbox') {
+                    loadInbox();
                 }
             }
 
@@ -2138,6 +2822,22 @@
                         const promptCard = createPromptCard(prompt);
                         followingGallery.appendChild(promptCard);
                     });
+                }
+            }
+
+            // Load inbox
+            function loadInbox() {
+                if (!currentUser) {
+                    inboxEmpty.style.display = 'block';
+                    conversationsList.innerHTML = '';
+                    return;
+                }
+                
+                if (conversations.size === 0) {
+                    inboxEmpty.style.display = 'block';
+                } else {
+                    inboxEmpty.style.display = 'none';
+                    renderConversations();
                 }
             }
 
@@ -2494,7 +3194,7 @@
                 userProfile.style.display = 'none';
             }
 
-            // Upload functions - REAL PROGRESS WITH BASE64
+            // Upload functions
             function openUploadModal() {
                 if (!currentUser) {
                     showResultModal('error', 'Authentication Required', 'Please log in to upload prompts.');
@@ -2561,21 +3261,16 @@
                 try {
                     uploadProgress.style.display = 'block';
                     
-                    // **REAL PROGRESS - NO FAKE SIMULATION**
-                    console.log('Starting upload process...');
-                    
-                    // Step 1: Convert image to base64 with progress
+                    // Convert image to base64 with progress
                     progressFill.style.width = '30%';
                     progressText.textContent = '30%';
-                    console.log('Converting image to base64...');
                     
                     const imageBase64 = await convertImageToBase64(imageFile);
                     
                     progressFill.style.width = '60%';
                     progressText.textContent = '60%';
-                    console.log('Image converted successfully');
                     
-                    // Step 2: Save to Firestore
+                    // Save to Firestore
                     const promptData = {
                         title,
                         text,
@@ -2586,21 +3281,19 @@
                         likes: 0,
                         favorites: 0,
                         downloads: 0,
+                        views: 0,
                         createdAt: new Date(),
-                        imageUrl: imageBase64, // Store as base64
-                        imageStoredAsBase64: true // Flag to identify base64 images
+                        imageUrl: imageBase64,
+                        imageStoredAsBase64: true
                     };
                     
                     progressFill.style.width = '80%';
                     progressText.textContent = '80%';
-                    console.log('Saving to Firestore...');
                     
                     await addDoc(collection(db, 'prompts'), promptData);
                     
-                    // **REAL 100% COMPLETE**
                     progressFill.style.width = '100%';
                     progressText.textContent = '100%';
-                    console.log('Upload completed successfully!');
                     
                     // Wait a moment to show 100%
                     await new Promise(resolve => setTimeout(resolve, 500));
@@ -2622,6 +3315,117 @@
                 }
             }
 
+            // Chat functionality
+            function loadConversations() {
+                if (!currentUser) return;
+                
+                // In a real app, you would load conversations from Firebase
+                // For now, we'll simulate some conversations
+                setTimeout(() => {
+                    updateUnreadCount(3);
+                }, 2000);
+            }
+
+            function updateUnreadCount(count) {
+                unreadMessages = count;
+                notificationBadge.textContent = count;
+                inboxBadge.textContent = count;
+                
+                if (count > 0) {
+                    notificationBadge.style.display = 'flex';
+                    inboxBadge.style.display = 'flex';
+                } else {
+                    notificationBadge.style.display = 'none';
+                    inboxBadge.style.display = 'none';
+                }
+            }
+
+            function renderConversations() {
+                conversationsList.innerHTML = '';
+                
+                conversations.forEach((conversation, userId) => {
+                    const conversationEl = document.createElement('div');
+                    conversationEl.className = 'conversation';
+                    conversationEl.innerHTML = `
+                        <img src="${conversation.avatar}" alt="${conversation.name}" class="conversation-avatar">
+                        <div class="conversation-info">
+                            <div class="conversation-name">${conversation.name}</div>
+                            <div class="conversation-preview">${conversation.lastMessage}</div>
+                        </div>
+                        <div class="conversation-time">${conversation.time}</div>
+                    `;
+                    
+                    conversationEl.addEventListener('click', () => openChat(userId, conversation));
+                    conversationsList.appendChild(conversationEl);
+                });
+            }
+
+            function openChat(userId, user) {
+                currentChatUser = { id: userId, ...user };
+                chatUserAvatar.src = user.avatar;
+                chatUserName.textContent = user.name;
+                chatMessages.innerHTML = '';
+                
+                // Load chat history (simulated)
+                const messages = [
+                    { text: 'Hi there! I saw your amazing prompt!', sender: userId, time: '10:30 AM' },
+                    { text: 'Thank you! Glad you liked it 😊', sender: currentUser.uid, time: '10:32 AM' },
+                    { text: 'Could you share some tips for creating similar prompts?', sender: userId, time: '10:33 AM' }
+                ];
+                
+                messages.forEach(msg => {
+                    addMessageToChat(msg.text, msg.sender, msg.time);
+                });
+                
+                chatModal.style.display = 'block';
+                setTimeout(() => {
+                    chatContent.classList.add('active');
+                    chatInput.focus();
+                }, 10);
+            }
+
+            function closeChatModalFunc() {
+                chatContent.classList.remove('active');
+                setTimeout(() => {
+                    chatModal.style.display = 'none';
+                    currentChatUser = null;
+                }, 400);
+            }
+
+            function sendMessage() {
+                const message = chatInput.value.trim();
+                if (!message || !currentChatUser) return;
+                
+                // Add message to chat
+                addMessageToChat(message, currentUser.uid, new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+                
+                // Clear input
+                chatInput.value = '';
+                
+                // Simulate reply
+                setTimeout(() => {
+                    const replies = [
+                        "That's really helpful, thanks!",
+                        "I'll try that technique",
+                        "Amazing, can't wait to try it!",
+                        "Do you have any other examples?"
+                    ];
+                    const reply = replies[Math.floor(Math.random() * replies.length)];
+                    addMessageToChat(reply, currentChatUser.id, new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+                }, 1000);
+            }
+
+            function addMessageToChat(text, sender, time) {
+                const messageEl = document.createElement('div');
+                messageEl.className = `message ${sender === currentUser.uid ? 'sent' : 'received'}`;
+                messageEl.innerHTML = `
+                    <div class="message-text">${text}</div>
+                    <div class="message-time">${time}</div>
+                `;
+                chatMessages.appendChild(messageEl);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
             // Profile functions
             function openMyProfileModal() {
                 if (!currentUser) return;
@@ -2632,7 +3436,7 @@
                 currentProfileUserId = user.uid;
                 
                 profileName.textContent = user.displayName || 'User';
-                profileEmail.textContent = user.email;
+                profileEmail.textContent = user.email || '';
                 profileAvatar.src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'User')}&background=2563eb&color=fff`;
                 
                 // Show/hide edit button based on whether it's the current user's profile
@@ -2781,7 +3585,6 @@
                         prompts.push({
                             id: doc.id,
                             ...data,
-                            // Convert Firestore timestamp to Date object if it exists
                             createdAt: data.createdAt ? data.createdAt.toDate() : new Date()
                         });
                     });
@@ -2798,9 +3601,64 @@
             function renderPrompts() {
                 gallery.innerHTML = '';
                 
-                const filteredPrompts = currentCategory === 'all' 
-                    ? prompts 
-                    : prompts.filter(p => p.category === currentCategory);
+                let filteredPrompts = prompts;
+                
+                // Apply category filter
+                if (currentCategory !== 'all') {
+                    filteredPrompts = filteredPrompts.filter(p => p.category === currentCategory);
+                }
+                
+                // Apply search filter
+                if (searchQuery) {
+                    filteredPrompts = filteredPrompts.filter(p => 
+                        p.title.toLowerCase().includes(searchQuery) ||
+                        p.text.toLowerCase().includes(searchQuery) ||
+                        p.category.toLowerCase().includes(searchQuery) ||
+                        p.authorName.toLowerCase().includes(searchQuery)
+                    );
+                }
+                
+                // Apply advanced filters
+                if (currentFilters.category !== 'all') {
+                    filteredPrompts = filteredPrompts.filter(p => p.category === currentFilters.category);
+                }
+                
+                // Apply date filter
+                if (currentFilters.dateRange !== 'all') {
+                    const now = new Date();
+                    let startDate;
+                    
+                    switch (currentFilters.dateRange) {
+                        case 'today':
+                            startDate = new Date(now.setHours(0, 0, 0, 0));
+                            break;
+                        case 'week':
+                            startDate = new Date(now.setDate(now.getDate() - 7));
+                            break;
+                        case 'month':
+                            startDate = new Date(now.setMonth(now.getMonth() - 1));
+                            break;
+                    }
+                    
+                    if (startDate) {
+                        filteredPrompts = filteredPrompts.filter(p => p.createdAt >= startDate);
+                    }
+                }
+                
+                // Apply sorting
+                switch (currentFilters.sortBy) {
+                    case 'oldest':
+                        filteredPrompts.sort((a, b) => a.createdAt - b.createdAt);
+                        break;
+                    case 'likes':
+                        filteredPrompts.sort((a, b) => b.likes - a.likes);
+                        break;
+                    case 'downloads':
+                        filteredPrompts.sort((a, b) => b.downloads - a.downloads);
+                        break;
+                    default: // newest
+                        filteredPrompts.sort((a, b) => b.createdAt - a.createdAt);
+                }
                 
                 if (filteredPrompts.length === 0) {
                     emptyState.style.display = 'block';
@@ -2822,15 +3680,10 @@
                 // Check if prompt is new (created in last 24 hours)
                 const isNew = (new Date() - new Date(prompt.createdAt)) < 24 * 60 * 60 * 1000;
                 
-                // Handle base64 images - FIXED
+                // Handle base64 images
                 let imageSrc = 'https://via.placeholder.com/400x300?text=No+Image';
                 if (prompt.imageUrl) {
-                    // Check if it's base64 or URL
-                    if (prompt.imageUrl.startsWith('data:image')) {
-                        imageSrc = prompt.imageUrl; // Base64 image
-                    } else {
-                        imageSrc = prompt.imageUrl; // Regular URL
-                    }
+                    imageSrc = prompt.imageUrl;
                 }
                 
                 // Check if liked/favorited
@@ -2846,8 +3699,25 @@
                     <img src="${imageSrc}" alt="${prompt.title}" class="prompt-image">
                     <div class="prompt-content">
                         <div class="prompt-category">${prompt.category.toUpperCase()}</div>
-                        <h3>${prompt.title}</h3>
+                        <h3 class="prompt-title">${prompt.title}</h3>
                         <div class="prompt-text">${prompt.text}</div>
+                        
+                        <!-- Comments Section -->
+                        <div class="comments-section">
+                            <div class="comments-header">
+                                <div class="comments-count">Comments (${prompt.comments ? prompt.comments.length : 0})</div>
+                            </div>
+                            ${currentUser ? `
+                            <div class="add-comment">
+                                <input type="text" class="comment-input" placeholder="Add a comment...">
+                                <button class="comment-btn">Post</button>
+                            </div>
+                            ` : ''}
+                            <div class="comments-list">
+                                <!-- Comments will be loaded here -->
+                            </div>
+                        </div>
+                        
                         <div class="author-info" data-user-id="${prompt.authorId}">
                             <img src="${prompt.authorAvatar}" alt="${prompt.authorName}" class="author-avatar">
                             <span class="author-name">${prompt.authorName}</span>
@@ -2872,6 +3742,11 @@
                                 <span class="stat-count">${prompt.downloads}</span>
                                 <span class="stat-label">Downloads</span>
                             </div>
+                            <div class="stat-item">
+                                <i class="fas fa-eye stat-icon"></i>
+                                <span class="stat-count">${prompt.views || 0}</span>
+                                <span class="stat-label">Views</span>
+                            </div>
                         </div>
                         <div class="download-options">
                             <button class="download-btn" data-id="${prompt.id}" data-type="text">
@@ -2880,16 +3755,24 @@
                             <button class="download-btn" data-id="${prompt.id}" data-type="image">
                                 <i class="fas fa-download"></i> Download Image
                             </button>
+                            ${currentUser && prompt.authorId !== currentUser.uid ? `
+                            <button class="download-btn chat-user-btn" data-user-id="${prompt.authorId}">
+                                <i class="fas fa-comment"></i> Message
+                            </button>
+                            ` : ''}
                         </div>
                     </div>
                 `;
                 
-                // Add event listeners to the card buttons
+                // Add event listeners
                 const likeBtn = card.querySelector('.like-btn');
                 const favoriteBtn = card.querySelector('.favorite-btn');
                 const deleteBtn = card.querySelector('.delete-btn');
                 const downloadBtns = card.querySelectorAll('.download-btn');
                 const authorInfo = card.querySelector('.author-info');
+                const chatUserBtn = card.querySelector('.chat-user-btn');
+                const commentInput = card.querySelector('.comment-input');
+                const commentBtn = card.querySelector('.comment-btn');
                 
                 if (likeBtn) {
                     likeBtn.addEventListener('click', () => handleLike(prompt.id, isLiked));
@@ -2905,19 +3788,51 @@
                 
                 if (authorInfo) {
                     authorInfo.addEventListener('click', () => {
-                        // Create a minimal user object for the profile modal
                         const user = {
                             uid: prompt.authorId,
                             displayName: prompt.authorName,
-                            email: '', // Not available in prompt data
+                            email: '',
                             photoURL: prompt.authorAvatar
                         };
                         openProfileModal(user);
                     });
                 }
                 
+                if (chatUserBtn) {
+                    chatUserBtn.addEventListener('click', () => {
+                        const user = {
+                            id: prompt.authorId,
+                            name: prompt.authorName,
+                            avatar: prompt.authorAvatar
+                        };
+                        openChat(prompt.authorId, user);
+                    });
+                }
+                
+                if (commentBtn && commentInput) {
+                    commentBtn.addEventListener('click', () => {
+                        const comment = commentInput.value.trim();
+                        if (comment) {
+                            handleAddComment(prompt.id, comment);
+                            commentInput.value = '';
+                        }
+                    });
+                    
+                    commentInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            const comment = commentInput.value.trim();
+                            if (comment) {
+                                handleAddComment(prompt.id, comment);
+                                commentInput.value = '';
+                            }
+                        }
+                    });
+                }
+                
                 downloadBtns.forEach(btn => {
-                    btn.addEventListener('click', () => handleDownload(prompt.id, btn.dataset.type, prompt));
+                    if (!btn.classList.contains('chat-user-btn')) {
+                        btn.addEventListener('click', () => handleDownload(prompt.id, btn.dataset.type, prompt));
+                    }
                 });
                 
                 return card;
@@ -2932,7 +3847,7 @@
                 renderPrompts();
             }
 
-            // Like handler with TOGGLE functionality
+            // Like handler
             async function handleLike(promptId, isCurrentlyLiked) {
                 if (!currentUser) {
                     showResultModal('error', 'Authentication Required', 'Please log in to like prompts.');
@@ -2943,13 +3858,11 @@
                     const promptRef = doc(db, 'prompts', promptId);
                     
                     if (isCurrentlyLiked) {
-                        // Unlike - remove like
                         await updateDoc(promptRef, {
                             likes: increment(-1)
                         });
                         likedPrompts.delete(promptId);
                         
-                        // Update local data and UI
                         const promptIndex = prompts.findIndex(p => p.id === promptId);
                         if (promptIndex !== -1) {
                             prompts[promptIndex].likes -= 1;
@@ -2957,13 +3870,11 @@
                         
                         showResultModal('success', 'Unliked!', 'Prompt unliked successfully!');
                     } else {
-                        // Like - add like
                         await updateDoc(promptRef, {
                             likes: increment(1)
                         });
                         likedPrompts.add(promptId);
                         
-                        // Update local data and UI
                         const promptIndex = prompts.findIndex(p => p.id === promptId);
                         if (promptIndex !== -1) {
                             prompts[promptIndex].likes += 1;
@@ -2972,7 +3883,6 @@
                         showResultModal('success', 'Liked!', 'Prompt liked successfully!');
                     }
                     
-                    // Save preferences and update UI
                     saveUserPreferences();
                     renderPrompts();
                     if (currentPage === 'favorites') loadFavorites();
@@ -2985,7 +3895,7 @@
                 }
             }
 
-            // Favorite handler with TOGGLE functionality
+            // Favorite handler
             async function handleFavorite(promptId, isCurrentlyFavorited) {
                 if (!currentUser) {
                     showResultModal('error', 'Authentication Required', 'Please log in to favorite prompts.');
@@ -2996,13 +3906,11 @@
                     const promptRef = doc(db, 'prompts', promptId);
                     
                     if (isCurrentlyFavorited) {
-                        // Unfavorite - remove favorite
                         await updateDoc(promptRef, {
                             favorites: increment(-1)
                         });
                         favoritedPrompts.delete(promptId);
                         
-                        // Update local data and UI
                         const promptIndex = prompts.findIndex(p => p.id === promptId);
                         if (promptIndex !== -1) {
                             prompts[promptIndex].favorites -= 1;
@@ -3010,13 +3918,11 @@
                         
                         showResultModal('success', 'Removed from Favorites!', 'Prompt removed from favorites!');
                     } else {
-                        // Favorite - add favorite
                         await updateDoc(promptRef, {
                             favorites: increment(1)
                         });
                         favoritedPrompts.add(promptId);
                         
-                        // Update local data and UI
                         const promptIndex = prompts.findIndex(p => p.id === promptId);
                         if (promptIndex !== -1) {
                             prompts[promptIndex].favorites += 1;
@@ -3025,7 +3931,6 @@
                         showResultModal('success', 'Favorited!', 'Prompt added to favorites!');
                     }
                     
-                    // Save preferences and update UI
                     saveUserPreferences();
                     renderPrompts();
                     if (currentPage === 'favorites') loadFavorites();
@@ -3035,6 +3940,35 @@
                 } catch (error) {
                     console.error('Error favoriting prompt:', error);
                     showResultModal('error', 'Action Failed', 'Failed to favorite prompt. Please try again.');
+                }
+            }
+
+            // Comment handler
+            async function handleAddComment(promptId, comment) {
+                if (!currentUser) {
+                    showResultModal('error', 'Authentication Required', 'Please log in to add comments.');
+                    return;
+                }
+                
+                try {
+                    const promptRef = doc(db, 'prompts', promptId);
+                    const commentData = {
+                        text: comment,
+                        authorId: currentUser.uid,
+                        authorName: currentUser.displayName || 'Anonymous',
+                        authorAvatar: currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'User')}&background=2563eb&color=fff`,
+                        createdAt: new Date()
+                    };
+                    
+                    await updateDoc(promptRef, {
+                        comments: arrayUnion(commentData)
+                    });
+                    
+                    showResultModal('success', 'Comment Added', 'Your comment has been posted!');
+                    
+                } catch (error) {
+                    console.error('Error adding comment:', error);
+                    showResultModal('error', 'Comment Failed', 'Failed to add comment. Please try again.');
                 }
             }
 
@@ -3068,18 +4002,15 @@
 
             function handleDownload(promptId, type, prompt) {
                 if (type === 'text') {
-                    // Copy prompt text to clipboard
                     navigator.clipboard.writeText(prompt.text)
                         .then(() => {
                             showResultModal('success', 'Copied!', 'Prompt text copied to clipboard.');
                             
-                            // Update download count in Firestore
                             const promptRef = doc(db, 'prompts', promptId);
                             updateDoc(promptRef, {
                                 downloads: increment(1)
                             });
                             
-                            // Update local data
                             const promptIndex = prompts.findIndex(p => p.id === promptId);
                             if (promptIndex !== -1) {
                                 prompts[promptIndex].downloads += 1;
@@ -3090,7 +4021,6 @@
                             showResultModal('error', 'Copy Failed', 'Failed to copy prompt text.');
                         });
                 } else if (type === 'image') {
-                    // Download image (works for both URL and base64)
                     const link = document.createElement('a');
                     link.href = prompt.imageUrl;
                     link.download = `ai-prompt-${prompt.title}.jpg`;
@@ -3098,13 +4028,11 @@
                     link.click();
                     document.body.removeChild(link);
                     
-                    // Update download count in Firestore
                     const promptRef = doc(db, 'prompts', promptId);
                     updateDoc(promptRef, {
                         downloads: increment(1)
                     });
                     
-                    // Update local data
                     const promptIndex = prompts.findIndex(p => p.id === promptId);
                     if (promptIndex !== -1) {
                         prompts[promptIndex].downloads += 1;
