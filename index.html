@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Prompt Gallery | Professional</title>
+    <title>AI Prompt Gallery | Get Every Type of Prompts</title>
     
     <!-- Favicon and App Icons -->
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
@@ -1858,7 +1858,7 @@
                         progressText.textContent = `${progress}%`;
                     }, 200);
                     
-                    // Upload image to Firebase Storage
+                    // REAL IMAGE UPLOAD TO FIREBASE STORAGE
                     const imageUrl = await uploadImageToFirebase(imageFile);
                     
                     // Prepare prompt data
@@ -1904,10 +1904,14 @@
                 }
             }
 
-            // Upload image to Firebase Storage with real progress
+            // REAL Firebase Storage Upload Function
             function uploadImageToFirebase(file) {
                 return new Promise((resolve, reject) => {
-                    const storageRef = ref(storage, 'prompt-images/' + Date.now() + '-' + file.name);
+                    // Create a unique filename
+                    const filename = `prompt_${Date.now()}_${file.name}`;
+                    const storageRef = ref(storage, `prompt-images/${filename}`);
+                    
+                    // Upload file with progress tracking
                     const uploadTask = uploadBytesResumable(storageRef, file);
                     
                     uploadTask.on('state_changed',
@@ -1915,14 +1919,24 @@
                             // Real upload progress
                             const realProgress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                             console.log('Upload is ' + realProgress + '% done');
+                            
+                            // Update progress bar with real progress
+                            progressFill.style.width = `${realProgress}%`;
+                            progressText.textContent = `${Math.round(realProgress)}%`;
                         },
                         (error) => {
+                            console.error('Upload failed:', error);
                             reject(error);
                         },
-                        () => {
-                            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                        async () => {
+                            // Upload completed successfully, get download URL
+                            try {
+                                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                                console.log('File available at:', downloadURL);
                                 resolve(downloadURL);
-                            });
+                            } catch (error) {
+                                reject(error);
+                            }
                         }
                     );
                 });
@@ -1969,9 +1983,12 @@
                     
                     prompts = [];
                     querySnapshot.forEach((doc) => {
+                        const data = doc.data();
                         prompts.push({
                             id: doc.id,
-                            ...doc.data()
+                            ...data,
+                            // Convert Firestore timestamp to Date object if it exists
+                            createdAt: data.createdAt ? data.createdAt.toDate() : new Date()
                         });
                     });
                     
@@ -2009,7 +2026,7 @@
                 card.className = 'prompt-card';
                 
                 // Check if prompt is new (created in last 24 hours)
-                const isNew = (new Date() - prompt.createdAt.toDate()) < 24 * 60 * 60 * 1000;
+                const isNew = (new Date() - new Date(prompt.createdAt)) < 24 * 60 * 60 * 1000;
                 
                 card.innerHTML = `
                     ${isNew ? '<div class="new-tag">NEW</div>' : ''}
@@ -2032,14 +2049,14 @@
                         </div>
                         <div class="prompt-stats">
                             <div class="stat-item">
-                                <button class="like-btn ${prompt.liked ? 'liked' : ''}" data-id="${prompt.id}" ${!currentUser ? 'disabled' : ''}>
+                                <button class="like-btn" data-id="${prompt.id}" ${!currentUser ? 'disabled' : ''}>
                                     <i class="fas fa-heart stat-icon"></i>
                                 </button>
                                 <span class="stat-count">${prompt.likes}</span>
                                 <span class="stat-label">Likes</span>
                             </div>
                             <div class="stat-item">
-                                <button class="favorite-btn ${prompt.favorited ? 'favorited' : ''}" data-id="${prompt.id}" ${!currentUser ? 'disabled' : ''}>
+                                <button class="favorite-btn" data-id="${prompt.id}" ${!currentUser ? 'disabled' : ''}>
                                     <i class="fas fa-star stat-icon"></i>
                                 </button>
                                 <span class="stat-count">${prompt.favorites}</span>
@@ -2112,7 +2129,6 @@
                     const promptIndex = prompts.findIndex(p => p.id === promptId);
                     if (promptIndex !== -1) {
                         prompts[promptIndex].likes += 1;
-                        prompts[promptIndex].liked = true;
                         renderPrompts();
                     }
                 } catch (error) {
@@ -2137,7 +2153,6 @@
                     const promptIndex = prompts.findIndex(p => p.id === promptId);
                     if (promptIndex !== -1) {
                         prompts[promptIndex].favorites += 1;
-                        prompts[promptIndex].favorited = true;
                         renderPrompts();
                     }
                 } catch (error) {
@@ -2196,7 +2211,7 @@
                     // Download image
                     const link = document.createElement('a');
                     link.href = prompt.imageUrl;
-                    link.download = `ai-prompt-${promptId}.jpg`;
+                    link.download = `ai-prompt-${prompt.title}.jpg`;
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
