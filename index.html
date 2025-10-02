@@ -1548,6 +1548,8 @@
                         currentUser = user;
                         updateUIForUser(user);
                         console.log('User signed in:', user);
+                        // Load user's liked and favorited prompts from localStorage
+                        loadUserPreferences();
                     } else {
                         // User is signed out
                         currentUser = null;
@@ -1555,6 +1557,29 @@
                         console.log('User signed out');
                     }
                 });
+            }
+
+            // Load user preferences from localStorage
+            function loadUserPreferences() {
+                if (!currentUser) return;
+                
+                const userLikes = localStorage.getItem(`likedPrompts_${currentUser.uid}`);
+                const userFavorites = localStorage.getItem(`favoritedPrompts_${currentUser.uid}`);
+                
+                if (userLikes) {
+                    likedPrompts = new Set(JSON.parse(userLikes));
+                }
+                if (userFavorites) {
+                    favoritedPrompts = new Set(JSON.parse(userFavorites));
+                }
+            }
+
+            // Save user preferences to localStorage
+            function saveUserPreferences() {
+                if (!currentUser) return;
+                
+                localStorage.setItem(`likedPrompts_${currentUser.uid}`, JSON.stringify([...likedPrompts]));
+                localStorage.setItem(`favoritedPrompts_${currentUser.uid}`, JSON.stringify([...favoritedPrompts]));
             }
 
             // Initialize event listeners
@@ -2167,8 +2192,16 @@
                 // Check if prompt is new (created in last 24 hours)
                 const isNew = (new Date() - new Date(prompt.createdAt)) < 24 * 60 * 60 * 1000;
                 
-                // Handle base64 images
-                const imageSrc = prompt.imageUrl || 'https://via.placeholder.com/400x300?text=No+Image';
+                // Handle base64 images - FIXED
+                let imageSrc = 'https://via.placeholder.com/400x300?text=No+Image';
+                if (prompt.imageUrl) {
+                    // Check if it's base64 or URL
+                    if (prompt.imageUrl.startsWith('data:image')) {
+                        imageSrc = prompt.imageUrl; // Base64 image
+                    } else {
+                        imageSrc = prompt.imageUrl; // Regular URL
+                    }
+                }
                 
                 // Check if liked/favorited
                 const isLiked = likedPrompts.has(prompt.id);
@@ -2228,11 +2261,11 @@
                 const downloadBtns = card.querySelectorAll('.download-btn');
                 
                 if (likeBtn) {
-                    likeBtn.addEventListener('click', () => handleLike(prompt.id));
+                    likeBtn.addEventListener('click', () => handleLike(prompt.id, isLiked));
                 }
                 
                 if (favoriteBtn) {
-                    favoriteBtn.addEventListener('click', () => handleFavorite(prompt.id));
+                    favoriteBtn.addEventListener('click', () => handleFavorite(prompt.id, isFavorited));
                 }
                 
                 if (deleteBtn) {
@@ -2255,76 +2288,104 @@
                 renderPrompts();
             }
 
-            // Like handler with duplicate prevention
-            async function handleLike(promptId) {
+            // Like handler with TOGGLE functionality
+            async function handleLike(promptId, isCurrentlyLiked) {
                 if (!currentUser) {
                     showResultModal('error', 'Authentication Required', 'Please log in to like prompts.');
                     return;
                 }
                 
-                // Check if already liked
-                if (likedPrompts.has(promptId)) {
-                    showResultModal('error', 'Already Liked', 'You have already liked this prompt!');
-                    return;
-                }
-                
                 try {
                     const promptRef = doc(db, 'prompts', promptId);
-                    await updateDoc(promptRef, {
-                        likes: increment(1)
-                    });
                     
-                    // Add to liked set
-                    likedPrompts.add(promptId);
-                    
-                    // Update local data and UI
-                    const promptIndex = prompts.findIndex(p => p.id === promptId);
-                    if (promptIndex !== -1) {
-                        prompts[promptIndex].likes += 1;
-                        renderPrompts();
-                        if (currentPage === 'favorites') loadFavorites();
-                        if (currentPage === 'my-uploads') loadMyUploads();
+                    if (isCurrentlyLiked) {
+                        // Unlike - remove like
+                        await updateDoc(promptRef, {
+                            likes: increment(-1)
+                        });
+                        likedPrompts.delete(promptId);
+                        
+                        // Update local data and UI
+                        const promptIndex = prompts.findIndex(p => p.id === promptId);
+                        if (promptIndex !== -1) {
+                            prompts[promptIndex].likes -= 1;
+                        }
+                        
+                        showResultModal('success', 'Unliked!', 'Prompt unliked successfully!');
+                    } else {
+                        // Like - add like
+                        await updateDoc(promptRef, {
+                            likes: increment(1)
+                        });
+                        likedPrompts.add(promptId);
+                        
+                        // Update local data and UI
+                        const promptIndex = prompts.findIndex(p => p.id === promptId);
+                        if (promptIndex !== -1) {
+                            prompts[promptIndex].likes += 1;
+                        }
+                        
+                        showResultModal('success', 'Liked!', 'Prompt liked successfully!');
                     }
                     
-                    showResultModal('success', 'Liked!', 'Prompt liked successfully!');
+                    // Save preferences and update UI
+                    saveUserPreferences();
+                    renderPrompts();
+                    if (currentPage === 'favorites') loadFavorites();
+                    if (currentPage === 'my-uploads') loadMyUploads();
+                    
                 } catch (error) {
                     console.error('Error liking prompt:', error);
                     showResultModal('error', 'Action Failed', 'Failed to like prompt. Please try again.');
                 }
             }
 
-            // Favorite handler with duplicate prevention
-            async function handleFavorite(promptId) {
+            // Favorite handler with TOGGLE functionality
+            async function handleFavorite(promptId, isCurrentlyFavorited) {
                 if (!currentUser) {
                     showResultModal('error', 'Authentication Required', 'Please log in to favorite prompts.');
                     return;
                 }
                 
-                // Check if already favorited
-                if (favoritedPrompts.has(promptId)) {
-                    showResultModal('error', 'Already Favorited', 'You have already favorited this prompt!');
-                    return;
-                }
-                
                 try {
                     const promptRef = doc(db, 'prompts', promptId);
-                    await updateDoc(promptRef, {
-                        favorites: increment(1)
-                    });
                     
-                    // Add to favorited set
-                    favoritedPrompts.add(promptId);
-                    
-                    // Update local data and UI
-                    const promptIndex = prompts.findIndex(p => p.id === promptId);
-                    if (promptIndex !== -1) {
-                        prompts[promptIndex].favorites += 1;
-                        renderPrompts();
-                        if (currentPage === 'favorites') loadFavorites();
-                        if (currentPage === 'my-uploads') loadMyUploads();
+                    if (isCurrentlyFavorited) {
+                        // Unfavorite - remove favorite
+                        await updateDoc(promptRef, {
+                            favorites: increment(-1)
+                        });
+                        favoritedPrompts.delete(promptId);
+                        
+                        // Update local data and UI
+                        const promptIndex = prompts.findIndex(p => p.id === promptId);
+                        if (promptIndex !== -1) {
+                            prompts[promptIndex].favorites -= 1;
+                        }
+                        
+                        showResultModal('success', 'Removed from Favorites!', 'Prompt removed from favorites!');
+                    } else {
+                        // Favorite - add favorite
+                        await updateDoc(promptRef, {
+                            favorites: increment(1)
+                        });
+                        favoritedPrompts.add(promptId);
+                        
+                        // Update local data and UI
+                        const promptIndex = prompts.findIndex(p => p.id === promptId);
+                        if (promptIndex !== -1) {
+                            prompts[promptIndex].favorites += 1;
+                        }
+                        
+                        showResultModal('success', 'Favorited!', 'Prompt added to favorites!');
                     }
                     
-                    showResultModal('success', 'Favorited!', 'Prompt added to favorites!');
+                    // Save preferences and update UI
+                    saveUserPreferences();
+                    renderPrompts();
+                    if (currentPage === 'favorites') loadFavorites();
+                    if (currentPage === 'my-uploads') loadMyUploads();
+                    
                 } catch (error) {
                     console.error('Error favoriting prompt:', error);
                     showResultModal('error', 'Action Failed', 'Failed to favorite prompt. Please try again.');
@@ -2339,6 +2400,11 @@
                 
                 try {
                     await deleteDoc(doc(db, 'prompts', promptId));
+                    
+                    // Remove from liked/favorited sets
+                    likedPrompts.delete(promptId);
+                    favoritedPrompts.delete(promptId);
+                    saveUserPreferences();
                     
                     // Update local data and UI
                     prompts = prompts.filter(p => p.id !== promptId);
