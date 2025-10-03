@@ -9,54 +9,57 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         body {
-            background: #f3f4f6;
-            padding: 20px;
+            background: #f1f5f9;
+            padding: 40px 20px;
         }
         .container {
-            max-width: 800px;
+            max-width: 700px;
             margin: 0 auto;
             background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
         }
         .profile-header {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 25px;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid #e2e8f0;
         }
         .avatar {
-            width: 100px;
-            height: 100px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             object-fit: cover;
-            border: 3px solid #3b82f6;
+            border: 4px solid #3b82f6;
+            box-shadow: 0 0 0 4px #e0f2fe;
         }
         .profile-info h2 {
-            font-size: 24px;
+            font-size: 28px;
             margin-bottom: 5px;
             color: #1f2937;
         }
         .profile-info p {
             color: #6b7280;
             margin-bottom: 10px;
+            line-height: 1.5;
         }
-        button {
+        .edit-button {
             background: #3b82f6;
             color: white;
             border: none;
             padding: 10px 20px;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
-            margin: 5px;
+            margin-top: 10px;
+            transition: background 0.3s ease;
         }
-        button:hover {
+        .edit-button:hover {
             background: #2563eb;
         }
         .modal {
@@ -66,7 +69,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6);
             z-index: 1000;
         }
         .modal-content {
@@ -74,54 +77,40 @@
             padding: 30px;
             border-radius: 10px;
             width: 90%;
-            max-width: 500px;
+            max-width: 550px;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
         }
-        input, textarea {
+        input:not([type="file"]), textarea {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin: 10px 0;
             border: 1px solid #d1d5db;
-            border-radius: 5px;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        input:focus, textarea:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
         }
         .avatar-preview {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             object-fit: cover;
-            margin: 10px 0;
+            margin: 10px auto 20px;
             display: block;
+            border: 2px solid #3b82f6;
         }
-        .file-input-label {
-            display: inline-block;
-            background: #3b82f6;
-            color: white;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 10px 0;
-        }
-        .file-input {
-            display: none;
-        }
-        .form-group {
-            margin: 15px 0;
-        }
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #10b981;
-            color: white;
-            padding: 15px 20px;
-            border-radius: 5px;
-            z-index: 2000;
-        }
-        .notification.error {
-            background: #ef4444;
+        .button-group {
+            margin-top: 25px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
         }
     </style>
 </head>
@@ -132,38 +121,24 @@
             <div class="profile-info">
                 <h2 id="userName">User Name</h2>
                 <p id="userBio">Bio will appear here</p>
-                <p><strong>Email:</strong> <span id="userEmail">user@example.com</span></p>
-                <button id="editProfileBtn">Edit Profile</button>
+                <p id="userEmail">Email will appear here</p>
+                <button class="edit-button" onclick="openEditModal()">Edit Profile</button>
             </div>
         </div>
     </div>
 
-    <!-- Edit Modal -->
     <div class="modal" id="editModal">
         <div class="modal-content">
             <h3>Edit Profile</h3>
-            
-            <div class="form-group">
-                <img src="https://ui-avatars.com/api/?name=User&background=3b82f6&color=fff" alt="Preview" class="avatar-preview" id="avatarPreview">
-                <label class="file-input-label">
-                    <i class="fas fa-camera"></i> Change Photo
-                    <input type="file" id="imageInput" class="file-input" accept="image/*">
-                </label>
-            </div>
-
-            <div class="form-group">
-                <label>Full Name</label>
-                <input type="text" id="nameInput" placeholder="Your Name">
-            </div>
-
-            <div class="form-group">
-                <label>Bio</label>
-                <textarea id="bioInput" placeholder="Your Bio" rows="3"></textarea>
-            </div>
-
-            <div style="margin-top: 20px;">
-                <button id="saveProfileBtn">Save Changes</button>
-                <button onclick="closeModal()" style="background: #6b7280;">Cancel</button>
+            <img src="https://ui-avatars.com/api/?name=User&background=3b82f6&color=fff" alt="Preview" class="avatar-preview" id="avatarPreview">
+            <p style="font-size: 12px; color: #ef4444; margin-bottom: 10px;">Warning: Max image size 200KB (to avoid database limits).</p>
+            <input type="file" id="imageInput" accept="image/*">
+            <input type="text" id="nameInput" placeholder="Your Name">
+            <textarea id="bioInput" placeholder="Your Bio" rows="3"></textarea>
+            <input type="email" id="emailInput" placeholder="Your Email" disabled title="Email change not supported in this demo">
+            <div class="button-group">
+                <button class="edit-button" onclick="saveProfile()">Save Changes</button>
+                <button onclick="closeModal()" class="edit-button" style="background: #6b7280;">Cancel</button>
             </div>
         </div>
     </div>
@@ -189,12 +164,12 @@
         const db = firebase.firestore();
 
         let currentUser = null;
-        let currentImageBase64 = null;
+        let currentImageBase64 = null; // Reverted to Base64 string
 
         // Demo user setup
         function initDemoUser() {
             currentUser = {
-                uid: 'demo-user-12345',
+                uid: 'demo-user-' + Date.now(),
                 email: 'user@example.com',
                 displayName: 'Demo User'
             };
@@ -209,17 +184,17 @@
                 if (userDoc.exists) {
                     const userData = userDoc.data();
                     updateUI(userData);
-                    showNotification('Profile loaded successfully!');
                 } else {
                     await createUserDocument();
                 }
             } catch (error) {
-                console.log('Error loading, using demo data:', error);
+                console.error('Error loading user data, using demo fallback:', error);
                 updateUI({
                     name: 'Demo User',
                     bio: 'This is my bio',
                     email: 'user@example.com',
-                    avatar: 'https://ui-avatars.com/api/?name=Demo+User&background=3b82f6&color=fff'
+                    // Use 'avatar' for the generated URL if no Base64 is present
+                    avatar: 'https://ui-avatars.com/api/?name=Demo+User&background=3b82f6&color=fff' 
                 });
             }
         }
@@ -236,19 +211,21 @@
             
             await db.collection('users').doc(currentUser.uid).set(userData);
             updateUI(userData);
-            showNotification('New profile created!');
         }
 
         // Update UI
         function updateUI(userData) {
             document.getElementById('userName').textContent = userData.name || 'User Name';
             document.getElementById('userBio').textContent = userData.bio || 'No bio yet';
-            document.getElementById('userEmail').textContent = userData.email || 'user@example.com';
+            document.getElementById('userEmail').textContent = userData.email || 'No email';
             
+            // Prioritize Base64 image if it exists
             if (userData.avatarBase64) {
                 document.getElementById('avatar').src = userData.avatarBase64;
             } else {
-                document.getElementById('avatar').src = userData.avatar || 'https://ui-avatars.com/api/?name=User&background=3b82f6&color=fff';
+                // Fallback to the generated URL
+                const defaultAvatar = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(userData.name || 'User') + '&background=3b82f6&color=fff';
+                document.getElementById('avatar').src = userData.avatar || defaultAvatar;
             }
         }
 
@@ -256,26 +233,28 @@
         function openEditModal() {
             document.getElementById('nameInput').value = document.getElementById('userName').textContent;
             document.getElementById('bioInput').value = document.getElementById('userBio').textContent;
+            document.getElementById('emailInput').value = document.getElementById('userEmail').textContent;
             document.getElementById('avatarPreview').src = document.getElementById('avatar').src;
-            currentImageBase64 = null;
+            document.getElementById('imageInput').value = ''; // Clear file input
+            currentImageBase64 = null; // Clear selected image
             document.getElementById('editModal').style.display = 'block';
         }
 
         // Close modal
         function closeModal() {
             document.getElementById('editModal').style.display = 'none';
-            document.getElementById('imageInput').value = '';
-            currentImageBase64 = null;
         }
 
-        // Handle image input
+        // Handle image input with SIZE CHECK
         document.getElementById('imageInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
+            const MAX_SIZE_BYTES = 200 * 1024; // 200 KB
+
             if (file) {
-                // Validate file size (max 2MB)
-                if (file.size > 2 * 1024 * 1024) {
-                    showNotification('Image size should be less than 2MB', 'error');
-                    this.value = '';
+                if (file.size > MAX_SIZE_BYTES) {
+                    alert('Error: File is too large! Please select an image smaller than 200KB.');
+                    document.getElementById('imageInput').value = ''; // Clear the input
+                    currentImageBase64 = null;
                     return;
                 }
                 
@@ -288,78 +267,45 @@
             }
         });
 
-        // Save profile function
+        // Save profile
         async function saveProfile() {
-            const name = document.getElementById('nameInput').value.trim();
-            const bio = document.getElementById('bioInput').value.trim();
-
-            if (!name) {
-                showNotification('Please enter your name', 'error');
-                return;
-            }
+            const name = document.getElementById('nameInput').value;
+            const bio = document.getElementById('bioInput').value;
+            const email = document.getElementById('userEmail').textContent; 
 
             try {
                 const updateData = {
                     name: name,
                     bio: bio,
+                    email: email,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
                 // Add base64 image if uploaded
                 if (currentImageBase64) {
                     updateData.avatarBase64 = currentImageBase64;
-                    updateData.avatar = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=3b82f6&color=fff';
                 }
 
                 await db.collection('users').doc(currentUser.uid).update(updateData);
                 
-                // Update UI
+                // Update UI with the new data
                 updateUI(updateData);
                 
                 // Close modal
                 closeModal();
                 
-                showNotification('Profile updated successfully!');
+                alert('Profile updated successfully!');
                 
             } catch (error) {
                 console.error('Error saving profile:', error);
-                showNotification('Error: ' + error.message, 'error');
+                // The error will be caught here if the file is still too big (over 1MB)
+                alert('Error: Profile update failed. This is likely due to the image being too large for Firestore (max 1MB per document).');
             }
         }
-
-        // Show notification
-        function showNotification(message, type = 'success') {
-            // Remove existing notifications
-            document.querySelectorAll('.notification').forEach(notif => notif.remove());
-            
-            const notification = document.createElement('div');
-            notification.className = `notification ${type === 'error' ? 'error' : ''}`;
-            notification.innerHTML = message;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.remove();
-                }
-            }, 3000);
-        }
-
-        // Event Listeners
-        document.getElementById('editProfileBtn').addEventListener('click', openEditModal);
-        document.getElementById('saveProfileBtn').addEventListener('click', saveProfile);
-
-        // Close modal when clicking outside
-        document.getElementById('editModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
-            }
-        });
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             initDemoUser();
-            showNotification('Profile page loaded!');
         });
     </script>
 </body>
