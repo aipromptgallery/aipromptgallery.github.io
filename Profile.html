@@ -1043,7 +1043,7 @@
             // Update user tag based on email
             const userTag = document.getElementById('userTag');
             if (currentUser.email === OWNER_EMAIL) {
-                userTag.textContent = 'Owner of this site';
+                userTag.textContent = 'Site Owner';
                 userTag.className = 'user-tag owner-tag';
             } else {
                 userTag.textContent = 'Member';
@@ -1114,7 +1114,7 @@
             elements.saveProfileBtn.disabled = true;
             
             try {
-                let avatarUrl = elements.profileAvatar.src;
+                let avatarUrl = currentUser.photoURL || elements.profileAvatar.src;
                 
                 // Upload new profile image if selected
                 if (imageFile) {
@@ -1138,29 +1138,18 @@
                     lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
-                // Update all prompts by this user with new profile data
-                const promptsSnapshot = await db.collection('prompts')
-                    .where('authorId', '==', currentUser.uid)
-                    .get();
-                
-                const updatePromises = promptsSnapshot.docs.map(doc => 
-                    doc.ref.update({
-                        authorName: name,
-                        authorAvatar: avatarUrl
-                    })
-                );
-                
-                await Promise.all(updatePromises);
+                // Update UI immediately
+                document.getElementById('profileName').textContent = name;
+                document.getElementById('profileBio').textContent = bio;
+                document.getElementById('profileAvatar').src = avatarUrl;
+                elements.editProfileAvatar.src = avatarUrl;
                 
                 closeModal(elements.editProfileModal);
                 showNotification('Profile updated successfully!', 'success');
                 
-                // Reload user data to reflect changes
-                await loadUserData(currentUser.uid);
-                
             } catch (error) {
                 console.error('Error updating profile:', error);
-                showNotification('Error updating profile', 'error');
+                showNotification('Error updating profile: ' + error.message, 'error');
             } finally {
                 elements.saveProfileBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
                 elements.saveProfileBtn.disabled = false;
