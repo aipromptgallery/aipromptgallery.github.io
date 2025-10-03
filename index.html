@@ -12,7 +12,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <style>
         * {
@@ -143,75 +142,6 @@
             color: var(--primary);
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(255,255,255,0.3);
-        }
-
-        .user-profile {
-            position: absolute;
-            top: 25px;
-            right: 25px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: white;
-            background: rgba(255,255,255,0.2);
-            padding: 10px 20px;
-            border-radius: 25px;
-            border: 2px solid rgba(255,255,255,0.3);
-            transition: var(--transition);
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-            z-index: 2;
-        }
-
-        .user-profile:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-2px);
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid white;
-            object-fit: cover;
-            transition: var(--transition);
-        }
-
-        .user-profile:hover .user-avatar {
-            transform: scale(1.1);
-        }
-
-        .user-tag {
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .owner-tag {
-            background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
-            color: white;
-            animation: glow 2s ease-in-out infinite alternate;
-            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
-        }
-
-        .member-tag {
-            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
-        }
-
-        @keyframes glow {
-            from { 
-                box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
-                transform: scale(1);
-            }
-            to { 
-                box-shadow: 0 6px 25px rgba(239, 68, 68, 0.6), 0 0 30px rgba(249, 115, 22, 0.4);
-                transform: scale(1.05);
-            }
         }
 
         .header-content {
@@ -1121,10 +1051,6 @@
                 font-size: 0.9rem;
             }
             
-            .user-profile {
-                padding: 8px 15px;
-            }
-            
             .dashboard-buttons {
                 bottom: 20px;
                 right: 20px;
@@ -1214,14 +1140,6 @@
                 <button class="auth-btn" id="signupBtn">
                     <i class="fas fa-user-plus"></i> Sign Up
                 </button>
-            </div>
-
-            <div class="user-profile hidden" id="userProfile">
-                <img src="https://ui-avatars.com/api/?name=User&background=random" alt="User" class="user-avatar" id="userAvatar">
-                <div>
-                    <div class="user-name" id="userName">User</div>
-                    <div class="user-tag member-tag" id="userTag">Member</div>
-                </div>
             </div>
 
             <div class="header-content">
@@ -1486,7 +1404,6 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-        const storage = firebase.storage();
 
         // === GLOBAL VARIABLES ===
         let currentUser = null;
@@ -1500,10 +1417,6 @@
         const elements = {
             themeToggle: document.getElementById('themeToggle'),
             authButtons: document.getElementById('authButtons'),
-            userProfile: document.getElementById('userProfile'),
-            userAvatar: document.getElementById('userAvatar'),
-            userName: document.getElementById('userName'),
-            userTag: document.getElementById('userTag'),
             loginBtn: document.getElementById('loginBtn'),
             signupBtn: document.getElementById('signupBtn'),
             profileBtn: document.getElementById('profileBtn'),
@@ -1560,7 +1473,7 @@
             auth.onAuthStateChanged(async (user) => {
                 if (user) {
                     currentUser = user;
-                    showUserProfile();
+                    showAuthButtons();
                     await loadUserData(user.uid);
                     loadPrompts();
                     loadStats();
@@ -1573,26 +1486,12 @@
             });
         }
 
-        function showUserProfile() {
-            elements.authButtons.classList.add('hidden');
-            elements.userProfile.classList.remove('hidden');
-            
-            elements.userAvatar.src = currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'User')}&background=random`;
-            elements.userName.textContent = currentUser.displayName || 'User';
-            
-            // Set user tag based on email
-            if (currentUser.email === OWNER_EMAIL) {
-                elements.userTag.textContent = "Site Owner";
-                elements.userTag.className = "user-tag owner-tag";
-            } else {
-                elements.userTag.textContent = "Member";
-                elements.userTag.className = "user-tag member-tag";
-            }
-        }
-
         function showAuthButtons() {
-            elements.authButtons.classList.remove('hidden');
-            elements.userProfile.classList.add('hidden');
+            if (currentUser) {
+                elements.authButtons.classList.add('hidden');
+            } else {
+                elements.authButtons.classList.remove('hidden');
+            }
         }
 
         async function loadUserData(uid) {
@@ -1703,8 +1602,8 @@
                 return `
                     <div class="prompt-card" data-prompt-id="${prompt.id}">
                         <div class="prompt-image-container">
-                            ${prompt.imageUrl ? 
-                                `<img src="${prompt.imageUrl}" alt="${prompt.title}" class="prompt-image">` :
+                            ${prompt.imageData ? 
+                                `<img src="${prompt.imageData}" alt="${prompt.title}" class="prompt-image">` :
                                 `<div style="background: var(--gradient); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
                                     <i class="fas fa-palette"></i>
                                 </div>`
@@ -1923,6 +1822,16 @@
             }
         });
 
+        // Image to base64 conversion function
+        function convertImageToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            });
+        }
+
         // Form submission
         elements.uploadForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -1966,14 +1875,11 @@
                 elements.submitPromptBtn.innerHTML = '<div class="loading-spinner"></div> Sharing...';
                 elements.submitPromptBtn.disabled = true;
                 
-                let imageUrl = '';
+                let imageData = null;
                 
                 // Upload image if selected
                 if (imageFile) {
-                    const storageRef = storage.ref();
-                    const imageRef = storageRef.child(`prompts/${currentUser.uid}_${Date.now()}_${imageFile.name}`);
-                    const snapshot = await imageRef.put(imageFile);
-                    imageUrl = await snapshot.ref.getDownloadURL();
+                    imageData = await convertImageToBase64(imageFile);
                 }
                 
                 // Get user data
@@ -1987,7 +1893,7 @@
                     model: model,
                     category: category,
                     tags: tags,
-                    imageUrl: imageUrl,
+                    imageData: imageData,
                     authorId: currentUser.uid,
                     authorName: userData.name || currentUser.displayName || 'User',
                     authorAvatar: userData.avatar || currentUser.photoURL || 'https://ui-avatars.com/api/?name=User&background=random',
@@ -2078,11 +1984,6 @@
 
             elements.signupBtn.addEventListener('click', () => {
                 window.location.href = 'login.html';
-            });
-
-            // User Profile Click
-            elements.userProfile.addEventListener('click', () => {
-                window.location.href = 'profile.html';
             });
         }
 
