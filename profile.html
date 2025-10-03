@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
     <style>
         * {
@@ -671,6 +671,7 @@
         const firebaseConfig = {
             apiKey: "AIzaSyDovL4QBUZfueYzMJpkCjWu_4NLMoQWyiA",
             authDomain: "gagsta-paradise.firebaseapp.com",
+            databaseURL: "https://gagsta-paradise-default-rtdb.firebaseio.com",
             projectId: "gagsta-paradise",
             storageBucket: "gagsta-paradise.firebasestorage.app",
             messagingSenderId: "78516691257",
@@ -680,7 +681,7 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
-        const db = firebase.firestore();
+        const database = firebase.database();
         const storage = firebase.storage();
 
         // === GLOBAL VARIABLES ===
@@ -754,22 +755,29 @@
             });
         }
 
-        // === USER DATA MANAGEMENT ===
+        // === USER DATA MANAGEMENT (REALTIME DATABASE) ===
         async function loadUserData(uid) {
             try {
                 console.log('Loading user data for:', uid);
-                const userDoc = await db.collection('users').doc(uid).get();
                 
-                if (!userDoc.exists) {
-                    console.log('Creating new user document');
-                    await createUserDocument(uid);
-                    await loadUserData(uid);
-                    return;
-                }
+                // Realtime Database se data load karo
+                const userRef = database.ref('users/' + uid);
                 
-                const userData = userDoc.data();
-                console.log('User data loaded:', userData);
-                updateProfileUI(userData);
+                userRef.once('value')
+                    .then((snapshot) => {
+                        if (snapshot.exists()) {
+                            const userData = snapshot.val();
+                            console.log('User data loaded:', userData);
+                            updateProfileUI(userData);
+                        } else {
+                            console.log('Creating new user document');
+                            createUserDocument(uid);
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Error loading user data:', error);
+                        showNotification('Error loading profile data: ' + error.message, 'error');
+                    });
                 
             } catch (error) {
                 console.error('Error loading user data:', error);
@@ -783,7 +791,7 @@
                 email: currentUser.email,
                 avatar: currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'User')}&background=random`,
                 bio: "This is my bio. I love creating AI art prompts!",
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                createdAt: Date.now(),
                 prompts: 0,
                 followers: 0,
                 following: 0,
@@ -793,15 +801,17 @@
             };
             
             console.log('Creating user document:', userData);
-            await db.collection('users').doc(uid).set(userData);
+            
+            // Realtime Database mein data save karo
+            await database.ref('users/' + uid).set(userData);
             return userData;
         }
 
         function updateProfileUI(userData) {
-            elements.profileName.textContent = userData.name;
-            elements.profileBio.textContent = userData.bio;
-            elements.profileAvatar.src = userData.avatar;
-            elements.editProfileAvatar.src = userData.avatar;
+            elements.profileName.textContent = userData.name || 'User';
+            elements.profileBio.textContent = userData.bio || 'This is my bio. I love creating AI art prompts!';
+            elements.profileAvatar.src = userData.avatar || 'https://ui-avatars.com/api/?name=User&background=random';
+            elements.editProfileAvatar.src = userData.avatar || 'https://ui-avatars.com/api/?name=User&background=random';
             elements.userEmail.textContent = currentUser.email;
             elements.userId.textContent = currentUser.uid.substring(0, 8) + '...';
             
@@ -811,7 +821,7 @@
             elements.likesCount.textContent = userData.likes || 0;
             
             if (userData.createdAt) {
-                const joinDate = userData.createdAt.toDate();
+                const joinDate = new Date(userData.createdAt);
                 elements.joinDate.textContent = joinDate.toLocaleDateString('en-US', { 
                     year: 'numeric', 
                     month: 'long',
@@ -889,13 +899,15 @@
                     });
                 }
                 
-                // Update Firestore user document
-                await db.collection('users').doc(currentUser.uid).update({
+                // Update Realtime Database user document
+                const updates = {
                     name: name,
                     bio: bio,
                     avatar: avatarUrl,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                    updatedAt: Date.now()
+                };
+                
+                await database.ref('users/' + currentUser.uid).update(updates);
                 
                 // Update UI
                 elements.profileName.textContent = name;
@@ -1098,7 +1110,7 @@
                 followers: 45,
                 following: 23,
                 likes: 128,
-                createdAt: { toDate: () => new Date('2024-01-15') }
+                createdAt: Date.now() - 30 * 24 * 60 * 60 * 1000 // 30 days ago
             });
         }
 
@@ -1109,6 +1121,7 @@
             setupModalHandlers();
             
             console.log('Firebase initialized with config:', firebaseConfig);
+            console.log('Database URL:', database.ref().toString());
             console.log('Storage bucket:', storage.ref().bucket);
         }
 
