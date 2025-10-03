@@ -3,392 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Prompt Gallery | Messages</title>
-    
-    <!-- Font Awesome -->
+    <title>AI Prompt Gallery | Home</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --primary-light: #3b82f6;
-            --secondary: #64748b;
-            --light: #f8fafc;
-            --dark: #1e293b;
-            --card-bg: #ffffff;
-            --success: #10b981;
-            --error: #ef4444;
-            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --shadow: 0 8px 30px rgba(0,0,0,0.08);
-            --radius: 16px;
-            --transition: all 0.3s ease;
-        }
-
-        [data-theme="dark"] {
-            --light: #0f172a;
-            --dark: #f8fafc;
-            --card-bg: #1e293b;
-            --secondary: #94a3b8;
-        }
-
-        body {
-            background: var(--light);
-            color: var(--dark);
-            transition: var(--transition);
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        /* Header Styles */
-        .header {
-            background: var(--gradient);
-            color: white;
-            padding: 40px 30px;
-            border-radius: var(--radius);
-            margin-bottom: 30px;
-            text-align: center;
-            position: relative;
-        }
-
-        .back-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: 2px solid white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: var(--transition);
-            font-weight: 600;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .back-btn:hover {
-            background: white;
-            color: var(--primary);
-            transform: translateY(-2px);
-        }
-
-        .theme-toggle {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255,255,255,0.2);
-            border: none;
-            padding: 10px;
-            border-radius: 50%;
-            cursor: pointer;
-            color: white;
-            transition: var(--transition);
-        }
-
-        .theme-toggle:hover {
-            background: rgba(255,255,255,0.3);
-            transform: rotate(180deg);
-        }
-
-        .header h1 {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            font-weight: 800;
-        }
-
-        .header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        /* Inbox Container */
-        .inbox-container {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 30px;
-            margin-bottom: 30px;
-        }
-
-        .inbox-header {
-            display: flex;
-            justify-content: between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid var(--light);
-        }
-
-        .inbox-header h2 {
-            color: var(--dark);
-            font-size: 1.8rem;
-        }
-
-        .messages-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            max-height: 600px;
-            overflow-y: auto;
-        }
-
-        .message-item {
-            background: var(--light);
-            padding: 20px;
-            border-radius: var(--radius);
-            transition: var(--transition);
-            cursor: pointer;
-            border-left: 4px solid transparent;
-        }
-
-        .message-item:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
-            border-left-color: var(--primary);
-        }
-
-        .message-item.official {
-            border-left-color: var(--success);
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, transparent 100%);
-        }
-
-        .message-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 10px;
-        }
-
-        .message-sender {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .sender-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .sender-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sender-name {
-            font-weight: 600;
-            color: var(--dark);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .official-badge {
-            background: var(--success);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .message-time {
-            color: var(--secondary);
-            font-size: 0.9rem;
-        }
-
-        .message-preview {
-            color: var(--secondary);
-            line-height: 1.5;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--secondary);
-        }
-
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        .empty-state h3 {
-            margin-bottom: 10px;
-            font-size: 1.5rem;
-        }
-
-        /* Notification */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--success);
-            color: white;
-            padding: 15px 20px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            z-index: 3000;
-            animation: slideInRight 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .notification.error {
-            background: var(--error);
-        }
-
-        .notification.info {
-            background: var(--primary);
-        }
-
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2.5rem;
-            }
-            
-            .inbox-container {
-                padding: 20px;
-            }
-            
-            .message-header {
-                flex-direction: column;
-                gap: 10px;
-            }
-        }
+        /* CSS Styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI'; }
+        :root { --primary: #2563eb; --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        body { background: #f8fafc; color: #1e293b; min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { background: var(--gradient); color: white; padding: 40px 30px; border-radius: 16px; margin-bottom: 30px; text-align: center; position: relative; }
+        .theme-toggle { position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.2); border: none; padding: 10px; border-radius: 50%; cursor: pointer; color: white; }
+        .auth-buttons { position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; }
+        .auth-btn { background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: 600; }
+        .user-profile { position: absolute; top: 20px; right: 20px; display: flex; align-items: center; gap: 10px; color: white; background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 25px; display: none; }
+        .user-avatar { width: 35px; height: 35px; border-radius: 50%; border: 2px solid white; object-fit: cover; }
+        .user-tag { padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; }
+        .owner-tag { background: linear-gradient(135deg, #ef4444 0%, #f97316 100%); color: white; animation: glow 2s infinite alternate; }
+        .member-tag { background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); color: white; }
+        @keyframes glow { from { box-shadow: 0 0 5px #ef4444; } to { box-shadow: 0 0 15px #ef4444, 0 0 20px #f97316; } }
+        .header h1 { font-size: 3rem; margin-bottom: 15px; font-weight: 800; }
+        .dashboard-buttons { position: fixed; bottom: 40px; right: 40px; z-index: 1000; display: flex; flex-direction: column; gap: 15px; }
+        .dashboard-btn { width: 60px; height: 60px; background: var(--gradient); border: none; border-radius: 50%; color: white; font-size: 1.5rem; cursor: pointer; box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4); display: flex; align-items: center; justify-content: center; }
+        .dashboard-btn.profile { background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); }
+        .dashboard-btn.inbox { background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%); }
+        .btn-label { position: absolute; right: 70px; background: white; color: #1e293b; padding: 8px 15px; border-radius: 20px; font-weight: 600; opacity: 0; transform: translateX(10px); transition: all 0.3s ease; }
+        .dashboard-btn:hover + .btn-label { opacity: 1; transform: translateX(0); }
+        .notification { position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 15px 20px; border-radius: 12px; z-index: 3000; animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 10px; }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <div class="header">
-            <a href="index.html" class="back-btn">
-                <i class="fas fa-arrow-left"></i> Back to Home
-            </a>
-
-            <button class="theme-toggle" id="themeToggle">
-                <i class="fas fa-moon"></i>
-            </button>
-
+            <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
+            <div class="auth-buttons" id="authButtons">
+                <button class="auth-btn" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Login</button>
+                <button class="auth-btn" id="signupBtn"><i class="fas fa-user-plus"></i> Sign Up</button>
+            </div>
+            <div class="user-profile hidden" id="userProfile">
+                <img src="https://ui-avatars.com/api/?name=User&background=random" alt="User" class="user-avatar" id="userAvatar">
+                <div>
+                    <div class="user-name" id="userName">User</div>
+                    <div class="user-tag member-tag" id="userTag">Member</div>
+                </div>
+            </div>
             <h1>AI Prompt Gallery</h1>
-            <p>Your messages and notifications</p>
+            <p>Share, discover and collaborate on amazing AI art prompts with the community</p>
         </div>
 
-        <!-- Inbox Container -->
-        <div class="inbox-container">
-            <div class="inbox-header">
-                <h2>Messages</h2>
+        <div style="text-align: center; padding: 60px 20px;">
+            <i class="fas fa-palette" style="font-size: 4rem; color: #2563eb; margin-bottom: 20px;"></i>
+            <h2 style="margin-bottom: 15px; color: #1e293b;">Welcome to AI Prompt Gallery</h2>
+            <p style="color: #64748b; margin-bottom: 30px;">Discover amazing AI art prompts created by our creative community</p>
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <button class="auth-btn" style="background: white; color: #2563eb;" id="exploreBtn"><i class="fas fa-compass"></i> Explore Prompts</button>
+                <button class="auth-btn" style="background: #2563eb; color: white;" id="getStartedBtn"><i class="fas fa-rocket"></i> Get Started</button>
             </div>
-
-            <div class="messages-list" id="messagesList">
-                <!-- Official Welcome Message -->
-                <div class="message-item official">
-                    <div class="message-header">
-                        <div class="message-sender">
-                            <img src="https://ui-avatars.com/api/?name=AI+Prompt+Gallery&background=667eea&color=fff" 
-                                 alt="AI Prompt Gallery" class="sender-avatar">
-                            <div class="sender-info">
-                                <div class="sender-name">
-                                    AI Prompt Gallery
-                                    <span class="official-badge">
-                                        <i class="fas fa-check-circle"></i> Official
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="message-time">Just now</div>
-                    </div>
-                    <div class="message-preview">
-                        Welcome to AI Prompt Gallery! We're excited to have you in our creative community. 
-                        Start exploring amazing AI art prompts and connect with other creators.
-                    </div>
-                </div>
-
-                <!-- Sample Messages -->
-                <div class="message-item">
-                    <div class="message-header">
-                        <div class="message-sender">
-                            <img src="https://ui-avatars.com/api/?name=John+Doe&background=ec4899&color=fff" 
-                                 alt="John Doe" class="sender-avatar">
-                            <div class="sender-info">
-                                <div class="sender-name">John Doe</div>
-                            </div>
-                        </div>
-                        <div class="message-time">2 hours ago</div>
-                    </div>
-                    <div class="message-preview">
-                        Loved your latest prompt! The composition was amazing. Can you share more details about...
-                    </div>
-                </div>
-
-                <div class="message-item">
-                    <div class="message-header">
-                        <div class="message-sender">
-                            <img src="https://ui-avatars.com/api/?name=Sarah+Wilson&background=10b981&color=fff" 
-                                 alt="Sarah Wilson" class="sender-avatar">
-                            <div class="sender-info">
-                                <div class="sender-name">Sarah Wilson</div>
-                            </div>
-                        </div>
-                        <div class="message-time">1 day ago</div>
-                    </div>
-                    <div class="message-preview">
-                        Hi! I tried your landscape prompt and got incredible results. Thank you for sharing!
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Empty State (Hidden by default) -->
-        <div class="empty-state hidden" id="emptyState">
-            <i class="fas fa-comments"></i>
-            <h3>No messages yet</h3>
-            <p>Your messages will appear here when you receive them</p>
         </div>
     </div>
 
+    <div class="dashboard-buttons">
+        <button class="dashboard-btn profile" id="profileBtn"><i class="fas fa-user"></i></button>
+        <div class="btn-label">Profile</div>
+        <button class="dashboard-btn inbox" id="inboxBtn"><i class="fas fa-inbox"></i></button>
+        <div class="btn-label">Messages</div>
+    </div>
+
     <script>
-        // === FIREBASE CONFIGURATION ===
         const firebaseConfig = {
             apiKey: "AIzaSyDovL4QBUZfueYzMJpkCjWu_4NLMoQWyiA",
             authDomain: "gagsta-paradise.firebaseapp.com",
@@ -397,106 +81,84 @@
             messagingSenderId: "78516691257",
             appId: "1:78516691257:web:466954e941fc6a7eb388e8"
         };
-
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
-        const db = firebase.firestore();
+        const OWNER_EMAIL = "alizybaby381@gmail.com";
 
-        // === GLOBAL VARIABLES ===
-        let currentUser = null;
-
-        // === DOM ELEMENTS ===
-        const elements = {
-            themeToggle: document.getElementById('themeToggle'),
-            messagesList: document.getElementById('messagesList'),
-            emptyState: document.getElementById('emptyState')
-        };
-
-        // === THEME MANAGEMENT ===
+        // Theme Management
         function initTheme() {
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.body.setAttribute('data-theme', savedTheme);
-            
-            const icon = elements.themeToggle.querySelector('i');
+            const icon = document.getElementById('themeToggle').querySelector('i');
             icon.className = savedTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
         }
-
-        elements.themeToggle.addEventListener('click', () => {
+        document.getElementById('themeToggle').addEventListener('click', () => {
             const currentTheme = document.body.getAttribute('data-theme');
             const newTheme = currentTheme === 'light' ? 'dark' : 'light';
             document.body.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
-            
-            const icon = elements.themeToggle.querySelector('i');
+            const icon = document.getElementById('themeToggle').querySelector('i');
             icon.className = newTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
         });
 
-        // === AUTHENTICATION SYSTEM ===
-        function initAuth() {
-            auth.onAuthStateChanged(async (user) => {
-                if (user) {
-                    currentUser = user;
-                    showNotification(`Welcome to messages, ${user.displayName || 'User'}!`, 'success');
-                    loadUserMessages(user.uid);
+        // Auth System
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('authButtons').classList.add('hidden');
+                document.getElementById('userProfile').classList.remove('hidden');
+                document.getElementById('userAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'User')}&background=random`;
+                document.getElementById('userName').textContent = user.displayName || 'User';
+                const userTag = document.getElementById('userTag');
+                if (user.email === OWNER_EMAIL) {
+                    userTag.textContent = "Site Owner";
+                    userTag.className = "user-tag owner-tag";
                 } else {
-                    // Redirect to login if not authenticated
-                    window.location.href = 'login.html';
+                    userTag.textContent = "Member";
+                    userTag.className = "user-tag member-tag";
                 }
-            });
-        }
-
-        // === MESSAGES SYSTEM ===
-        async function loadUserMessages(userId) {
-            try {
-                // In a real app, you would load messages from Firestore
-                // For now, we'll use sample data
-                
-                // Show empty state if no messages
-                const hasMessages = true; // Change based on actual data
-                
-                if (!hasMessages) {
-                    elements.messagesList.classList.add('hidden');
-                    elements.emptyState.classList.remove('hidden');
-                } else {
-                    elements.messagesList.classList.remove('hidden');
-                    elements.emptyState.classList.add('hidden');
-                }
-                
-            } catch (error) {
-                console.error('Error loading messages:', error);
-                showNotification('Error loading messages', 'error');
+                showNotification(`Welcome back, ${user.displayName || 'User'}!`, 'success');
+            } else {
+                document.getElementById('authButtons').classList.remove('hidden');
+                document.getElementById('userProfile').classList.add('hidden');
             }
-        }
+        });
 
-        // === UTILITY FUNCTIONS ===
+        // Button Handlers
+        document.getElementById('profileBtn').addEventListener('click', () => {
+            if (!auth.currentUser) {
+                showNotification('Please login to view profile', 'error');
+                return;
+            }
+            window.location.href = 'profile.html';
+        });
+
+        document.getElementById('inboxBtn').addEventListener('click', () => {
+            if (!auth.currentUser) {
+                showNotification('Please login to view messages', 'error');
+                return;
+            }
+            window.location.href = 'inbox.html';
+        });
+
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            window.location.href = 'login.html';
+        });
+
+        document.getElementById('signupBtn').addEventListener('click', () => {
+            window.location.href = 'login.html';
+        });
+
         function showNotification(message, type = 'info') {
             document.querySelectorAll('.notification').forEach(notif => notif.remove());
-            
             const notification = document.createElement('div');
             notification.className = `notification ${type}`;
-            notification.innerHTML = `
-                <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'}"></i>
-                <span>${message}</span>
-            `;
-            
+            notification.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'}"></i><span>${message}</span>`;
             document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.remove();
-                }
-            }, 4000);
+            setTimeout(() => notification.remove(), 4000);
         }
 
-        // === INITIALIZATION ===
-        function initApp() {
-            initTheme();
-            initAuth();
-        }
-
-        // Start the app
-        document.addEventListener('DOMContentLoaded', initApp);
+        // Initialize
+        document.addEventListener('DOMContentLoaded', initTheme);
     </script>
 </body>
 </html>
