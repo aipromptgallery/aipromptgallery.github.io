@@ -112,6 +112,32 @@
             justify-content: flex-end;
             gap: 10px;
         }
+
+        /* --- MOBILE RESPONNSIVENESS FOR PROFILE PAGE --- */
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 10px;
+            }
+            .profile-header {
+                flex-direction: column; /* Stack avatar and info on mobile */
+                text-align: center;
+                gap: 15px;
+            }
+            .profile-info h2 {
+                font-size: 24px;
+            }
+            .avatar {
+                width: 100px;
+                height: 100px;
+            }
+            .button-group {
+                flex-direction: column; /* Stack buttons in modal on small screens */
+            }
+            .button-group button {
+                width: 100%;
+            }
+        }
+        /* --- END MOBILE RESPONNSIVENESS --- */
     </style>
 </head>
 <body>
@@ -164,7 +190,7 @@
         const db = firebase.firestore();
 
         let currentUser = null;
-        let currentImageBase64 = null; // Reverted to Base64 string
+        let currentImageBase64 = null; 
 
         // Demo user setup
         function initDemoUser() {
@@ -193,7 +219,6 @@
                     name: 'Demo User',
                     bio: 'This is my bio',
                     email: 'user@example.com',
-                    // Use 'avatar' for the generated URL if no Base64 is present
                     avatar: 'https://ui-avatars.com/api/?name=Demo+User&background=3b82f6&color=fff' 
                 });
             }
@@ -219,11 +244,9 @@
             document.getElementById('userBio').textContent = userData.bio || 'No bio yet';
             document.getElementById('userEmail').textContent = userData.email || 'No email';
             
-            // Prioritize Base64 image if it exists
             if (userData.avatarBase64) {
                 document.getElementById('avatar').src = userData.avatarBase64;
             } else {
-                // Fallback to the generated URL
                 const defaultAvatar = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(userData.name || 'User') + '&background=3b82f6&color=fff';
                 document.getElementById('avatar').src = userData.avatar || defaultAvatar;
             }
@@ -235,8 +258,8 @@
             document.getElementById('bioInput').value = document.getElementById('userBio').textContent;
             document.getElementById('emailInput').value = document.getElementById('userEmail').textContent;
             document.getElementById('avatarPreview').src = document.getElementById('avatar').src;
-            document.getElementById('imageInput').value = ''; // Clear file input
-            currentImageBase64 = null; // Clear selected image
+            document.getElementById('imageInput').value = ''; 
+            currentImageBase64 = null; 
             document.getElementById('editModal').style.display = 'block';
         }
 
@@ -253,7 +276,7 @@
             if (file) {
                 if (file.size > MAX_SIZE_BYTES) {
                     alert('Error: File is too large! Please select an image smaller than 200KB.');
-                    document.getElementById('imageInput').value = ''; // Clear the input
+                    document.getElementById('imageInput').value = ''; 
                     currentImageBase64 = null;
                     return;
                 }
@@ -281,24 +304,19 @@
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
-                // Add base64 image if uploaded
                 if (currentImageBase64) {
                     updateData.avatarBase64 = currentImageBase64;
                 }
 
                 await db.collection('users').doc(currentUser.uid).update(updateData);
                 
-                // Update UI with the new data
                 updateUI(updateData);
-                
-                // Close modal
                 closeModal();
                 
                 alert('Profile updated successfully!');
                 
             } catch (error) {
                 console.error('Error saving profile:', error);
-                // The error will be caught here if the file is still too big (over 1MB)
                 alert('Error: Profile update failed. This is likely due to the image being too large for Firestore (max 1MB per document).');
             }
         }
