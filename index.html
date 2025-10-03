@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Prompt Gallery | Discover Amazing AI Art</title>
     
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-storage-compat.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <style>
         * {
@@ -845,6 +847,10 @@
             color: white;
         }
 
+        .file-upload-section:hover .upload-icon {
+            color: white;
+        }
+
         .file-upload-section.dragover {
             border-color: var(--success);
             background: var(--success);
@@ -1092,58 +1098,74 @@
             .container {
                 padding: 15px;
             }
+            
             .header {
                 padding: 40px 25px;
             }
+            
             .header h1 {
                 font-size: 2.8rem;
             }
+            
             .header p {
                 font-size: 1.2rem;
             }
+            
             .auth-buttons {
                 flex-direction: column;
                 gap: 8px;
             }
+            
             .auth-btn {
                 padding: 8px 16px;
                 font-size: 0.9rem;
             }
+            
             .user-profile {
                 padding: 8px 15px;
             }
+            
             .dashboard-buttons {
                 bottom: 20px;
                 right: 20px;
             }
+            
             .dashboard-btn {
                 width: 55px;
                 height: 55px;
                 font-size: 1.4rem;
             }
+            
             .prompts-grid {
                 grid-template-columns: 1fr;
                 gap: 20px;
             }
+            
             .nav-tabs {
                 flex-direction: column;
             }
+            
             .search-section {
                 flex-direction: column;
             }
+            
             .header-stats {
                 gap: 25px;
             }
+            
             .stat-number {
                 font-size: 2rem;
             }
+            
             .modal-content {
                 width: 95%;
                 margin: 10px;
             }
+            
             .modal-body {
                 padding: 25px;
             }
+            
             .category-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -1153,18 +1175,23 @@
             .header h1 {
                 font-size: 2.2rem;
             }
+            
             .prompt-card {
                 margin: 0 10px;
             }
+            
             .modal-content {
                 padding: 0;
             }
+            
             .modal-header {
                 padding: 20px 25px;
             }
+            
             .modal-body {
                 padding: 20px;
             }
+            
             .modal-footer {
                 padding: 20px 25px;
                 flex-direction: column;
@@ -1174,10 +1201,12 @@
 </head>
 <body>
     <div class="container">
+        <!-- Header -->
         <div class="header">
             <button class="theme-toggle" id="themeToggle">
                 <i class="fas fa-moon"></i>
             </button>
+
             <div class="auth-buttons" id="authButtons">
                 <button class="auth-btn" id="loginBtn">
                     <i class="fas fa-sign-in-alt"></i> Login
@@ -1186,6 +1215,7 @@
                     <i class="fas fa-user-plus"></i> Sign Up
                 </button>
             </div>
+
             <div class="user-profile hidden" id="userProfile">
                 <img src="https://ui-avatars.com/api/?name=User&background=random" alt="User" class="user-avatar" id="userAvatar">
                 <div>
@@ -1193,9 +1223,11 @@
                     <div class="user-tag member-tag" id="userTag">Member</div>
                 </div>
             </div>
+
             <div class="header-content">
                 <h1>AI Prompt Gallery</h1>
                 <p>Discover and share incredible AI art prompts with a global community of creators</p>
+                
                 <div class="header-stats">
                     <div class="stat-item">
                         <span class="stat-number" id="totalPrompts">0</span>
@@ -1213,61 +1245,80 @@
             </div>
         </div>
 
+        <!-- Navigation Tabs -->
         <div class="nav-tabs">
             <button class="nav-tab active" data-tab="all">
-                <i class="fas fa-th-large"></i> <span>All Prompts</span>
+                <i class="fas fa-th-large"></i>
+                <span>All Prompts</span>
             </button>
             <button class="nav-tab" data-tab="popular">
-                <i class="fas fa-fire"></i> <span>Popular</span>
+                <i class="fas fa-fire"></i>
+                <span>Popular</span>
             </button>
             <button class="nav-tab" data-tab="recent">
-                <i class="fas fa-clock"></i> <span>Recent</span>
+                <i class="fas fa-clock"></i>
+                <span>Recent</span>
             </button>
             <button class="nav-tab" data-tab="my-prompts">
-                <i class="fas fa-user"></i> <span>My Prompts</span>
+                <i class="fas fa-user"></i>
+                <span>My Prompts</span>
             </button>
         </div>
 
+        <!-- Category Filter -->
         <div class="category-filter" id="categoryFilter">
             <button class="category-btn active" data-category="all">
-                <i class="fas fa-star"></i> All Categories
+                <i class="fas fa-star"></i>
+                All Categories
             </button>
             <button class="category-btn" data-category="male">
-                <i class="fas fa-male"></i> Male
+                <i class="fas fa-male"></i>
+                Male
             </button>
             <button class="category-btn" data-category="female">
-                <i class="fas fa-female"></i> Female
+                <i class="fas fa-female"></i>
+                Female
             </button>
             <button class="category-btn" data-category="kid">
-                <i class="fas fa-child"></i> Kids
+                <i class="fas fa-child"></i>
+                Kids
             </button>
             <button class="category-btn" data-category="couple">
-                <i class="fas fa-heart"></i> Couple
+                <i class="fas fa-heart"></i>
+                Couple
             </button>
             <button class="category-btn" data-category="game">
-                <i class="fas fa-gamepad"></i> Gaming
+                <i class="fas fa-gamepad"></i>
+                Gaming
             </button>
             <button class="category-btn" data-category="film">
-                <i class="fas fa-film"></i> Film & TV
+                <i class="fas fa-film"></i>
+                Film & TV
             </button>
             <button class="category-btn" data-category="others">
-                <i class="fas fa-shapes"></i> Others
+                <i class="fas fa-shapes"></i>
+                Others
             </button>
         </div>
 
+        <!-- Search and Filter -->
         <div class="search-section">
             <div class="search-box">
                 <input type="text" class="search-input" id="searchInput" placeholder="Search prompts, tags, or creators...">
                 <i class="fas fa-search search-icon"></i>
             </div>
             <button class="filter-btn" id="filterBtn">
-                <i class="fas fa-filter"></i> Filter
+                <i class="fas fa-filter"></i>
+                Filter
             </button>
         </div>
 
+        <!-- Prompts Grid -->
         <div class="prompts-grid" id="promptsGrid">
-            </div>
+            <!-- Prompts will be loaded here -->
+        </div>
 
+        <!-- Empty State -->
         <div class="empty-state hidden" id="emptyState">
             <i class="fas fa-palette"></i>
             <h3>No prompts found</h3>
@@ -1278,117 +1329,150 @@
         </div>
     </div>
 
+    <!-- Dashboard Buttons -->
     <div class="dashboard-buttons">
+        <!-- Profile Button -->
         <button class="dashboard-btn profile" id="profileBtn">
             <i class="fas fa-user"></i>
         </button>
         <div class="btn-label">Profile</div>
 
+        <!-- Inbox Button -->
         <button class="dashboard-btn inbox" id="inboxBtn">
             <i class="fas fa-inbox"></i>
         </button>
         <div class="btn-label">Messages</div>
 
+        <!-- Upload Button -->
         <button class="dashboard-btn upload" id="uploadBtn">
             <i class="fas fa-plus"></i>
         </button>
         <div class="btn-label">Upload Prompt</div>
     </div>
 
+    <!-- Upload Prompt Modal -->
     <div class="modal" id="uploadModal">
         <div class="modal-content">
+            <!-- Modal Header -->
             <div class="modal-header">
                 <button class="close-btn">&times;</button>
                 <h2>Share Your AI Creation</h2>
                 <p>Inspire others with your amazing AI art prompt</p>
             </div>
+
+            <!-- Modal Body -->
             <div class="modal-body">
                 <form id="uploadForm">
                     <div class="form-group">
-                        <label for="promptImage" class="form-label"><i class="fas fa-image"></i> AI Generated Image</label>
-                        <input type="file" id="promptImageInput" accept="image/*" class="hidden" required>
-                        <div class="file-upload-section" id="fileUploadSection">
-                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                            <p class="upload-text">Drag & drop your image here, or click to select</p>
-                            <p class="upload-subtext">JPG, PNG, or GIF (Max 5MB)</p>
-                            <input type="file" id="promptImage" accept="image/*" class="hidden" required>
-                        </div>
-                        <div class="image-preview-container">
-                            <img id="imagePreview" class="image-preview" alt="Image Preview">
-                        </div>
+                        <label class="form-label">
+                            <i class="fas fa-heading"></i>
+                            Prompt Title *
+                        </label>
+                        <input type="text" id="promptTitle" class="form-input" placeholder="Give your prompt a creative and descriptive title..." required>
                     </div>
                     
                     <div class="form-group">
-                        <label for="promptTitle" class="form-label"><i class="fas fa-heading"></i> Title</label>
-                        <input type="text" id="promptTitle" class="form-input" placeholder="Give your art a catchy title" required maxlength="100">
+                        <label class="form-label">
+                            <i class="fas fa-align-left"></i>
+                            Prompt Description *
+                        </label>
+                        <textarea id="promptDescription" class="form-input form-textarea" placeholder="Describe your AI art prompt in detail. Include style, mood, colors, composition, lighting, and any specific elements you want to highlight..." required></textarea>
                     </div>
-
+                    
                     <div class="form-group">
-                        <label for="promptText" class="form-label"><i class="fas fa-scroll"></i> AI Prompt</label>
-                        <textarea id="promptText" class="form-input form-textarea" placeholder="Paste your Midjourney, DALL-E, or Stable Diffusion prompt here" required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="category" class="form-label"><i class="fas fa-tags"></i> Category</label>
-                        <div class="category-grid" id="categorySelection">
-                            <div class="category-option" data-category="male">
-                                <i class="fas fa-male category-icon"></i> Male
-                            </div>
-                            <div class="category-option" data-category="female">
-                                <i class="fas fa-female category-icon"></i> Female
-                            </div>
-                            <div class="category-option" data-category="kid">
-                                <i class="fas fa-child category-icon"></i> Kids
-                            </div>
-                            <div class="category-option" data-category="couple">
-                                <i class="fas fa-heart category-icon"></i> Couple
-                            </div>
-                            <div class="category-option" data-category="game">
-                                <i class="fas fa-gamepad category-icon"></i> Gaming
-                            </div>
-                            <div class="category-option" data-category="film">
-                                <i class="fas fa-film category-icon"></i> Film & TV
-                            </div>
-                            <div class="category-option" data-category="others">
-                                <i class="fas fa-shapes category-icon"></i> Others
-                            </div>
-                        </div>
-                        <input type="hidden" id="selectedCategory" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="aiModel" class="form-label"><i class="fas fa-robot"></i> AI Model</label>
-                        <select id="aiModel" class="form-input form-select" required>
-                            <option value="">Select AI Model</option>
-                            <option value="midjourney">Midjourney</option>
-                            <option value="dall-e">DALL-E</option>
-                            <option value="stablediffusion">Stable Diffusion</option>
-                            <option value="bingimagecreator">Bing Image Creator</option>
-                            <option value="other">Other</option>
+                        <label class="form-label">
+                            <i class="fas fa-robot"></i>
+                            AI Model *
+                        </label>
+                        <select id="promptModel" class="form-input form-select" required>
+                            <option value="">Choose AI Model</option>
+                            <option value="Midjourney">Midjourney</option>
+                            <option value="DALL-E">DALL-E 2/3</option>
+                            <option value="Stable Diffusion">Stable Diffusion</option>
+                            <option value="Adobe Firefly">Adobe Firefly</option>
+                            <option value="Leonardo AI">Leonardo AI</option>
+                            <option value="Other">Other</option>
                         </select>
                     </div>
-
+                    
                     <div class="form-group">
-                        <label for="tags" class="form-label"><i class="fas fa-hashtag"></i> Tags (Comma Separated)</label>
-                        <input type="text" id="tags" class="form-input" placeholder="e.g., hyperrealistic, cyberpunk, cinematic, 4k">
+                        <label class="form-label">
+                            <i class="fas fa-tags"></i>
+                            Category *
+                        </label>
+                        <div class="category-grid" id="categoryGrid">
+                            <div class="category-option" data-category="male">
+                                <i class="fas fa-male category-icon"></i>
+                                Male
+                            </div>
+                            <div class="category-option" data-category="female">
+                                <i class="fas fa-female category-icon"></i>
+                                Female
+                            </div>
+                            <div class="category-option" data-category="kid">
+                                <i class="fas fa-child category-icon"></i>
+                                Kids
+                            </div>
+                            <div class="category-option" data-category="couple">
+                                <i class="fas fa-heart category-icon"></i>
+                                Couple
+                            </div>
+                            <div class="category-option" data-category="game">
+                                <i class="fas fa-gamepad category-icon"></i>
+                                Gaming
+                            </div>
+                            <div class="category-option" data-category="film">
+                                <i class="fas fa-film category-icon"></i>
+                                Film & TV
+                            </div>
+                            <div class="category-option" data-category="others">
+                                <i class="fas fa-shapes category-icon"></i>
+                                Others
+                            </div>
+                        </div>
+                        <input type="hidden" id="promptCategory" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-hashtag"></i>
+                            Tags
+                        </label>
+                        <input type="text" id="promptTags" class="form-input" placeholder="Add relevant tags (comma separated) e.g., fantasy, dragon, epic, dark, cinematic">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-image"></i>
+                            Generated Image (Optional)
+                        </label>
+                        <input type="file" id="promptImage" accept="image/*" style="display: none;">
+                        <div class="file-upload-section" id="fileUploadSection">
+                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                            <div class="upload-text">Click to upload or drag & drop</div>
+                            <div class="upload-subtext">PNG, JPG, WEBP up to 5MB</div>
+                        </div>
+                        <div class="image-preview-container">
+                            <img id="imagePreview" class="image-preview" alt="Image preview">
+                        </div>
                     </div>
                 </form>
             </div>
-            
+
+            <!-- Modal Footer -->
             <div class="modal-footer">
-                <button type="button" class="cancel-btn close-btn">Cancel</button>
+                <button class="cancel-btn" id="cancelBtn">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
                 <button type="submit" class="submit-btn" id="submitPromptBtn" form="uploadForm">
-                    <span id="submitBtnText">Upload Prompt</span>
-                    <span id="loadingSpinner" class="loading-spinner hidden"></span>
+                    <i class="fas fa-upload"></i> Share with Community
                 </button>
             </div>
         </div>
     </div>
 
-
     <script>
-        // === FIREBASE CONFIGURATION (Updated with User's API Details) ===
-        // NOTE: This config is now publicly visible. Ensure you understand the security implications.
+        // === FIREBASE CONFIGURATION ===
         const firebaseConfig = {
             apiKey: "AIzaSyDovL4QBUZfueYzMJpkCjWu_4NLMoQWyiA",
             authDomain: "gagsta-paradise.firebaseapp.com",
@@ -1399,493 +1483,627 @@
         };
 
         // Initialize Firebase
-        let db, auth, storage;
-        try {
-            // Check if firebase global object is available from the CDN scripts (v9 compat)
-            if (typeof firebase !== 'undefined' && typeof firebase.initializeApp === 'function') {
-                firebase.initializeApp(firebaseConfig);
-                db = firebase.firestore();
-                auth = firebase.auth();
-                storage = firebase.storage();
-                console.log("Firebase Initialized Successfully.");
-            } else {
-                 console.error("Firebase initialization failed. Check CDN links or Firebase object availability.");
-                 // Optionally show a notification if Firebase fails to initialize
-                 // showNotification("Firebase setup error. Check your console.", 'error'); 
-            }
-        } catch (error) {
-            console.error("Firebase Initialization Error:", error);
-            showNotification("Firebase setup error. Check your console and configuration.", 'error');
-        }
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
 
-        // Global state
+        // === GLOBAL VARIABLES ===
         let currentUser = null;
-        let currentImageFile = null;
+        let prompts = [];
         let currentTab = 'all';
+        let currentCategory = 'all';
+        let searchQuery = '';
+        const OWNER_EMAIL = "alizybaby381@gmail.com";
 
-        // === UI ELEMENTS ===
-        const promptsGrid = document.getElementById('promptsGrid');
-        const uploadModal = document.getElementById('uploadModal');
-        const fileUploadSection = document.getElementById('fileUploadSection');
-        const promptImageInput = document.getElementById('promptImageInput');
-        const imagePreview = document.getElementById('imagePreview');
-        const categoryOptions = document.querySelectorAll('.category-option');
-        const selectedCategoryInput = document.getElementById('selectedCategory');
-        const uploadForm = document.getElementById('uploadForm');
-        const submitPromptBtn = document.getElementById('submitPromptBtn');
-        const submitBtnText = document.getElementById('submitBtnText');
-        const loadingSpinner = document.getElementById('loadingSpinner');
-        const authButtons = document.getElementById('authButtons');
-        const userProfileDiv = document.getElementById('userProfile');
-        const loginBtn = document.getElementById('loginBtn');
-        const signupBtn = document.getElementById('signupBtn');
-        const profileBtn = document.getElementById('profileBtn');
-        const inboxBtn = document.getElementById('inboxBtn');
-        const themeToggle = document.getElementById('themeToggle');
-        const navTabs = document.querySelectorAll('.nav-tab');
-        const categoryFilterButtons = document.querySelectorAll('.category-btn');
-        const searchInput = document.getElementById('searchInput');
-        const emptyState = document.getElementById('emptyState');
-        const uploadFirstBtn = document.getElementById('uploadFirstBtn');
+        // === DOM ELEMENTS ===
+        const elements = {
+            themeToggle: document.getElementById('themeToggle'),
+            authButtons: document.getElementById('authButtons'),
+            userProfile: document.getElementById('userProfile'),
+            userAvatar: document.getElementById('userAvatar'),
+            userName: document.getElementById('userName'),
+            userTag: document.getElementById('userTag'),
+            loginBtn: document.getElementById('loginBtn'),
+            signupBtn: document.getElementById('signupBtn'),
+            profileBtn: document.getElementById('profileBtn'),
+            inboxBtn: document.getElementById('inboxBtn'),
+            uploadBtn: document.getElementById('uploadBtn'),
+            uploadFirstBtn: document.getElementById('uploadFirstBtn'),
+            promptsGrid: document.getElementById('promptsGrid'),
+            emptyState: document.getElementById('emptyState'),
+            uploadModal: document.getElementById('uploadModal'),
+            uploadForm: document.getElementById('uploadForm'),
+            promptTitle: document.getElementById('promptTitle'),
+            promptDescription: document.getElementById('promptDescription'),
+            promptModel: document.getElementById('promptModel'),
+            promptCategory: document.getElementById('promptCategory'),
+            promptTags: document.getElementById('promptTags'),
+            promptImage: document.getElementById('promptImage'),
+            imagePreview: document.getElementById('imagePreview'),
+            submitPromptBtn: document.getElementById('submitPromptBtn'),
+            cancelBtn: document.getElementById('cancelBtn'),
+            navTabs: document.querySelectorAll('.nav-tab'),
+            categoryFilter: document.getElementById('categoryFilter'),
+            categoryButtons: document.querySelectorAll('.category-btn'),
+            categoryGrid: document.getElementById('categoryGrid'),
+            categoryOptions: document.querySelectorAll('.category-option'),
+            searchInput: document.getElementById('searchInput'),
+            filterBtn: document.getElementById('filterBtn'),
+            fileUploadSection: document.getElementById('fileUploadSection'),
+            totalPrompts: document.getElementById('totalPrompts'),
+            totalUsers: document.getElementById('totalUsers'),
+            totalLikes: document.getElementById('totalLikes')
+        };
 
-
-        // === AUTH STATE HANDLER ===
-        function initAuth() {
-            if (auth) {
-                auth.onAuthStateChanged(user => {
-                    currentUser = user;
-                    updateAuthUI(user);
-                    if (user) {
-                        loadUserData(user);
-                        if (currentTab === 'my-prompts') {
-                            loadPrompts(); // Reload prompts if on 'My Prompts' tab
-                        }
-                    } else {
-                        // Reset UI if user logs out
-                        if (currentTab === 'my-prompts') {
-                            // If user logs out on 'My Prompts', switch to 'All Prompts'
-                            switchTab('all');
-                        }
-                        // Clear my-prompts tab logic will be in loadPrompts
-                    }
-                });
-            } else {
-                updateAuthUI(null); // Show Login/Signup if Firebase is not initialized
-            }
-        }
-
-        function updateAuthUI(user) {
-            if (user) {
-                authButtons.classList.add('hidden');
-                userProfileDiv.classList.remove('hidden');
-                document.getElementById('profileBtn').classList.remove('hidden');
-                document.getElementById('inboxBtn').classList.remove('hidden');
-            } else {
-                authButtons.classList.remove('hidden');
-                userProfileDiv.classList.add('hidden');
-                document.getElementById('profileBtn').classList.add('hidden');
-                document.getElementById('inboxBtn').classList.add('hidden');
-                // Hide 'My Prompts' tab if not logged in
-                document.querySelector('[data-tab="my-prompts"]').classList.add('hidden');
-            }
-        }
-
-        async function loadUserData(user) {
-            if (!db) return;
-            try {
-                const doc = await db.collection('users').doc(user.uid).get();
-                if (doc.exists) {
-                    const data = doc.data();
-                    document.getElementById('userName').textContent = data.name || 'Anonymous';
-                    document.getElementById('userAvatar').src = data.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name || 'User')}&background=random`;
-                    const userTagDiv = document.getElementById('userTag');
-                    userTagDiv.textContent = data.role === 'owner' ? 'Owner' : 'Member';
-                    userTagDiv.className = `user-tag ${data.role === 'owner' ? 'owner-tag' : 'member-tag'}`;
-                }
-            } catch (error) {
-                console.error("Error loading user data:", error);
-            }
-        }
-
-        // === THEME TOGGLE ===
+        // === THEME MANAGEMENT ===
         function initTheme() {
             const savedTheme = localStorage.getItem('theme') || 'light';
-            document.body.parentElement.setAttribute('data-theme', savedTheme);
-            updateThemeToggleIcon(savedTheme);
-        }
-
-        function toggleTheme() {
-            const currentTheme = document.body.parentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.body.parentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateThemeToggleIcon(newTheme);
-        }
-
-        function updateThemeToggleIcon(theme) {
-            themeToggle.innerHTML = theme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-        }
-
-        // === PROMPT CARD RENDERING ===
-        function renderPromptCard(prompt) {
-            const tagsHtml = (prompt.tags || []).map(tag => 
-                `<span class="tag">${tag}</span>`
-            ).join('');
-
-            const likedClass = currentUser && prompt.likedBy && prompt.likedBy.includes(currentUser.uid) ? 'liked' : '';
-            const likeCount = prompt.likes || 0;
+            document.body.setAttribute('data-theme', savedTheme);
             
-            return `
-                <div class="prompt-card" data-id="${prompt.id}">
-                    <div class="prompt-image-container">
-                        <img src="${prompt.imageUrl}" alt="${prompt.title}" class="prompt-image">
-                        <div class="prompt-overlay">
-                            <button class="view-prompt-btn" data-id="${prompt.id}">View Prompt</button>
-                        </div>
-                    </div>
-                    <div class="prompt-content">
-                        <div class="prompt-meta">
-                            <div class="prompt-author">
-                                <img src="${prompt.authorAvatar || 'https://ui-avatars.com/api/?name=User&background=3b82f6&color=fff'}" alt="${prompt.authorName}" class="author-avatar">
-                                <span class="author-name">${prompt.authorName || 'Anonymous'}</span>
-                            </div>
-                            <div class="prompt-stats">
-                                <div class="stat ${likedClass}" data-action="like" data-id="${prompt.id}">
-                                    <i class="fas fa-heart"></i>
-                                    <span>${likeCount}</span>
-                                </div>
-                                <div class="stat">
-                                    <i class="fas fa-eye"></i>
-                                    <span>${prompt.views || 0}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <h2 class="prompt-title">${prompt.title}</h2>
-                        <p class="prompt-text">${prompt.promptText}</p>
-                        <div class="prompt-tags">
-                            <span class="tag category"><i class="fas fa-${getCategoryIcon(prompt.category)}"></i> ${prompt.category}</span>
-                            <span class="tag model">${prompt.aiModel}</span>
-                            ${tagsHtml}
-                        </div>
-                    </div>
-                </div>
-            `;
+            const icon = elements.themeToggle.querySelector('i');
+            icon.className = savedTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
         }
 
-        function getCategoryIcon(category) {
-            switch(category.toLowerCase()) {
-                case 'male': return 'male';
-                case 'female': return 'female';
-                case 'kid': return 'child';
-                case 'couple': return 'heart';
-                case 'game': return 'gamepad';
-                case 'film': return 'film';
-                default: return 'shapes';
+        elements.themeToggle.addEventListener('click', () => {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            const icon = elements.themeToggle.querySelector('i');
+            icon.className = newTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+        });
+
+        // === AUTHENTICATION SYSTEM ===
+        function initAuth() {
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    currentUser = user;
+                    showUserProfile();
+                    await loadUserData(user.uid);
+                    loadPrompts();
+                    loadStats();
+                } else {
+                    currentUser = null;
+                    showAuthButtons();
+                    loadPrompts();
+                    loadStats();
+                }
+            });
+        }
+
+        function showUserProfile() {
+            elements.authButtons.classList.add('hidden');
+            elements.userProfile.classList.remove('hidden');
+            
+            elements.userAvatar.src = currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'User')}&background=random`;
+            elements.userName.textContent = currentUser.displayName || 'User';
+            
+            // Set user tag based on email
+            if (currentUser.email === OWNER_EMAIL) {
+                elements.userTag.textContent = "Site Owner";
+                elements.userTag.className = "user-tag owner-tag";
+            } else {
+                elements.userTag.textContent = "Member";
+                elements.userTag.className = "user-tag member-tag";
             }
         }
 
-        // === MAIN DATA LOADING & FILTERING ===
+        function showAuthButtons() {
+            elements.authButtons.classList.remove('hidden');
+            elements.userProfile.classList.add('hidden');
+        }
 
-        async function loadPrompts() {
-            if (!db) {
-                promptsGrid.innerHTML = '<h2>No prompts loaded. Firebase not configured.</h2>';
-                emptyState.classList.remove('hidden');
-                return;
+        async function loadUserData(uid) {
+            const userDoc = await db.collection('users').doc(uid).get();
+            if (!userDoc.exists) {
+                // Create user document if it doesn't exist
+                await db.collection('users').doc(uid).set({
+                    name: currentUser.displayName || 'User',
+                    email: currentUser.email,
+                    avatar: currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'User')}&background=random`,
+                    bio: "AI art enthusiast and prompt creator",
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    followers: 0,
+                    following: 0,
+                    prompts: 0,
+                    likes: 0,
+                    followersList: [],
+                    followingList: []
+                });
             }
+        }
 
-            promptsGrid.innerHTML = '<div style="text-align: center; padding: 50px;"><div class="loading-spinner" style="width: 40px; height: 40px; border-width: 5px; border-top-color: var(--primary);"></div></div>';
-            emptyState.classList.add('hidden');
-
+        // === STATS SYSTEM ===
+        async function loadStats() {
             try {
-                let query = db.collection('prompts');
-                let category = document.querySelector('.category-filter .active').dataset.category;
-                let searchQuery = searchInput.value.toLowerCase();
-                let filteredPrompts = [];
+                // Get total prompts
+                const promptsSnapshot = await db.collection('prompts').get();
+                elements.totalPrompts.textContent = promptsSnapshot.size;
 
-                // 1. Initial Filtering (Firestore Query where possible)
+                // Get total users
+                const usersSnapshot = await db.collection('users').get();
+                elements.totalUsers.textContent = usersSnapshot.size;
+
+                // Calculate total likes
+                let totalLikes = 0;
+                promptsSnapshot.forEach(doc => {
+                    totalLikes += doc.data().likes || 0;
+                });
+                elements.totalLikes.textContent = totalLikes;
+
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // === PROMPTS SYSTEM ===
+        async function loadPrompts() {
+            try {
+                let query = db.collection('prompts').orderBy('createdAt', 'desc');
+                
+                // Filter based on current tab
                 if (currentTab === 'my-prompts' && currentUser) {
                     query = query.where('authorId', '==', currentUser.uid);
                 } else if (currentTab === 'popular') {
-                    // Sorting by likes - note: Firestore recommends sorting by field used in query or ordering by a separate 'score' field.
-                    // For simplicity, we'll fetch and sort client-side, or assume 'likes' is indexed for this demo.
                     query = query.orderBy('likes', 'desc');
                 } else if (currentTab === 'recent') {
                     query = query.orderBy('createdAt', 'desc');
-                } else {
-                    query = query.orderBy('createdAt', 'desc'); // Default sort
                 }
-
-                // 2. Fetch Data
-                const snapshot = await query.limit(50).get(); // Limit to 50 for performance
-
-                // 3. Client-side Filtering/Processing
+                
+                const snapshot = await query.get();
+                prompts = [];
+                
                 snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const prompt = { id: doc.id, ...data };
-                    
-                    let matchesCategory = category === 'all' || prompt.category.toLowerCase() === category;
-                    let matchesSearch = true;
-
-                    if (searchQuery) {
-                        matchesSearch = 
-                            prompt.title.toLowerCase().includes(searchQuery) ||
-                            prompt.promptText.toLowerCase().includes(searchQuery) ||
-                            (prompt.tags && prompt.tags.some(tag => tag.toLowerCase().includes(searchQuery))) ||
-                            (prompt.authorName && prompt.authorName.toLowerCase().includes(searchQuery));
-                    }
-
-                    if (matchesCategory && matchesSearch) {
-                        filteredPrompts.push(prompt);
-                    }
+                    prompts.push({ id: doc.id, ...doc.data() });
                 });
-
-                // 4. Final Client-side Sort for Popular tab (if not perfectly sorted by Firestore)
-                if (currentTab === 'popular') {
-                    filteredPrompts.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+                
+                // Apply category filter
+                if (currentCategory !== 'all') {
+                    prompts = prompts.filter(prompt => prompt.category === currentCategory);
                 }
-
-                // 5. Render
-                if (filteredPrompts.length > 0) {
-                    promptsGrid.innerHTML = filteredPrompts.map(renderPromptCard).join('');
-                    emptyState.classList.add('hidden');
-                } else {
-                    promptsGrid.innerHTML = '';
-                    emptyState.classList.remove('hidden');
+                
+                // Apply search filter
+                if (searchQuery) {
+                    prompts = prompts.filter(prompt => 
+                        prompt.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        prompt.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        (prompt.tags && prompt.tags.some(tag => 
+                            tag.toLowerCase().includes(searchQuery.toLowerCase())
+                        )) ||
+                        prompt.authorName.toLowerCase().includes(searchQuery.toLowerCase())
+                    );
                 }
-
+                
+                displayPrompts();
+                
             } catch (error) {
-                console.error("Error loading prompts:", error);
-                promptsGrid.innerHTML = '<h2>Error loading prompts. Please try again.</h2>';
-                emptyState.classList.add('hidden');
+                console.error('Error loading prompts:', error);
+                showNotification('Error loading prompts', 'error');
             }
         }
 
-        // === STATS LOADING ===
-        async function loadStats() {
-            if (!db) return;
-            try {
-                // Total Prompts
-                const promptSnapshot = await db.collection('prompts').get();
-                document.getElementById('totalPrompts').textContent = promptSnapshot.size;
-
-                // Total Users (Approximate from a separate 'stats' doc in a real app, but here we count the users collection)
-                const userSnapshot = await db.collection('users').get();
-                document.getElementById('totalUsers').textContent = userSnapshot.size;
-
-                // Total Likes (Requires aggregation, which is complex in basic Firestore. For demo, we sum client side)
-                let totalLikes = 0;
-                promptSnapshot.forEach(doc => {
-                    totalLikes += doc.data().likes || 0;
-                });
-                document.getElementById('totalLikes').textContent = totalLikes;
-
-            } catch (error) {
-                console.error("Error loading stats:", error);
-                // Fail silently or set to '-'
-                document.getElementById('totalPrompts').textContent = '-';
-                document.getElementById('totalUsers').textContent = '-';
-                document.getElementById('totalLikes').textContent = '-';
+        function displayPrompts() {
+            if (prompts.length === 0) {
+                elements.promptsGrid.classList.add('hidden');
+                elements.emptyState.classList.remove('hidden');
+                return;
             }
+            
+            elements.promptsGrid.classList.remove('hidden');
+            elements.emptyState.classList.add('hidden');
+            
+            elements.promptsGrid.innerHTML = prompts.map(prompt => {
+                const isLiked = currentUser && prompt.likedBy && prompt.likedBy.includes(currentUser.uid);
+                const likeCount = prompt.likes || 0;
+                const commentCount = prompt.comments || 0;
+                const timeAgo = getTimeAgo(prompt.createdAt?.toDate());
+                
+                return `
+                    <div class="prompt-card" data-prompt-id="${prompt.id}">
+                        <div class="prompt-image-container">
+                            ${prompt.imageUrl ? 
+                                `<img src="${prompt.imageUrl}" alt="${prompt.title}" class="prompt-image">` :
+                                `<div style="background: var(--gradient); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+                                    <i class="fas fa-palette"></i>
+                                </div>`
+                            }
+                            <div class="prompt-overlay">
+                                <button class="view-prompt-btn">
+                                    <i class="fas fa-eye"></i> View Prompt
+                                </button>
+                            </div>
+                        </div>
+                        <div class="prompt-content">
+                            <h3 class="prompt-title">${prompt.title}</h3>
+                            <p class="prompt-text">${prompt.description}</p>
+                            
+                            <div class="prompt-meta">
+                                <div class="prompt-author">
+                                    <img src="${prompt.authorAvatar || 'https://ui-avatars.com/api/?name=User&background=random'}" 
+                                         alt="${prompt.authorName}" class="author-avatar"
+                                         onerror="this.src='https://ui-avatars.com/api/?name=User&background=random'">
+                                    <div>
+                                        <div class="author-name">${prompt.authorName}</div>
+                                        <small style="color: var(--secondary);">${timeAgo}</small>
+                                    </div>
+                                </div>
+                                <div class="prompt-stats">
+                                    <div class="stat ${isLiked ? 'liked' : ''}" onclick="handleLike('${prompt.id}')">
+                                        <i class="fas fa-heart"></i>
+                                        <span>${likeCount}</span>
+                                    </div>
+                                    <div class="stat">
+                                        <i class="fas fa-comment"></i>
+                                        <span>${commentCount}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="prompt-tags">
+                                ${prompt.tags ? prompt.tags.slice(0, 3).map(tag => 
+                                    `<span class="tag">${tag.trim()}</span>`
+                                ).join('') : ''}
+                                <span class="tag category">${prompt.category}</span>
+                                <span class="tag model">${prompt.model}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
-        // === INTERACTION HANDLERS ===
-
-        function setupButtonHandlers() {
-            // Theme Toggle
-            themeToggle.addEventListener('click', toggleTheme);
-
-            // Auth Buttons
-            loginBtn.addEventListener('click', () => window.location.href = 'login.html');
-            signupBtn.addEventListener('click', () => window.location.href = 'login.html?mode=signup');
-
-            // Dashboard Buttons (Require user login check)
-            profileBtn.addEventListener('click', () => {
-                if (currentUser) {
-                    window.location.href = 'profile.html';
-                } else {
-                    showNotification('Please log in to view your profile.', 'error');
-                }
-            });
-            inboxBtn.addEventListener('click', () => {
-                if (currentUser) {
-                    window.location.href = 'inbox.html';
-                } else {
-                    showNotification('Please log in to view your messages.', 'error');
-                }
-            });
-            document.getElementById('uploadBtn').addEventListener('click', () => {
-                if (currentUser) {
-                    openModal(uploadModal);
-                } else {
-                    showNotification('Please log in to share your prompt.', 'error');
-                }
-            });
-            uploadFirstBtn.addEventListener('click', () => {
-                if (currentUser) {
-                    openModal(uploadModal);
-                } else {
-                    window.location.href = 'login.html';
-                }
-            });
-
-            // Nav Tabs
-            navTabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const tabName = this.dataset.tab;
-                    switchTab(tabName);
-                });
-            });
-
-            // Category Filter
-            categoryFilterButtons.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    categoryFilterButtons.forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    loadPrompts(); // Reload prompts on category change
-                });
-            });
-
-            // Search Input
-            searchInput.addEventListener('input', loadPrompts); // Real-time search/filter
-
-            // Dynamic Prompt Grid Clicks (Like/View)
-            promptsGrid.addEventListener('click', function(e) {
-                const promptCard = e.target.closest('.prompt-card');
-                if (!promptCard) return;
-                const promptId = promptCard.dataset.id;
-
-                if (e.target.closest('[data-action="like"]')) {
-                    handleLike(promptId, e.target.closest('[data-action="like"]'));
-                } else if (e.target.closest('.view-prompt-btn')) {
-                    // For demo, we'll alert the prompt content
-                    handleViewPrompt(promptId);
-                }
-            });
-
-            // For the demo only: Clicking the user profile opens the profile page
-            userProfileDiv.addEventListener('click', () => {
-                if (currentUser) {
-                    window.location.href = 'profile.html';
-                }
-            });
-        }
-        
-        function switchTab(tabName) {
-            currentTab = tabName;
-            navTabs.forEach(tab => {
-                tab.classList.remove('active');
-                if (tab.dataset.tab === tabName) {
-                    tab.classList.add('active');
-                }
-            });
-            loadPrompts();
+        function getTimeAgo(date) {
+            if (!date) return 'Recently';
+            
+            const now = new Date();
+            const diff = now.getTime() - date.getTime();
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+            
+            if (minutes < 1) return 'Just now';
+            if (minutes < 60) return `${minutes}m ago`;
+            if (hours < 24) return `${hours}h ago`;
+            if (days < 7) return `${days}d ago`;
+            
+            return date.toLocaleDateString();
         }
 
-        async function handleLike(promptId, likeElement) {
+        // === LIKE SYSTEM ===
+        async function handleLike(promptId) {
             if (!currentUser) {
-                showNotification('Please log in to like a prompt.', 'error');
+                showNotification('Please login to like prompts', 'error');
                 return;
             }
-            if (!db) {
-                showNotification('Like feature unavailable. Firebase not configured.', 'warning');
-                return;
-            }
-
+            
+            const prompt = prompts.find(p => p.id === promptId);
+            if (!prompt) return;
+            
+            const isLiked = prompt.likedBy && prompt.likedBy.includes(currentUser.uid);
+            
             try {
-                const promptRef = db.collection('prompts').doc(promptId);
-                const doc = await promptRef.get();
-
-                if (!doc.exists) {
-                    showNotification('Prompt not found.', 'error');
-                    return;
-                }
-
-                const data = doc.data();
-                const likedBy = data.likedBy || [];
-                const isLiked = likedBy.includes(currentUser.uid);
-
                 if (isLiked) {
                     // Unlike
-                    await promptRef.update({
+                    await db.collection('prompts').doc(promptId).update({
                         likes: firebase.firestore.FieldValue.increment(-1),
                         likedBy: firebase.firestore.FieldValue.arrayRemove(currentUser.uid)
                     });
-                    likeElement.classList.remove('liked');
-                    likeElement.querySelector('span').textContent = (data.likes - 1) || 0;
-                    showNotification('Unliked!', 'info');
                 } else {
                     // Like
-                    await promptRef.update({
+                    await db.collection('prompts').doc(promptId).update({
                         likes: firebase.firestore.FieldValue.increment(1),
                         likedBy: firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
                     });
-                    likeElement.classList.add('liked');
-                    likeElement.querySelector('span').textContent = (data.likes + 1);
-                    showNotification('Liked! Thank you.', 'success');
                 }
-                loadStats(); // Update total likes stat
+                
+                // Reload prompts to reflect changes
+                loadPrompts();
+                loadStats();
+                
             } catch (error) {
-                console.error("Error handling like:", error);
-                showNotification('An error occurred while liking/unliking.', 'error');
+                console.error('Error handling like:', error);
+                showNotification('Error updating like', 'error');
             }
         }
 
-        async function handleViewPrompt(promptId) {
-            if (!db) {
-                showNotification('Prompt details unavailable. Firebase not configured.', 'warning');
+        // === CATEGORY SYSTEM ===
+        elements.categoryButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Update active category button
+                elements.categoryButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Update current category
+                currentCategory = btn.dataset.category;
+                
+                // Load prompts for the selected category
+                loadPrompts();
+            });
+        });
+
+        // Category selection in upload form
+        elements.categoryOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                // Remove selected class from all options
+                elements.categoryOptions.forEach(opt => opt.classList.remove('selected'));
+                
+                // Add selected class to clicked option
+                option.classList.add('selected');
+                
+                // Update hidden input value
+                elements.promptCategory.value = option.dataset.category;
+            });
+        });
+
+        // === SEARCH SYSTEM ===
+        elements.searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            loadPrompts();
+        });
+
+        // === UPLOAD SYSTEM ===
+        elements.uploadBtn.addEventListener('click', () => {
+            if (!currentUser) {
+                showNotification('Please login to upload prompts', 'error');
+                return;
+            }
+            openUploadModal();
+        });
+
+        elements.uploadFirstBtn.addEventListener('click', () => {
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+            openUploadModal();
+        });
+
+        function openUploadModal() {
+            elements.uploadForm.reset();
+            elements.imagePreview.style.display = 'none';
+            elements.categoryOptions.forEach(opt => opt.classList.remove('selected'));
+            elements.promptCategory.value = '';
+            elements.uploadModal.style.display = 'block';
+        }
+
+        // File upload handling
+        elements.fileUploadSection.addEventListener('click', () => {
+            elements.promptImage.click();
+        });
+
+        // Image preview
+        elements.promptImage.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validate file size (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    showNotification('Image size should be less than 5MB', 'error');
+                    this.value = '';
+                    return;
+                }
+                
+                // Validate file type
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+                if (!validTypes.includes(file.type)) {
+                    showNotification('Please upload a valid image file (JPEG, PNG, WEBP)', 'error');
+                    this.value = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    elements.imagePreview.src = e.target.result;
+                    elements.imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Drag and drop functionality
+        elements.fileUploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            elements.fileUploadSection.classList.add('dragover');
+        });
+
+        elements.fileUploadSection.addEventListener('dragleave', () => {
+            elements.fileUploadSection.classList.remove('dragover');
+        });
+
+        elements.fileUploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            elements.fileUploadSection.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                elements.promptImage.files = files;
+                const event = new Event('change');
+                elements.promptImage.dispatchEvent(event);
+            }
+        });
+
+        // Form submission
+        elements.uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!currentUser) {
+                showNotification('Please login to upload prompts', 'error');
+                return;
+            }
+            
+            const title = elements.promptTitle.value.trim();
+            const description = elements.promptDescription.value.trim();
+            const model = elements.promptModel.value;
+            const category = elements.promptCategory.value;
+            const tags = elements.promptTags.value.split(',').map(tag => tag.trim()).filter(tag => tag);
+            const imageFile = elements.promptImage.files[0];
+            
+            // Validation
+            if (!title || !description || !model || !category) {
+                showNotification('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            if (title.length < 5) {
+                showNotification('Title should be at least 5 characters long', 'error');
+                return;
+            }
+            
+            if (description.length < 20) {
+                showNotification('Description should be at least 20 characters long', 'error');
+                return;
+            }
+            
+            if (!category) {
+                showNotification('Please select a category', 'error');
                 return;
             }
             
             try {
-                const promptRef = db.collection('prompts').doc(promptId);
-                const doc = await promptRef.get();
-
-                if (!doc.exists) {
-                    showNotification('Prompt not found.', 'error');
-                    return;
+                // Show loading state
+                const originalText = elements.submitPromptBtn.innerHTML;
+                elements.submitPromptBtn.innerHTML = '<div class="loading-spinner"></div> Sharing...';
+                elements.submitPromptBtn.disabled = true;
+                
+                let imageUrl = '';
+                
+                // Upload image if selected
+                if (imageFile) {
+                    const storageRef = storage.ref();
+                    const imageRef = storageRef.child(`prompts/${currentUser.uid}_${Date.now()}_${imageFile.name}`);
+                    const snapshot = await imageRef.put(imageFile);
+                    imageUrl = await snapshot.ref.getDownloadURL();
                 }
-
-                const data = doc.data();
-
-                // Increment view count
-                await promptRef.update({
-                    views: firebase.firestore.FieldValue.increment(1)
+                
+                // Get user data
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                const userData = userDoc.data();
+                
+                // Create prompt document
+                const promptData = {
+                    title: title,
+                    description: description,
+                    model: model,
+                    category: category,
+                    tags: tags,
+                    imageUrl: imageUrl,
+                    authorId: currentUser.uid,
+                    authorName: userData.name || currentUser.displayName || 'User',
+                    authorAvatar: userData.avatar || currentUser.photoURL || 'https://ui-avatars.com/api/?name=User&background=random',
+                    likes: 0,
+                    comments: 0,
+                    likedBy: [],
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                await db.collection('prompts').add(promptData);
+                
+                // Update user's prompt count
+                await db.collection('users').doc(currentUser.uid).update({
+                    prompts: firebase.firestore.FieldValue.increment(1)
                 });
                 
-                // For a real app, this would open a detailed modal/page.
-                // For the demo, we show the full prompt in a notification/alert.
-                const fullPrompt = `Title: ${data.title}\n\nPrompt: ${data.promptText}\n\nAI Model: ${data.aiModel}\nCategory: ${data.category}\nTags: ${(data.tags || []).join(', ')}`;
-                alert(fullPrompt);
-
-                // Reload to show updated view count (simple reload, a real app would update the card locally)
-                loadPrompts(); 
-
+                // Close modal and reset form
+                elements.uploadModal.style.display = 'none';
+                elements.uploadForm.reset();
+                elements.imagePreview.style.display = 'none';
+                elements.categoryOptions.forEach(opt => opt.classList.remove('selected'));
+                
+                // Reset button
+                elements.submitPromptBtn.innerHTML = originalText;
+                elements.submitPromptBtn.disabled = false;
+                
+                showNotification('🎉 Your prompt has been shared with the community!', 'success');
+                
+                // Reload prompts and stats
+                loadPrompts();
+                loadStats();
+                
             } catch (error) {
-                console.error("Error viewing prompt:", error);
-                showNotification('An error occurred while fetching prompt details.', 'error');
+                console.error('Error uploading prompt:', error);
+                showNotification('Error sharing your prompt. Please try again.', 'error');
+                
+                // Reset button
+                elements.submitPromptBtn.innerHTML = '<i class="fas fa-upload"></i> Share with Community';
+                elements.submitPromptBtn.disabled = false;
             }
+        });
+
+        // Cancel button
+        elements.cancelBtn.addEventListener('click', () => {
+            elements.uploadModal.style.display = 'none';
+        });
+
+        // === TAB SYSTEM ===
+        elements.navTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Update active tab
+                elements.navTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Update current tab
+                currentTab = tab.dataset.tab;
+                
+                // Load prompts for the selected tab
+                loadPrompts();
+            });
+        });
+
+        // === BUTTON HANDLERS ===
+        function setupButtonHandlers() {
+            // Profile Button
+            elements.profileBtn.addEventListener('click', () => {
+                if (!currentUser) {
+                    showNotification('Please login to view profile', 'error');
+                    return;
+                }
+                window.location.href = 'profile.html';
+            });
+
+            // Inbox Button
+            elements.inboxBtn.addEventListener('click', () => {
+                if (!currentUser) {
+                    showNotification('Please login to view messages', 'error');
+                    return;
+                }
+                window.location.href = 'inbox.html';
+            });
+
+            // Auth Buttons
+            elements.loginBtn.addEventListener('click', () => {
+                window.location.href = 'login.html';
+            });
+
+            elements.signupBtn.addEventListener('click', () => {
+                window.location.href = 'login.html';
+            });
+
+            // User Profile Click
+            elements.userProfile.addEventListener('click', () => {
+                window.location.href = 'profile.html';
+            });
         }
 
-        // === UPLOAD MODAL LOGIC ===
-
+        // === MODAL MANAGEMENT ===
         function setupModalHandlers() {
-            // Close buttons
+            // Close modal when clicking close button
             document.querySelectorAll('.close-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    closeModal(uploadModal);
-                    resetUploadModal();
+                btn.addEventListener('click', (e) => {
+                    const modal = e.target.closest('.modal');
+                    closeModal(modal);
                 });
             });
-
-            // Close on outside click
-            uploadModal.addEventListener('click', (e) => {
-                if (e.target === uploadModal) {
-                    closeModal(uploadModal);
-                    resetUploadModal();
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target.classList.contains('modal')) {
+                    closeModal(e.target);
                 }
             });
-
-            // Close on Escape key
+            
+            // Close modal with Escape key
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
                     document.querySelectorAll('.modal').forEach(modal => {
@@ -1893,176 +2111,6 @@
                     });
                 }
             });
-
-            // File Upload Drag and Drop
-            fileUploadSection.addEventListener('click', () => promptImageInput.click());
-            
-            fileUploadSection.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                fileUploadSection.classList.add('dragover');
-            });
-
-            fileUploadSection.addEventListener('dragleave', () => {
-                fileUploadSection.classList.remove('dragover');
-            });
-
-            fileUploadSection.addEventListener('drop', (e) => {
-                e.preventDefault();
-                fileUploadSection.classList.remove('dragover');
-                const files = e.dataTransfer.files;
-                if (files.length > 0) {
-                    handleFileSelect(files[0]);
-                }
-            });
-
-            // File Input Change
-            promptImageInput.addEventListener('change', (e) => {
-                handleFileSelect(e.target.files[0]);
-            });
-
-            // Category Selection
-            categoryOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    categoryOptions.forEach(o => o.classList.remove('selected'));
-                    this.classList.add('selected');
-                    selectedCategoryInput.value = this.dataset.category;
-                    selectedCategoryInput.setCustomValidity(''); // Clear custom validity error
-                });
-            });
-            
-            // Form Submission
-            uploadForm.addEventListener('submit', handlePromptUpload);
-
-            // Basic Form Validation for Category (since it's not a standard input)
-            uploadForm.addEventListener('change', () => {
-                if (!selectedCategoryInput.value) {
-                    selectedCategoryInput.setCustomValidity('Please select a category.');
-                } else {
-                    selectedCategoryInput.setCustomValidity('');
-                }
-            });
-        }
-
-        function handleFileSelect(file) {
-            if (file && file.type.startsWith('image/')) {
-                if (file.size > 5 * 1024 * 1024) { // 5MB limit
-                    showNotification('Image size exceeds 5MB limit.', 'error');
-                    promptImageInput.value = ''; // Clear the input
-                    currentImageFile = null;
-                    imagePreview.style.display = 'none';
-                    return;
-                }
-                
-                currentImageFile = file;
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    imagePreview.src = e.target.result;
-                    imagePreview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            } else {
-                showNotification('Invalid file type. Please select an image.', 'error');
-                promptImageInput.value = '';
-                currentImageFile = null;
-                imagePreview.style.display = 'none';
-            }
-        }
-
-        async function handlePromptUpload(e) {
-            e.preventDefault();
-
-            if (!currentUser) {
-                showNotification('You must be logged in to upload a prompt.', 'error');
-                return;
-            }
-
-            if (!db || !storage) {
-                showNotification('Upload feature unavailable. Firebase not configured.', 'error');
-                return;
-            }
-
-            if (!currentImageFile) {
-                showNotification('Please upload an image.', 'error');
-                return;
-            }
-
-            // Simple validation check (should be more robust in production)
-            if (!uploadForm.checkValidity() || !selectedCategoryInput.value) {
-                showNotification('Please fill all required fields.', 'error');
-                uploadForm.reportValidity(); // Trigger browser validation UI
-                return;
-            }
-
-            // UI Feedback: Disable button and show spinner
-            submitPromptBtn.disabled = true;
-            submitBtnText.classList.add('hidden');
-            loadingSpinner.classList.remove('hidden');
-
-            const title = document.getElementById('promptTitle').value;
-            const promptText = document.getElementById('promptText').value;
-            const category = selectedCategoryInput.value;
-            const aiModel = document.getElementById('aiModel').value;
-            const tags = document.getElementById('tags').value.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
-            
-            try {
-                // 1. Upload Image to Firebase Storage
-                const storageRef = storage.ref();
-                const imageFileName = `${currentUser.uid}_${Date.now()}_${currentImageFile.name}`;
-                const imageRef = storageRef.child(`prompts/${imageFileName}`);
-                await imageRef.put(currentImageFile);
-                const imageUrl = await imageRef.getDownloadURL();
-
-                // 2. Save Prompt Data to Firestore
-                const newPromptRef = db.collection('prompts').doc();
-                const authorData = await db.collection('users').doc(currentUser.uid).get();
-                const authorName = authorData.data() ? authorData.data().name : 'Anonymous';
-                const authorAvatar = authorData.data() ? authorData.data().avatar : null;
-                
-                await newPromptRef.set({
-                    title: title,
-                    promptText: promptText,
-                    category: category,
-                    aiModel: aiModel,
-                    tags: tags,
-                    imageUrl: imageUrl,
-                    authorId: currentUser.uid,
-                    authorName: authorName,
-                    authorAvatar: authorAvatar,
-                    likes: 0,
-                    views: 0,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                // 3. Success Feedback and Cleanup
-                showNotification('Prompt uploaded successfully!', 'success');
-                closeModal(uploadModal);
-                resetUploadModal();
-                loadPrompts(); // Refresh the grid
-                loadStats(); // Update stats
-
-            } catch (error) {
-                console.error("Upload Error:", error);
-                showNotification(`Upload failed: ${error.message}`, 'error');
-            } finally {
-                // UI Feedback: Re-enable button and hide spinner
-                submitPromptBtn.disabled = false;
-                submitBtnText.classList.remove('hidden');
-                loadingSpinner.classList.add('hidden');
-            }
-        }
-
-        function resetUploadModal() {
-            uploadForm.reset();
-            currentImageFile = null;
-            imagePreview.src = '';
-            imagePreview.style.display = 'none';
-            categoryOptions.forEach(o => o.classList.remove('selected'));
-            selectedCategoryInput.value = '';
-            selectedCategoryInput.setCustomValidity('Please select a category.');
-        }
-
-        function openModal(modal) {
-            modal.style.display = 'block';
         }
 
         function closeModal(modal) {
