@@ -192,6 +192,7 @@
             border: 5px solid rgba(255,255,255,0.3);
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             transition: var(--transition);
+            position: relative;
         }
 
         .profile-avatar:hover {
@@ -199,62 +200,43 @@
             border-color: rgba(255,255,255,0.5);
         }
 
-        .edit-avatar-btn {
+        /* Badge DP के अंदर थोड़ा बाहर */
+        .avatar-badge {
             position: absolute;
-            bottom: 8px;
-            right: 8px;
-            background: var(--primary);
+            bottom: 5px;
+            right: 5px;
+            background: rgba(0,0,0,0.7);
             color: white;
-            border: none;
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
-            border: 2px solid white;
-            z-index: 3;
-        }
-
-        .edit-avatar-btn:hover {
-            background: var(--primary-dark);
-            transform: scale(1.1);
-        }
-
-        /* User Tag - DP के नीचे */
-        .user-tag {
-            margin-top: 15px;
-            padding: 6px 15px;
-            border-radius: 20px;
-            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.6rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            display: inline-flex;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+            z-index: 3;
+            display: flex;
             align-items: center;
-            gap: 6px;
-            max-width: 150px;
+            gap: 3px;
+            max-width: 80px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .owner-tag {
-            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); /* Dark Blue */
-            color: white;
+        .owner-badge {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
             animation: glow 2s ease-in-out infinite alternate;
         }
 
-        .member-tag {
-            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
-            color: white;
+        .legendary-badge {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+            animation: glow 2s ease-in-out infinite alternate;
         }
 
-        .verified-badge {
-            color: #3b82f6;
-            font-size: 0.9rem;
+        .member-badge {
+            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
         }
 
         @keyframes glow {
@@ -264,8 +246,34 @@
             }
             to { 
                 box-shadow: 0 4px 15px rgba(30, 58, 138, 0.6), 0 0 20px rgba(37, 99, 235, 0.4);
-                transform: scale(1.02);
+                transform: scale(1.05);
             }
+        }
+
+        .edit-avatar-btn {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            border: 2px solid white;
+            z-index: 4;
+        }
+
+        .edit-avatar-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.1);
         }
 
         .profile-info {
@@ -283,6 +291,11 @@
             background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+
+        .verified-badge {
+            color: #3b82f6;
+            font-size: 1.2rem;
         }
 
         .profile-bio {
@@ -699,6 +712,12 @@
                 height: 120px;
             }
             
+            .avatar-badge {
+                font-size: 0.5rem;
+                padding: 3px 6px;
+                max-width: 70px;
+            }
+            
             .info-grid {
                 grid-template-columns: 1fr;
             }
@@ -733,11 +752,6 @@
             .stat {
                 padding: 12px 15px;
             }
-            
-            .user-tag {
-                font-size: 0.6rem;
-                padding: 3px 8px;
-            }
         }
     </style>
 </head>
@@ -765,13 +779,13 @@
                 <div class="profile-content">
                     <div class="avatar-container">
                         <img src="https://ui-avatars.com/api/?name=User&background=667eea&color=fff" alt="Profile" class="profile-avatar" id="profileAvatar">
+                        <!-- Badge DP के अंदर थोड़ा बाहर -->
+                        <div class="avatar-badge member-badge" id="avatarBadge">
+                            <i class="fas fa-user"></i> Member
+                        </div>
                         <button class="edit-avatar-btn" id="editAvatarBtn">
                             <i class="fas fa-camera"></i>
                         </button>
-                        <!-- Badge DP के नीचे -->
-                        <div class="user-tag member-tag" id="userTag">
-                            <i class="fas fa-user"></i> Member
-                        </div>
                     </div>
                     
                     <div class="profile-info">
@@ -905,7 +919,9 @@
 
         // === GLOBAL VARIABLES ===
         const OWNER_EMAIL = "alizybaby381@gmail.com";
-        const VERIFIED_USERS = ["alizybaby381@gmail.com"]; // Blue tick wale users
+        const LEGENDARY_EMAIL = "ul8763325@gmail.com";
+        // सिर्फ इन दो emails को verified tick मिलेगा
+        const VERIFIED_USERS = ["alizybaby381@gmail.com", "ul8763325@gmail.com"];
         let currentUser = null;
 
         // === DOM ELEMENTS ===
@@ -914,7 +930,7 @@
             profileAvatar: document.getElementById('profileAvatar'),
             profileName: document.getElementById('profileName'),
             profileBio: document.getElementById('profileBio'),
-            userTag: document.getElementById('userTag'),
+            avatarBadge: document.getElementById('avatarBadge'),
             verifiedBadge: document.getElementById('verifiedBadge'),
             userEmail: document.getElementById('userEmail'),
             userId: document.getElementById('userId'),
@@ -1016,10 +1032,9 @@
             elements.profileName.textContent = userData.name || 'User';
             elements.profileBio.textContent = userData.bio || 'This is my bio. I love creating amazing AI art and sharing prompts with the community!';
             
-            // Avatar optimization - agar base64 hai toh compress karo
+            // Avatar optimization
             let avatarUrl = userData.avatar || 'https://ui-avatars.com/api/?name=User&background=667eea&color=fff';
             if (avatarUrl.startsWith('data:image') && avatarUrl.length > 10000) {
-                // Agar base64 image bahut bada hai, default avatar use karo
                 avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name || 'User')}&background=667eea&color=fff`;
             }
             
@@ -1048,18 +1063,26 @@
                 });
             }
             
-            // User Tag aur Verification Badge
+            // Badge और Verification System
             if (currentUser.email === OWNER_EMAIL) {
-                elements.userTag.innerHTML = '<i class="fas fa-crown"></i> Site Owner';
-                elements.userTag.className = 'user-tag owner-tag';
+                // Site Owner - Dark Blue
+                elements.avatarBadge.innerHTML = '<i class="fas fa-crown"></i> Owner';
+                elements.avatarBadge.className = 'avatar-badge owner-badge';
+                elements.verifiedBadge.classList.remove('hidden');
+            } else if (currentUser.email === LEGENDARY_EMAIL) {
+                // Legendary - Red Color
+                elements.avatarBadge.innerHTML = '<i class="fas fa-fire"></i> Legendary';
+                elements.avatarBadge.className = 'avatar-badge legendary-badge';
                 elements.verifiedBadge.classList.remove('hidden');
             } else if (VERIFIED_USERS.includes(currentUser.email)) {
-                elements.userTag.innerHTML = '<i class="fas fa-star"></i> Verified';
-                elements.userTag.className = 'user-tag owner-tag';
+                // Other Verified Users - Purple
+                elements.avatarBadge.innerHTML = '<i class="fas fa-star"></i> Verified';
+                elements.avatarBadge.className = 'avatar-badge member-badge';
                 elements.verifiedBadge.classList.remove('hidden');
             } else {
-                elements.userTag.innerHTML = '<i class="fas fa-user"></i> Member';
-                elements.userTag.className = 'user-tag member-tag';
+                // Regular Member - Purple
+                elements.avatarBadge.innerHTML = '<i class="fas fa-user"></i> Member';
+                elements.avatarBadge.className = 'avatar-badge member-badge';
                 elements.verifiedBadge.classList.add('hidden');
             }
             
