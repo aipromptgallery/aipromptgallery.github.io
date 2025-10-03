@@ -814,39 +814,58 @@
                         await sendWelcomeMessage(user.uid);
                     }
                 } else {
-                    // Redirect to login if not authenticated
-                    window.location.href = 'login.html';
+                    // Use anonymous authentication as fallback
+                    try {
+                        await auth.signInAnonymously();
+                    } catch (error) {
+                        console.error('Authentication failed:', error);
+                        showNotification('Please login to access messages', 'error');
+                        // Redirect to login page
+                        setTimeout(() => {
+                            window.location.href = 'login.html';
+                        }, 2000);
+                    }
                 }
             });
         }
 
         async function loadUserData(uid) {
-            const userDoc = await db.collection('users').doc(uid).get();
-            if (!userDoc.exists) {
-                // Create user document if it doesn't exist
-                await db.collection('users').doc(uid).set({
+            try {
+                const userDoc = await db.collection('users').doc(uid).get();
+                if (!userDoc.exists) {
+                    // Create user document if it doesn't exist
+                    await db.collection('users').doc(uid).set({
+                        name: currentUser.displayName || 'User',
+                        email: currentUser.email || 'anonymous@example.com',
+                        avatar: currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'User')}&background=random`,
+                        bio: "This is my bio. I love creating AI art prompts!",
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        followers: 0,
+                        following: 0,
+                        prompts: 0,
+                        likes: 0,
+                        followersList: [],
+                        followingList: []
+                    });
+                }
+                
+                // Store user data in memory
+                const userData = userDoc.exists ? userDoc.data() : {
                     name: currentUser.displayName || 'User',
-                    email: currentUser.email,
                     avatar: currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'User')}&background=random`,
-                    bio: "This is my bio. I love creating AI art prompts!",
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    followers: 0,
-                    following: 0,
-                    prompts: 0,
-                    likes: 0,
-                    followersList: [],
-                    followingList: []
-                });
+                    bio: "This is my bio. I love creating AI art prompts!"
+                };
+                
+                users[uid] = userData;
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                // Use fallback user data
+                users[uid] = {
+                    name: currentUser.displayName || 'User',
+                    avatar: currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'User')}&background=random`,
+                    bio: "This is my bio. I love creating AI art prompts!"
+                };
             }
-            
-            // Store user data in memory
-            const userData = userDoc.exists ? userDoc.data() : {
-                name: currentUser.displayName || 'User',
-                avatar: currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'User')}&background=random`,
-                bio: "This is my bio. I love creating AI art prompts!"
-            };
-            
-            users[uid] = userData;
         }
 
         // === AUTO WELCOME MESSAGE ===
@@ -927,7 +946,10 @@
 
         // === CONVERSATIONS SYSTEM ===
         async function loadConversations() {
-            if (!currentUser) return;
+            if (!currentUser) {
+                console.log('No current user, cannot load conversations');
+                return;
+            }
             
             try {
                 // Get conversations where current user is a participant
@@ -948,7 +970,16 @@
                 
             } catch (error) {
                 console.error('Error loading conversations:', error);
-                showNotification('Error loading conversations', 'error');
+                showNotification('Error loading conversations. Please check your connection.', 'error');
+                
+                // Fallback: Show empty state
+                elements.conversationsList.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--secondary);">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                        <p>Unable to load conversations</p>
+                        <p>Please check your internet connection</p>
+                    </div>
+                `;
             }
         }
 
@@ -1055,7 +1086,10 @@
         }
 
         async function selectConversation(conversationId) {
-            if (!currentUser) return;
+            if (!currentUser) {
+                showNotification('Please login to view conversations', 'error');
+                return;
+            }
             
             // Stop listening to previous conversation
             if (currentConversation && conversationListeners[currentConversation.id]) {
@@ -1117,7 +1151,16 @@
                 
             } catch (error) {
                 console.error('Error loading messages:', error);
-                showNotification('Error loading messages', 'error');
+                showNotification('Error loading messages. Please try again.', 'error');
+                
+                // Fallback: Show error state
+                elements.messagesContainer.innerHTML = `
+                    <div class="empty-chat">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Unable to load messages</h3>
+                        <p>Please check your connection and try again</p>
+                    </div>
+                `;
             }
         }
 
@@ -1257,7 +1300,7 @@
                 
             } catch (error) {
                 console.error('Error sending message:', error);
-                showNotification('Error sending message', 'error');
+                showNotification('Error sending message. Please try again.', 'error');
             }
         }
 
@@ -1323,7 +1366,16 @@
                 
             } catch (error) {
                 console.error('Error loading users:', error);
-                showNotification('Error loading users', 'error');
+                showNotification('Error loading users. Please try again.', 'error');
+                
+                // Fallback: Show error state
+                elements.userList.innerHTML = `
+                    <div style="text-align: center; padding: 30px; color: var(--secondary);">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                        <p>Unable to load users</p>
+                        <p>Please check your connection</p>
+                    </div>
+                `;
             }
         }
 
@@ -1402,9 +1454,13 @@
                 
                 // Load user data for the new conversation participant
                 if (!users[otherUserId]) {
-                    const userDoc = await db.collection('users').doc(otherUserId).get();
-                    if (userDoc.exists) {
-                        users[otherUserId] = userDoc.data();
+                    try {
+                        const userDoc = await db.collection('users').doc(otherUserId).get();
+                        if (userDoc.exists) {
+                            users[otherUserId] = userDoc.data();
+                        }
+                    } catch (error) {
+                        console.error('Error loading user data:', error);
                     }
                 }
                 
@@ -1416,7 +1472,7 @@
                 
             } catch (error) {
                 console.error('Error starting new conversation:', error);
-                showNotification('Error starting conversation', 'error');
+                showNotification('Error starting conversation. Please try again.', 'error');
             }
         }
 
