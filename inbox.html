@@ -28,6 +28,7 @@
             --card-bg: #ffffff;
             --success: #10b981;
             --error: #ef4444;
+            --warning: #f59e0b;
             --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             --shadow: 0 8px 30px rgba(0,0,0,0.08);
             --radius: 16px;
@@ -897,6 +898,7 @@
                         bio: "AI art enthusiast",
                         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                         lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+                        // ✅ VERIFIED TICK - ONLY FOR SPECIFIC USERS
                         isVerified: user.email === OWNER_EMAIL || user.email === LEGENDARY_EMAIL
                     });
                 }
@@ -992,7 +994,8 @@
                     name: "AI Prompt Gallery",
                     avatar: "https://ui-avatars.com/api/?name=AI+Prompt+Gallery&background=667eea&color=fff",
                     bio: "Official Account",
-                    email: "system"
+                    email: "system",
+                    isVerified: false
                 };
                 
                 // Load other users
@@ -1008,7 +1011,8 @@
                                     name: "Unknown User",
                                     avatar: "https://ui-avatars.com/api/?name=User&background=random",
                                     bio: "User",
-                                    email: "unknown"
+                                    email: "unknown",
+                                    isVerified: false
                                 };
                             }
                         } catch (error) {
@@ -1017,7 +1021,8 @@
                                 name: "Unknown User",
                                 avatar: "https://ui-avatars.com/api/?name=User&background=random",
                                 bio: "User",
-                                email: "unknown"
+                                email: "unknown",
+                                isVerified: false
                             };
                         }
                     });
@@ -1057,12 +1062,15 @@
                 const otherUser = users[otherParticipantId] || { 
                     name: 'Unknown User', 
                     avatar: 'https://ui-avatars.com/api/?name=User&background=random',
-                    email: 'unknown'
+                    email: 'unknown',
+                    isVerified: false
                 };
                 
                 const lastMessage = conversation.lastMessage || 'No messages yet';
                 const lastMessageTime = conversation.lastMessageAt ? formatTime(conversation.lastMessageAt.toDate()) : '';
                 const unreadCount = conversation.unreadCount && conversation.unreadCount[currentUser.uid] || 0;
+                
+                // ✅ VERIFIED TICK - ONLY FOR OWNER & LEGENDARY
                 const isOwner = otherUser.email === OWNER_EMAIL;
                 const isLegendary = otherUser.email === LEGENDARY_EMAIL;
                 
@@ -1120,15 +1128,21 @@
             const otherUser = users[otherParticipantId] || { 
                 name: 'Unknown User', 
                 avatar: 'https://ui-avatars.com/api/?name=User&background=random',
-                email: 'unknown'
+                email: 'unknown',
+                isVerified: false
             };
             
             elements.chatUserAvatar.src = otherUser.avatar;
+            
+            // ✅ VERIFIED TICK - ONLY FOR SPECIFIC USERS
+            const isOwner = otherUser.email === OWNER_EMAIL;
+            const isLegendary = otherUser.email === LEGENDARY_EMAIL;
+            
             elements.chatUserName.innerHTML = `
                 ${otherUser.name}
-                ${(otherUser.email === OWNER_EMAIL || otherUser.email === LEGENDARY_EMAIL) ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
-                ${otherUser.email === OWNER_EMAIL ? '<span class="owner-badge">Owner</span>' : ''}
-                ${otherUser.email === LEGENDARY_EMAIL ? '<span class="legendary-badge">Legendary</span>' : ''}
+                ${(isOwner || isLegendary) ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
+                ${isOwner ? '<span class="owner-badge">Owner</span>' : ''}
+                ${isLegendary ? '<span class="legendary-badge">Legendary</span>' : ''}
             `;
             elements.chatUserStatus.textContent = 'Online';
             
@@ -1283,7 +1297,11 @@
                 const allUsers = [];
                 snapshot.forEach(doc => {
                     if (doc.id !== currentUser.uid && doc.id !== 'system') {
-                        allUsers.push({ id: doc.id, ...doc.data() });
+                        const userData = doc.data();
+                        allUsers.push({ 
+                            id: doc.id, 
+                            ...userData
+                        });
                     }
                 });
                 
@@ -1295,20 +1313,26 @@
                         </div>
                     `;
                 } else {
-                    elements.userList.innerHTML = allUsers.map(user => `
-                        <div class="user-item" data-user-id="${user.id}">
-                            <img src="${user.avatar}" alt="${user.name}" class="user-avatar-list">
-                            <div class="user-info">
-                                <div class="user-name">
-                                    ${user.name}
-                                    ${(user.email === OWNER_EMAIL || user.email === LEGENDARY_EMAIL) ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
-                                    ${user.email === OWNER_EMAIL ? '<span class="owner-badge">Owner</span>' : ''}
-                                    ${user.email === LEGENDARY_EMAIL ? '<span class="legendary-badge">Legendary</span>' : ''}
+                    elements.userList.innerHTML = allUsers.map(user => {
+                        // ✅ VERIFIED TICK - ONLY FOR SPECIFIC USERS
+                        const isOwner = user.email === OWNER_EMAIL;
+                        const isLegendary = user.email === LEGENDARY_EMAIL;
+                        
+                        return `
+                            <div class="user-item" data-user-id="${user.id}">
+                                <img src="${user.avatar}" alt="${user.name}" class="user-avatar-list">
+                                <div class="user-info">
+                                    <div class="user-name">
+                                        ${user.name}
+                                        ${(isOwner || isLegendary) ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
+                                        ${isOwner ? '<span class="owner-badge">Owner</span>' : ''}
+                                        ${isLegendary ? '<span class="legendary-badge">Legendary</span>' : ''}
+                                    </div>
+                                    <div class="user-bio">${user.bio}</div>
                                 </div>
-                                <div class="user-bio">${user.bio}</div>
                             </div>
-                        </div>
-                    `).join('');
+                        `;
+                    }).join('');
                 }
                 
                 document.querySelectorAll('.user-item').forEach(item => {
