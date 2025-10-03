@@ -803,6 +803,7 @@
             auth.onAuthStateChanged(async (user) => {
                 if (user) {
                     currentUser = user;
+                    console.log('User logged in:', user.uid);
                     await loadUserData(user.uid);
                     showNotification(`Welcome to messages, ${user.displayName || 'User'}!`, 'success');
                     
@@ -814,19 +815,53 @@
                         await sendWelcomeMessage(user.uid);
                     }
                 } else {
-                    // Use anonymous authentication as fallback
+                    // Use demo mode with anonymous authentication
                     try {
+                        console.log('No user found, signing in anonymously...');
                         await auth.signInAnonymously();
                     } catch (error) {
                         console.error('Authentication failed:', error);
                         showNotification('Please login to access messages', 'error');
-                        // Redirect to login page
-                        setTimeout(() => {
-                            window.location.href = 'login.html';
-                        }, 2000);
+                        // Use demo data for testing
+                        setupDemoMode();
                     }
                 }
             });
+        }
+
+        // Demo mode for testing without authentication
+        function setupDemoMode() {
+            console.log('Setting up demo mode...');
+            currentUser = {
+                uid: 'demo-user',
+                displayName: 'Demo User',
+                email: 'demo@example.com'
+            };
+            
+            users['demo-user'] = {
+                name: 'Demo User',
+                avatar: 'https://ui-avatars.com/api/?name=Demo+User&background=667eea&color=fff',
+                bio: 'Demo user for testing'
+            };
+            
+            users['owner'] = {
+                name: 'AI Prompt Gallery',
+                avatar: 'https://ui-avatars.com/api/?name=AI+Prompt+Gallery&background=667eea&color=fff',
+                bio: 'Owner of AI Prompt Gallery',
+                email: OWNER_EMAIL
+            };
+            
+            // Create demo conversations
+            conversations = [{
+                id: 'demo-conversation-1',
+                participants: ['demo-user', 'owner'],
+                lastMessage: 'Welcome to AI Prompt Gallery!',
+                lastMessageAt: new Date(),
+                unreadCount: { 'demo-user': 1 }
+            }];
+            
+            updateConversationsList();
+            showNotification('Demo mode activated. Messages are local only.', 'info');
         }
 
         async function loadUserData(uid) {
@@ -845,7 +880,13 @@
                         prompts: 0,
                         likes: 0,
                         followersList: [],
-                        followingList: []
+                        followingList: [],
+                        lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } else {
+                    // Update last seen
+                    await db.collection('users').doc(uid).update({
+                        lastSeen: firebase.firestore.FieldValue.serverTimestamp()
                     });
                 }
                 
@@ -891,7 +932,8 @@
                         avatar: "https://ui-avatars.com/api/?name=AI+Prompt+Gallery&background=667eea&color=fff",
                         bio: "Owner of AI Prompt Gallery - Your creative community for AI art prompts!",
                         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        isOwner: true
+                        isOwner: true,
+                        lastSeen: firebase.firestore.FieldValue.serverTimestamp()
                     };
                     await db.collection('users').doc(ownerId).set(ownerData);
                 }
@@ -937,6 +979,9 @@
                         });
                         
                     console.log('Welcome message sent successfully');
+                    
+                    // Reload conversations to show the new one
+                    loadConversations();
                 }
                 
             } catch (error) {
@@ -963,6 +1008,7 @@
                     conversations.push({ id: doc.id, ...doc.data() });
                 });
                 
+                console.log('Loaded conversations:', conversations.length);
                 updateConversationsList();
                 
                 // Load user data for all participants
@@ -1123,7 +1169,9 @@
                 ${otherUser.name}
                 ${otherUser.email === OWNER_EMAIL ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
             `;
-            elements.chatUserStatus.textContent = 'Online';
+            
+            // Update online status based on last seen
+            updateUserStatus(otherParticipantId);
             
             // Load messages for this conversation
             await loadMessages(conversationId);
@@ -1133,6 +1181,45 @@
             
             // Listen for new messages
             listenForNewMessages(conversationId);
+        }
+
+        async function updateUserStatus(userId) {
+            try {
+                const userDoc = await db.collection('users').doc(userId).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    if (userData.lastSeen) {
+                        const lastSeen = userData.lastSeen.toDate();
+                        const now = new Date();
+                        const diff = now.getTime() - lastSeen.getTime();
+                        const minutes = Math.floor(diff / (1000 * 60));
+                        
+                        if (minutes < 5) {
+                            elements.chatUserStatus.textContent = 'Online';
+                            elements.chatUserStatus.style.color = 'var(--success)';
+                        } else {
+                            elements.chatUserStatus.textContent = `Last seen ${formatLastSeen(lastSeen)}`;
+                            elements.chatUserStatus.style.color = 'var(--secondary)';
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error updating user status:', error);
+                elements.chatUserStatus.textContent = 'Online';
+            }
+        }
+
+        function formatLastSeen(date) {
+            const now = new Date();
+            const diff = now.getTime() - date.getTime();
+            const minutes = Math.floor(diff / (1000 * 60));
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            
+            if (minutes < 1) return 'just now';
+            if (minutes < 60) return `${minutes} min ago`;
+            if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+            return `${days} day${days > 1 ? 's' : ''} ago`;
         }
 
         async function loadMessages(conversationId) {
@@ -1297,6 +1384,8 @@
                 // Clear input
                 elements.messageInput.value = '';
                 elements.messageInput.style.height = 'auto';
+                
+                console.log('Message sent successfully');
                 
             } catch (error) {
                 console.error('Error sending message:', error);
