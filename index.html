@@ -383,6 +383,43 @@
             transform: translateY(-2px);
         }
 
+        /* Category Filter */
+        .category-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .category-btn {
+            background: var(--card-bg);
+            border: 2px solid var(--light);
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .category-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .category-btn.active {
+            background: var(--gradient);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+        }
+
         /* Prompts Grid */
         .prompts-grid {
             display: grid;
@@ -669,14 +706,14 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: var(--card-bg);
-            padding: 40px;
+            padding: 0;
             border-radius: var(--radius);
             width: 90%;
-            max-width: 600px;
+            max-width: 800px;
             box-shadow: 0 25px 60px rgba(0,0,0,0.3);
             animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             max-height: 90vh;
-            overflow-y: auto;
+            overflow: hidden;
             border: 1px solid rgba(255,255,255,0.1);
         }
 
@@ -691,28 +728,54 @@
             }
         }
 
+        .modal-header {
+            background: var(--gradient);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .modal-header h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .modal-header p {
+            opacity: 0.9;
+            margin: 10px 0 0 0;
+            font-size: 1.1rem;
+        }
+
         .close-btn {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            background: var(--light);
-            border: none;
-            width: 40px;
-            height: 40px;
+            top: 25px;
+            right: 25px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             font-size: 1.3rem;
             cursor: pointer;
-            color: var(--secondary);
+            color: white;
             transition: var(--transition);
             display: flex;
             align-items: center;
             justify-content: center;
+            backdrop-filter: blur(10px);
         }
 
         .close-btn:hover {
-            background: var(--error);
-            color: white;
+            background: rgba(255,255,255,0.3);
             transform: rotate(90deg) scale(1.1);
+        }
+
+        .modal-body {
+            padding: 40px;
+            max-height: 60vh;
+            overflow-y: auto;
         }
 
         .form-group {
@@ -725,6 +788,13 @@
             margin-bottom: 10px;
             color: var(--dark);
             font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-label i {
+            color: var(--primary);
         }
 
         .form-input {
@@ -752,54 +822,153 @@
             line-height: 1.6;
         }
 
-        .file-input-label {
-            display: block;
-            padding: 30px;
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23666' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 12px;
+        }
+
+        .file-upload-section {
             border: 3px dashed var(--light);
             border-radius: var(--radius-sm);
-            background: var(--light);
-            color: var(--secondary);
+            padding: 30px;
             text-align: center;
-            cursor: pointer;
             transition: var(--transition);
+            background: var(--light);
+            cursor: pointer;
             position: relative;
-            overflow: hidden;
         }
 
-        .file-input-label:hover {
+        .file-upload-section:hover {
             border-color: var(--primary);
-            color: var(--primary);
-            transform: translateY(-2px);
+            background: var(--primary-light);
+            color: white;
         }
 
-        .file-input-label i {
-            font-size: 2rem;
-            margin-bottom: 10px;
-            display: block;
+        .file-upload-section:hover .upload-icon {
+            color: white;
+        }
+
+        .file-upload-section.dragover {
+            border-color: var(--success);
+            background: var(--success);
+            color: white;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            transition: var(--transition);
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .upload-subtext {
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+
+        .file-upload-section:hover .upload-subtext {
+            color: white;
+        }
+
+        .image-preview-container {
+            margin-top: 20px;
+            text-align: center;
         }
 
         .image-preview {
             max-width: 100%;
             max-height: 200px;
             border-radius: var(--radius-sm);
-            margin-top: 15px;
-            display: none;
             box-shadow: var(--shadow);
+            display: none;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .category-option {
+            padding: 15px;
+            border: 2px solid var(--light);
+            border-radius: var(--radius-sm);
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--light);
+        }
+
+        .category-option:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .category-option.selected {
+            background: var(--gradient);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+        }
+
+        .category-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .modal-footer {
+            padding: 25px 40px;
+            background: var(--light);
+            border-top: 1px solid rgba(0,0,0,0.1);
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        .cancel-btn {
+            background: transparent;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+            padding: 14px 28px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .cancel-btn:hover {
+            border-color: var(--error);
+            color: var(--error);
+            transform: translateY(-2px);
         }
 
         .submit-btn {
             background: var(--gradient);
             color: white;
             border: none;
-            padding: 18px;
+            padding: 14px 28px;
             border-radius: var(--radius-sm);
             cursor: pointer;
             font-weight: 600;
-            width: 100%;
             transition: var(--transition);
             font-size: 1.1rem;
             position: relative;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .submit-btn::before {
@@ -843,7 +1012,6 @@
             border-top: 3px solid white;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-right: 12px;
         }
 
         @keyframes spin {
@@ -988,6 +1156,19 @@
             .stat-number {
                 font-size: 2rem;
             }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10px;
+            }
+            
+            .modal-body {
+                padding: 25px;
+            }
+            
+            .category-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
         @media (max-width: 480px) {
@@ -1000,8 +1181,20 @@
             }
             
             .modal-content {
-                padding: 25px;
-                margin: 20px;
+                padding: 0;
+            }
+            
+            .modal-header {
+                padding: 20px 25px;
+            }
+            
+            .modal-body {
+                padding: 20px;
+            }
+            
+            .modal-footer {
+                padding: 20px 25px;
+                flex-direction: column;
             }
         }
     </style>
@@ -1072,6 +1265,42 @@
             </button>
         </div>
 
+        <!-- Category Filter -->
+        <div class="category-filter" id="categoryFilter">
+            <button class="category-btn active" data-category="all">
+                <i class="fas fa-star"></i>
+                All Categories
+            </button>
+            <button class="category-btn" data-category="male">
+                <i class="fas fa-male"></i>
+                Male
+            </button>
+            <button class="category-btn" data-category="female">
+                <i class="fas fa-female"></i>
+                Female
+            </button>
+            <button class="category-btn" data-category="kid">
+                <i class="fas fa-child"></i>
+                Kids
+            </button>
+            <button class="category-btn" data-category="couple">
+                <i class="fas fa-heart"></i>
+                Couple
+            </button>
+            <button class="category-btn" data-category="game">
+                <i class="fas fa-gamepad"></i>
+                Gaming
+            </button>
+            <button class="category-btn" data-category="film">
+                <i class="fas fa-film"></i>
+                Film & TV
+            </button>
+            <button class="category-btn" data-category="others">
+                <i class="fas fa-shapes"></i>
+                Others
+            </button>
+        </div>
+
         <!-- Search and Filter -->
         <div class="search-section">
             <div class="search-box">
@@ -1124,70 +1353,121 @@
     <!-- Upload Prompt Modal -->
     <div class="modal" id="uploadModal">
         <div class="modal-content">
-            <button class="close-btn">&times;</button>
-            <h2 style="margin-bottom: 25px; color: var(--dark); text-align: center;">Share Your AI Art Prompt</h2>
-            
-            <form id="uploadForm">
-                <div class="form-group">
-                    <label class="form-label">Prompt Title *</label>
-                    <input type="text" id="promptTitle" class="form-input" placeholder="Give your prompt a creative title..." required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Prompt Description *</label>
-                    <textarea id="promptDescription" class="form-input form-textarea" placeholder="Describe your AI art prompt in detail. Include style, mood, colors, and any specific elements..." required></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">AI Model *</label>
-                    <select id="promptModel" class="form-input" required>
-                        <option value="">Choose AI Model</option>
-                        <option value="Midjourney">Midjourney</option>
-                        <option value="DALL-E">DALL-E</option>
-                        <option value="Stable Diffusion">Stable Diffusion</option>
-                        <option value="Adobe Firefly">Adobe Firefly</option>
-                        <option value="Leonardo AI">Leonardo AI</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Category *</label>
-                    <select id="promptCategory" class="form-input" required>
-                        <option value="">Select Category</option>
-                        <option value="Portrait">Portrait</option>
-                        <option value="Landscape">Landscape</option>
-                        <option value="Abstract">Abstract</option>
-                        <option value="Fantasy">Fantasy</option>
-                        <option value="Sci-Fi">Science Fiction</option>
-                        <option value="Anime">Anime</option>
-                        <option value="Realistic">Realistic</option>
-                        <option value="Digital Art">Digital Art</option>
-                        <option value="Concept Art">Concept Art</option>
-                        <option value="Character Design">Character Design</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Tags</label>
-                    <input type="text" id="promptTags" class="form-input" placeholder="Add relevant tags (comma separated) e.g., fantasy, dragon, epic, dark">
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Generated Image (Optional)</label>
-                    <input type="file" id="promptImage" accept="image/*" style="display: none;">
-                    <label for="promptImage" class="file-input-label">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <div>Click to upload or drag & drop</div>
-                        <small>PNG, JPG, WEBP up to 5MB</small>
-                    </label>
-                    <img id="imagePreview" class="image-preview" alt="Image preview">
-                </div>
-                
-                <button type="submit" class="submit-btn" id="submitPromptBtn">
-                    <i class="fas fa-upload"></i> Share Prompt with Community
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <button class="close-btn">&times;</button>
+                <h2>Share Your AI Creation</h2>
+                <p>Inspire others with your amazing AI art prompt</p>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <form id="uploadForm">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-heading"></i>
+                            Prompt Title *
+                        </label>
+                        <input type="text" id="promptTitle" class="form-input" placeholder="Give your prompt a creative and descriptive title..." required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-align-left"></i>
+                            Prompt Description *
+                        </label>
+                        <textarea id="promptDescription" class="form-input form-textarea" placeholder="Describe your AI art prompt in detail. Include style, mood, colors, composition, lighting, and any specific elements you want to highlight..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-robot"></i>
+                            AI Model *
+                        </label>
+                        <select id="promptModel" class="form-input form-select" required>
+                            <option value="">Choose AI Model</option>
+                            <option value="Midjourney">Midjourney</option>
+                            <option value="DALL-E">DALL-E 2/3</option>
+                            <option value="Stable Diffusion">Stable Diffusion</option>
+                            <option value="Adobe Firefly">Adobe Firefly</option>
+                            <option value="Leonardo AI">Leonardo AI</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-tags"></i>
+                            Category *
+                        </label>
+                        <div class="category-grid" id="categoryGrid">
+                            <div class="category-option" data-category="male">
+                                <i class="fas fa-male category-icon"></i>
+                                Male
+                            </div>
+                            <div class="category-option" data-category="female">
+                                <i class="fas fa-female category-icon"></i>
+                                Female
+                            </div>
+                            <div class="category-option" data-category="kid">
+                                <i class="fas fa-child category-icon"></i>
+                                Kids
+                            </div>
+                            <div class="category-option" data-category="couple">
+                                <i class="fas fa-heart category-icon"></i>
+                                Couple
+                            </div>
+                            <div class="category-option" data-category="game">
+                                <i class="fas fa-gamepad category-icon"></i>
+                                Gaming
+                            </div>
+                            <div class="category-option" data-category="film">
+                                <i class="fas fa-film category-icon"></i>
+                                Film & TV
+                            </div>
+                            <div class="category-option" data-category="others">
+                                <i class="fas fa-shapes category-icon"></i>
+                                Others
+                            </div>
+                        </div>
+                        <input type="hidden" id="promptCategory" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-hashtag"></i>
+                            Tags
+                        </label>
+                        <input type="text" id="promptTags" class="form-input" placeholder="Add relevant tags (comma separated) e.g., fantasy, dragon, epic, dark, cinematic">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-image"></i>
+                            Generated Image (Optional)
+                        </label>
+                        <input type="file" id="promptImage" accept="image/*" style="display: none;">
+                        <div class="file-upload-section" id="fileUploadSection">
+                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                            <div class="upload-text">Click to upload or drag & drop</div>
+                            <div class="upload-subtext">PNG, JPG, WEBP up to 5MB</div>
+                        </div>
+                        <div class="image-preview-container">
+                            <img id="imagePreview" class="image-preview" alt="Image preview">
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button class="cancel-btn" id="cancelBtn">
+                    <i class="fas fa-times"></i> Cancel
                 </button>
-            </form>
+                <button type="submit" class="submit-btn" id="submitPromptBtn" form="uploadForm">
+                    <i class="fas fa-upload"></i> Share with Community
+                </button>
+            </div>
         </div>
     </div>
 
@@ -1212,6 +1492,7 @@
         let currentUser = null;
         let prompts = [];
         let currentTab = 'all';
+        let currentCategory = 'all';
         let searchQuery = '';
         const OWNER_EMAIL = "alizybaby381@gmail.com";
 
@@ -1241,9 +1522,15 @@
             promptImage: document.getElementById('promptImage'),
             imagePreview: document.getElementById('imagePreview'),
             submitPromptBtn: document.getElementById('submitPromptBtn'),
+            cancelBtn: document.getElementById('cancelBtn'),
             navTabs: document.querySelectorAll('.nav-tab'),
+            categoryFilter: document.getElementById('categoryFilter'),
+            categoryButtons: document.querySelectorAll('.category-btn'),
+            categoryGrid: document.getElementById('categoryGrid'),
+            categoryOptions: document.querySelectorAll('.category-option'),
             searchInput: document.getElementById('searchInput'),
             filterBtn: document.getElementById('filterBtn'),
+            fileUploadSection: document.getElementById('fileUploadSection'),
             totalPrompts: document.getElementById('totalPrompts'),
             totalUsers: document.getElementById('totalUsers'),
             totalLikes: document.getElementById('totalLikes')
@@ -1371,6 +1658,11 @@
                 snapshot.forEach(doc => {
                     prompts.push({ id: doc.id, ...doc.data() });
                 });
+                
+                // Apply category filter
+                if (currentCategory !== 'all') {
+                    prompts = prompts.filter(prompt => prompt.category === currentCategory);
+                }
                 
                 // Apply search filter
                 if (searchQuery) {
@@ -1516,6 +1808,35 @@
             }
         }
 
+        // === CATEGORY SYSTEM ===
+        elements.categoryButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Update active category button
+                elements.categoryButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Update current category
+                currentCategory = btn.dataset.category;
+                
+                // Load prompts for the selected category
+                loadPrompts();
+            });
+        });
+
+        // Category selection in upload form
+        elements.categoryOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                // Remove selected class from all options
+                elements.categoryOptions.forEach(opt => opt.classList.remove('selected'));
+                
+                // Add selected class to clicked option
+                option.classList.add('selected');
+                
+                // Update hidden input value
+                elements.promptCategory.value = option.dataset.category;
+            });
+        });
+
         // === SEARCH SYSTEM ===
         elements.searchInput.addEventListener('input', (e) => {
             searchQuery = e.target.value;
@@ -1542,8 +1863,15 @@
         function openUploadModal() {
             elements.uploadForm.reset();
             elements.imagePreview.style.display = 'none';
+            elements.categoryOptions.forEach(opt => opt.classList.remove('selected'));
+            elements.promptCategory.value = '';
             elements.uploadModal.style.display = 'block';
         }
+
+        // File upload handling
+        elements.fileUploadSection.addEventListener('click', () => {
+            elements.promptImage.click();
+        });
 
         // Image preview
         elements.promptImage.addEventListener('change', function(e) {
@@ -1552,6 +1880,14 @@
                 // Validate file size (5MB)
                 if (file.size > 5 * 1024 * 1024) {
                     showNotification('Image size should be less than 5MB', 'error');
+                    this.value = '';
+                    return;
+                }
+                
+                // Validate file type
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+                if (!validTypes.includes(file.type)) {
+                    showNotification('Please upload a valid image file (JPEG, PNG, WEBP)', 'error');
                     this.value = '';
                     return;
                 }
@@ -1565,34 +1901,29 @@
             }
         });
 
-        // Drag and drop
-        const fileInputLabel = document.querySelector('.file-input-label');
-        fileInputLabel.addEventListener('dragover', (e) => {
+        // Drag and drop functionality
+        elements.fileUploadSection.addEventListener('dragover', (e) => {
             e.preventDefault();
-            fileInputLabel.style.borderColor = 'var(--primary)';
-            fileInputLabel.style.background = 'var(--primary-light)';
-            fileInputLabel.style.color = 'white';
+            elements.fileUploadSection.classList.add('dragover');
         });
 
-        fileInputLabel.addEventListener('dragleave', () => {
-            fileInputLabel.style.borderColor = 'var(--light)';
-            fileInputLabel.style.background = 'var(--light)';
-            fileInputLabel.style.color = 'var(--secondary)';
+        elements.fileUploadSection.addEventListener('dragleave', () => {
+            elements.fileUploadSection.classList.remove('dragover');
         });
 
-        fileInputLabel.addEventListener('drop', (e) => {
+        elements.fileUploadSection.addEventListener('drop', (e) => {
             e.preventDefault();
+            elements.fileUploadSection.classList.remove('dragover');
+            
             const files = e.dataTransfer.files;
             if (files.length > 0) {
                 elements.promptImage.files = files;
                 const event = new Event('change');
                 elements.promptImage.dispatchEvent(event);
             }
-            fileInputLabel.style.borderColor = 'var(--light)';
-            fileInputLabel.style.background = 'var(--light)';
-            fileInputLabel.style.color = 'var(--secondary)';
         });
 
+        // Form submission
         elements.uploadForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -1624,10 +1955,15 @@
                 return;
             }
             
+            if (!category) {
+                showNotification('Please select a category', 'error');
+                return;
+            }
+            
             try {
                 // Show loading state
                 const originalText = elements.submitPromptBtn.innerHTML;
-                elements.submitPromptBtn.innerHTML = '<div class="loading-spinner"></div> Sharing your prompt...';
+                elements.submitPromptBtn.innerHTML = '<div class="loading-spinner"></div> Sharing...';
                 elements.submitPromptBtn.disabled = true;
                 
                 let imageUrl = '';
@@ -1673,6 +2009,7 @@
                 elements.uploadModal.style.display = 'none';
                 elements.uploadForm.reset();
                 elements.imagePreview.style.display = 'none';
+                elements.categoryOptions.forEach(opt => opt.classList.remove('selected'));
                 
                 // Reset button
                 elements.submitPromptBtn.innerHTML = originalText;
@@ -1689,9 +2026,14 @@
                 showNotification('Error sharing your prompt. Please try again.', 'error');
                 
                 // Reset button
-                elements.submitPromptBtn.innerHTML = '<i class="fas fa-upload"></i> Share Prompt with Community';
+                elements.submitPromptBtn.innerHTML = '<i class="fas fa-upload"></i> Share with Community';
                 elements.submitPromptBtn.disabled = false;
             }
+        });
+
+        // Cancel button
+        elements.cancelBtn.addEventListener('click', () => {
+            elements.uploadModal.style.display = 'none';
         });
 
         // === TAB SYSTEM ===
