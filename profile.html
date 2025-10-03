@@ -55,6 +55,7 @@
             border-radius: 5px;
             cursor: pointer;
             margin: 5px;
+            transition: background 0.3s ease;
         }
         button:hover {
             background: #2563eb;
@@ -67,6 +68,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.5);
+            z-index: 100;
         }
         .modal-content {
             background: white;
@@ -78,6 +80,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
         input, textarea {
             width: 100%;
@@ -85,6 +88,7 @@
             margin: 10px 0;
             border: 1px solid #d1d5db;
             border-radius: 5px;
+            font-size: 16px;
         }
         .avatar-preview {
             width: 80px;
@@ -92,6 +96,20 @@
             border-radius: 50%;
             object-fit: cover;
             margin: 10px 0;
+            border: 2px solid #ccc;
+        }
+        
+        /* Notification for better UX */
+        .notification {
+            position: fixed; 
+            top: 20px; 
+            right: 20px; 
+            color: white; 
+            padding: 15px 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2); 
+            z-index: 1000;
+            transition: opacity 0.3s ease;
         }
     </style>
 </head>
@@ -100,22 +118,12 @@
         <div class="profile-header">
             <img src="https://ui-avatars.com/api/?name=User&background=3b82f6&color=fff" alt="Avatar" class="avatar" id="avatar">
             <div class="profile-info">
-                <h2 id="userName">User Name</h2>
-                <p id="userBio">Bio will appear here</p>
-                <p id="userEmail">Email will appear here</p>
+                <h2 id="userName">Loading...</h2>
+                <p id="userBio">Loading bio...</p>
+                <p id="userEmail">Loading email...</p>
                 <button onclick="openEditModal()">Edit Profile</button>
             </div>
         </div>
-        
-        <section id="userPrompts">
-            <h3>My Prompts</h3>
-            <p>You haven't posted any prompts yet.</p>
-        </section>
-
-        <section id="savedPrompts" style="margin-top: 30px;">
-            <h3>Saved Prompts</h3>
-            <p>You haven't saved any prompts yet.</p>
-        </section>
     </div>
 
     <div class="modal" id="editModal">
@@ -125,10 +133,10 @@
             <input type="file" id="imageInput" accept="image/*">
             <input type="text" id="nameInput" placeholder="Your Name">
             <textarea id="bioInput" placeholder="Your Bio" rows="3"></textarea>
-            <input type="email" id="emailInput" placeholder="Your Email">
-            <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                <button onclick="closeModal()" style="background: #6b7280;">Cancel</button>
+            <input type="email" id="emailInput" placeholder="Your Email" disabled>
+            <div style="margin-top: 20px;">
                 <button onclick="saveProfile()">Save Changes</button>
+                <button onclick="closeModal()" style="background: #6b7280;">Cancel</button>
             </div>
         </div>
     </div>
@@ -136,19 +144,19 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    
+
     <script>
-        // === FIREBASE CONFIGURATION ===
-        // Replace with your actual config
+        // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyDovL4QBUZfueYzMJpkCjWu_4NLMoQWyiA",
+            authDomain: "gagsta-paradise.firebaseapp.com",
+            projectId: "gagsta-paradise",
+            storageBucket: "gagsta-paradise.firebasestorage.app",
+            messagingSenderId: "78516691257",
+            appId: "1:78516691257:web:466954e941fc6a7eb388e8"
         };
 
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
@@ -156,45 +164,91 @@
         let currentUser = null;
         let currentImageBase64 = null;
 
-        // === MODAL FUNCTIONS ===
+        // Utility: Show Notification
+        function showNotification(message, type = 'info') {
+            document.querySelectorAll('.notification').forEach(notif => notif.remove());
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            const bgColor = type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6';
+            notification.style.cssText = `
+                position: fixed; top: 20px; right: 20px; background: ${bgColor}; 
+                color: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 1000;
+            `;
+            notification.innerHTML = `<span>${message}</span>`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) notification.remove();
+            }, 4000);
+        }
+
+        // Load user data (Uses the real currentUser)
+        async function loadUserData() {
+            if (!currentUser) return;
+            
+            try {
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    updateUI(userData);
+                } else {
+                    await createUserDocument(); // Create the document if it doesn't exist
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                showNotification('Error loading profile data.', 'error');
+            }
+        }
+
+        // Create user document (Uses the real currentUser)
+        async function createUserDocument() {
+            const name = currentUser.displayName || 'New User';
+            const defaultAvatar = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=3b82f6&color=fff';
+            
+            const userData = {
+                name: name,
+                email: currentUser.email,
+                bio: 'A new member of the AI Prompt Gallery!',
+                avatar: currentUser.photoURL || defaultAvatar,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            await db.collection('users').doc(currentUser.uid).set(userData);
+            updateUI(userData);
+            showNotification('Welcome! Your profile has been created.', 'success');
+        }
+
+        // Update UI
+        function updateUI(userData) {
+            document.getElementById('userName').textContent = userData.name || 'User Name';
+            document.getElementById('userBio').textContent = userData.bio || 'Bio will appear here';
+            document.getElementById('userEmail').textContent = userData.email || 'Email will appear here';
+            
+            const avatarSrc = userData.avatarBase64 || userData.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(userData.name || 'User') + '&background=3b82f6&color=fff';
+            document.getElementById('avatar').src = avatarSrc;
+        }
+
+        // Open edit modal
         function openEditModal() {
+            document.getElementById('nameInput').value = document.getElementById('userName').textContent;
+            document.getElementById('bioInput').value = document.getElementById('userBio').textContent;
+            document.getElementById('emailInput').value = document.getElementById('userEmail').textContent; // Read-only in modal
+            document.getElementById('avatarPreview').src = document.getElementById('avatar').src;
+            currentImageBase64 = null;
+            document.getElementById('imageInput').value = '';
             document.getElementById('editModal').style.display = 'block';
         }
 
+        // Close modal
         function closeModal() {
             document.getElementById('editModal').style.display = 'none';
         }
 
-        // Close modal on outside click
-        window.onclick = function(event) {
-            const modal = document.getElementById('editModal');
-            if (event.target == modal) {
-                closeModal();
-            }
-        }
-
-        // === UI UPDATING FUNCTIONS ===
-        function updateUI(userData) {
-            const name = userData.name || 'User Name';
-            const bio = userData.bio || 'Bio will appear here';
-            const email = userData.email || currentUser.email || 'Email will appear here';
-            const avatarUrl = userData.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=3b82f6&color=fff`;
-
-            document.getElementById('userName').textContent = name;
-            document.getElementById('userBio').textContent = bio;
-            document.getElementById('userEmail').textContent = email;
-            document.getElementById('avatar').src = avatarUrl;
-            
-            // Update modal inputs
-            document.getElementById('nameInput').value = name === 'User Name' ? '' : name;
-            document.getElementById('bioInput').value = bio === 'Bio will appear here' ? '' : bio;
-            document.getElementById('emailInput').value = email === 'Email will appear here' ? '' : email;
-            document.getElementById('avatarPreview').src = avatarUrl;
-        }
-
-        // === IMAGE HANDLING ===
-        document.getElementById('imageInput').addEventListener('change', function(event) {
-            const file = event.target.files[0];
+        // Handle image input
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -205,94 +259,61 @@
             }
         });
 
-        // === DATA FETCHING ===
-        async function fetchUserData(uid) {
-            try {
-                const doc = await db.collection('users').doc(uid).get();
-                if (doc.exists) {
-                    updateUI(doc.data());
-                } else {
-                    // Create basic entry if none exists
-                    const initialData = {
-                        name: currentUser.displayName || 'New User',
-                        email: currentUser.email,
-                        bio: 'Hello, I am a new user!',
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        avatar: currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'New User')}&background=3b82f6&color=fff`
-                    };
-                    await db.collection('users').doc(uid).set(initialData);
-                    updateUI(initialData);
-                }
-            } catch (error) {
-                console.error("Error fetching user data:", error);
-                alert('Error fetching user data: ' + error.message);
-            }
-        }
-
-        // === AUTH STATE LISTENER ===
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                currentUser = user;
-                fetchUserData(user.uid);
-            } else {
-                // Not logged in, redirect to login page
-                window.location.href = 'login.html';
-            }
-        });
-
         // Save profile
         async function saveProfile() {
             const name = document.getElementById('nameInput').value;
             const bio = document.getElementById('bioInput').value;
-            const email = document.getElementById('emailInput').value;
+            
+            if (!currentUser) {
+                showNotification('Error: Not logged in.', 'error');
+                return;
+            }
 
             try {
                 const updateData = {
                     name: name,
                     bio: bio,
-                    email: email,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
                 // Add base64 image if uploaded
                 if (currentImageBase64) {
                     updateData.avatarBase64 = currentImageBase64;
+                    // Reset regular avatar to prevent using a stale external URL
                     updateData.avatar = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=3b82f6&color=fff';
                 }
 
                 await db.collection('users').doc(currentUser.uid).update(updateData);
                 
-                // Update UI
-                updateUI(updateData);
+                // Manually merge the changes into the current UI state to re-render
+                updateUI({ ...currentUser, ...updateData });
                 
-                // Close modal
                 closeModal();
-                
-                alert('Profile updated successfully!');
+                showNotification('Profile updated successfully!', 'success');
                 
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error: ' + error.message);
+                showNotification('Error updating profile: ' + error.message, 'error');
             }
         }
 
+        // Core Fix: Check for logged-in user and load data
+        function initAuthCheck() {
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    // User is logged in
+                    currentUser = user;
+                    loadUserData();
+                } else {
+                    // User is NOT logged in. Redirect to login page.
+                    alert('Please log in to view your profile.');
+                    window.location.href = 'login.html'; 
+                }
+            });
+        }
+
         // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            // NOTE: This initDemoUser function was likely a placeholder and is causing issues. 
-            // I'm restoring it here as requested by the user, although it will still lead to
-            // incomplete functionality if not fully connected to a live Firebase backend.
-            function initDemoUser() {
-                updateUI({
-                    name: 'Demo User',
-                    bio: 'This is a demo profile loaded without live Firebase data.',
-                    email: 'demo@example.com',
-                    avatar: 'https://ui-avatars.com/api/?name=Demo+User&background=6b7280&color=fff'
-                });
-            }
-            // For now, let the AuthStateChanged handle it, but keeping the original init function
-            // call here to ensure the old code structure is restored exactly.
-            initDemoUser();
-        });
+        document.addEventListener('DOMContentLoaded', initAuthCheck);
     </script>
 </body>
 </html>
