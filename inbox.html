@@ -11,108 +11,687 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
     <style>
-        /* Same CSS as before - copy from previous code */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        :root {
-            --primary: #2563eb; --primary-dark: #1d4ed8; --primary-light: #3b82f6;
-            --secondary: #64748b; --light: #f8fafc; --dark: #1e293b; --card-bg: #ffffff;
-            --success: #10b981; --error: #ef4444; --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --shadow: 0 8px 30px rgba(0,0,0,0.08); --radius: 16px; --transition: all 0.3s ease;
-            --message-sent: #3b82f6; --message-received: #f1f5f9;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #3b82f6;
+            --secondary: #64748b;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --card-bg: #ffffff;
+            --success: #10b981;
+            --error: #ef4444;
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --shadow: 0 8px 30px rgba(0,0,0,0.08);
+            --radius: 16px;
+            --transition: all 0.3s ease;
+            --message-sent: #3b82f6;
+            --message-received: #f1f5f9;
+        }
+
         [data-theme="dark"] {
-            --light: #0f172a; --dark: #f8fafc; --card-bg: #1e293b; --secondary: #94a3b8;
+            --light: #0f172a;
+            --dark: #f8fafc;
+            --card-bg: #1e293b;
+            --secondary: #94a3b8;
             --message-received: #334155;
         }
-        body { background: var(--light); color: var(--dark); transition: var(--transition); min-height: 100vh; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        .header { background: var(--gradient); color: white; padding: 40px 30px; border-radius: var(--radius); margin-bottom: 30px; text-align: center; position: relative; }
-        .auth-buttons { position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; }
-        .auth-btn { background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 8px 16px; border-radius: 20px; cursor: pointer; transition: var(--transition); font-weight: 600; }
-        .auth-btn:hover { background: white; color: var(--primary); }
-        .user-info { position: absolute; top: 20px; right: 20px; display: flex; align-items: center; gap: 10px; color: white; }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid white; }
-        .header h1 { font-size: 3rem; margin-bottom: 15px; font-weight: 800; }
-        .header p { font-size: 1.2rem; opacity: 0.9; max-width: 600px; margin: 0 auto; }
-        .inbox-container { display: flex; height: 70vh; background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
-        .conversations-sidebar { width: 350px; border-right: 1px solid var(--light); display: flex; flex-direction: column; }
-        .conversations-header { padding: 20px; border-bottom: 1px solid var(--light); display: flex; justify-content: space-between; align-items: center; }
-        .conversations-header h2 { color: var(--dark); font-size: 1.5rem; }
-        .new-conversation-btn { background: var(--primary); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center; }
-        .new-conversation-btn:hover { background: var(--primary-dark); transform: scale(1.1); }
-        .conversations-search { padding: 15px; border-bottom: 1px solid var(--light); }
-        .conversations-search-input { width: 100%; padding: 12px 15px; border: 2px solid var(--light); border-radius: 25px; background: var(--light); color: var(--dark); font-size: 1rem; transition: var(--transition); }
-        .conversations-search-input:focus { outline: none; border-color: var(--primary); }
-        .conversations-list { flex: 1; overflow-y: auto; padding: 10px 0; }
-        .conversation-item { display: flex; align-items: center; gap: 15px; padding: 15px; cursor: pointer; transition: var(--transition); border-bottom: 1px solid var(--light); }
-        .conversation-item:hover { background: var(--light); }
-        .conversation-item.active { background: var(--primary-light); color: white; }
-        .conversation-item.active .conversation-name, .conversation-item.active .conversation-last-message { color: white; }
-        .conversation-avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
-        .conversation-info { flex: 1; min-width: 0; }
-        .conversation-name { font-weight: 600; color: var(--dark); margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 8px; }
-        .verified-badge { color: var(--primary); font-size: 0.8rem; }
-        .conversation-last-message { color: var(--secondary); font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .conversation-meta { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
-        .conversation-time { font-size: 0.8rem; color: var(--secondary); }
-        .conversation-unread { background: var(--primary); color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 600; }
-        .chat-area { flex: 1; display: flex; flex-direction: column; }
-        .chat-header { padding: 20px; border-bottom: 1px solid var(--light); display: flex; align-items: center; gap: 15px; }
-        .chat-user-avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
-        .chat-user-info { flex: 1; }
-        .chat-user-name { font-weight: 600; color: var(--dark); font-size: 1.2rem; display: flex; align-items: center; gap: 8px; }
-        .chat-user-status { color: var(--secondary); font-size: 0.9rem; }
-        .chat-actions { display: flex; gap: 10px; }
-        .chat-action-btn { background: none; border: none; color: var(--secondary); cursor: pointer; font-size: 1.2rem; transition: var(--transition); }
-        .chat-action-btn:hover { color: var(--primary); }
-        .messages-container { flex: 1; padding: 20px; overflow-y: auto; background: var(--light); display: flex; flex-direction: column; gap: 15px; }
-        .message { max-width: 70%; padding: 12px 16px; border-radius: 18px; position: relative; animation: messageSlide 0.3s ease; }
-        @keyframes messageSlide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .message.sent { align-self: flex-end; background: var(--message-sent); color: white; border-bottom-right-radius: 5px; }
-        .message.received { align-self: flex-start; background: var(--message-received); color: var(--dark); border-bottom-left-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .message.official { align-self: center; background: var(--gradient); color: white; max-width: 80%; text-align: center; }
-        .message-text { line-height: 1.4; word-wrap: break-word; }
-        .message-time { font-size: 0.7rem; opacity: 0.7; text-align: right; margin-top: 5px; }
-        .message.received .message-time { text-align: left; }
-        .message-input-container { padding: 20px; border-top: 1px solid var(--light); display: flex; gap: 10px; align-items: flex-end; }
-        .message-input { flex: 1; padding: 12px 15px; border: 2px solid var(--light); border-radius: 25px; background: var(--light); color: var(--dark); font-size: 1rem; resize: none; max-height: 120px; transition: var(--transition); }
-        .message-input:focus { outline: none; border-color: var(--primary); }
-        .send-btn { background: var(--primary); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center; }
-        .send-btn:hover { background: var(--primary-dark); transform: scale(1.05); }
-        .send-btn:disabled { background: var(--secondary); cursor: not-allowed; transform: none; }
-        .empty-chat { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--secondary); text-align: center; padding: 40px; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; backdrop-filter: blur(5px); }
-        .modal-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card-bg); padding: 30px; border-radius: var(--radius); width: 90%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); animation: modalSlideIn 0.3s ease; }
-        @keyframes modalSlideIn { from { opacity: 0; transform: translate(-50%, -60%); } to { opacity: 1; transform: translate(-50%, -50%); } }
-        .close-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--secondary); transition: var(--transition); }
-        .close-btn:hover { color: var(--error); transform: rotate(90deg); }
-        .auth-form { display: flex; flex-direction: column; gap: 15px; }
-        .form-group { display: flex; flex-direction: column; gap: 5px; }
-        .form-input { padding: 12px 15px; border: 2px solid var(--light); border-radius: 10px; background: var(--light); color: var(--dark); font-size: 1rem; transition: var(--transition); }
-        .form-input:focus { outline: none; border-color: var(--primary); }
-        .submit-btn { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: var(--transition); margin-top: 10px; }
-        .submit-btn:hover { background: var(--primary-dark); }
-        .auth-switch { text-align: center; margin-top: 15px; color: var(--secondary); }
-        .auth-link { color: var(--primary); cursor: pointer; font-weight: 600; }
-        .auth-link:hover { text-decoration: underline; }
-        .user-list { max-height: 400px; overflow-y: auto; margin-top: 20px; }
-        .user-item { display: flex; align-items: center; gap: 15px; padding: 15px; border-bottom: 1px solid var(--light); transition: var(--transition); cursor: pointer; }
-        .user-item:hover { background: var(--light); border-radius: var(--radius); }
-        .user-avatar-list { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
-        .user-info { flex: 1; }
-        .user-name { font-weight: 600; color: var(--dark); margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
-        .user-bio { font-size: 0.9rem; color: var(--secondary); }
-        .notification { position: fixed; top: 20px; right: 20px; background: var(--success); color: white; padding: 15px 20px; border-radius: var(--radius); box-shadow: var(--shadow); z-index: 3000; animation: slideInRight 0.3s ease; display: flex; align-items: center; gap: 10px; }
-        .notification.error { background: var(--error); }
-        .notification.info { background: var(--primary); }
-        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .hidden { display: none !important; }
+
+        body {
+            background: var(--light);
+            color: var(--dark);
+            transition: var(--transition);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: var(--gradient);
+            color: white;
+            padding: 40px 30px;
+            border-radius: var(--radius);
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .auth-buttons {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .auth-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+        }
+
+        .auth-btn:hover {
+            background: white;
+            color: var(--primary);
+        }
+
+        .user-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            font-weight: 800;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .inbox-container {
+            display: flex;
+            height: 70vh;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .conversations-sidebar {
+            width: 350px;
+            border-right: 1px solid var(--light);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .conversations-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .conversations-header h2 {
+            color: var(--dark);
+            font-size: 1.5rem;
+        }
+
+        .new-conversation-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .new-conversation-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.1);
+        }
+
+        .conversations-search {
+            padding: 15px;
+            border-bottom: 1px solid var(--light);
+        }
+
+        .conversations-search-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--light);
+            border-radius: 25px;
+            background: var(--light);
+            color: var(--dark);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .conversations-search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .conversations-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+
+        .conversation-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 1px solid var(--light);
+        }
+
+        .conversation-item:hover {
+            background: var(--light);
+        }
+
+        .conversation-item.active {
+            background: var(--primary-light);
+            color: white;
+        }
+
+        .conversation-item.active .conversation-name,
+        .conversation-item.active .conversation-last-message {
+            color: white;
+        }
+
+        .conversation-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+        }
+
+        .conversation-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .conversation-name {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .verified-badge {
+            color: var(--primary);
+            font-size: 0.8rem;
+        }
+
+        .conversation-last-message {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .conversation-meta {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+        }
+
+        .conversation-time {
+            font-size: 0.8rem;
+            color: var(--secondary);
+        }
+
+        .conversation-unread {
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--light);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .chat-user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .chat-user-info {
+            flex: 1;
+        }
+
+        .chat-user-name {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chat-user-status {
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+
+        .chat-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-action-btn {
+            background: none;
+            border: none;
+            color: var(--secondary);
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+
+        .chat-action-btn:hover {
+            color: var(--primary);
+        }
+
+        .messages-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: var(--light);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            position: relative;
+            animation: messageSlide 0.3s ease;
+        }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.sent {
+            align-self: flex-end;
+            background: var(--message-sent);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.received {
+            align-self: flex-start;
+            background: var(--message-received);
+            color: var(--dark);
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .message.official {
+            align-self: center;
+            background: var(--gradient);
+            color: white;
+            max-width: 80%;
+            text-align: center;
+        }
+
+        .message-text {
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        .message.received .message-time {
+            text-align: left;
+        }
+
+        .message-input-container {
+            padding: 20px;
+            border-top: 1px solid var(--light);
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid var(--light);
+            border-radius: 25px;
+            background: var(--light);
+            color: var(--dark);
+            font-size: 1rem;
+            resize: none;
+            max-height: 120px;
+            transition: var(--transition);
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .send-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        .send-btn:disabled {
+            background: var(--secondary);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .empty-chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary);
+            text-align: center;
+            padding: 40px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -60%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--secondary);
+            transition: var(--transition);
+        }
+
+        .close-btn:hover {
+            color: var(--error);
+            transform: rotate(90deg);
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-input {
+            padding: 12px 15px;
+            border: 2px solid var(--light);
+            border-radius: 10px;
+            background: var(--light);
+            color: var(--dark);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .submit-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: var(--transition);
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 15px;
+            color: var(--secondary);
+        }
+
+        .auth-link {
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .auth-link:hover {
+            text-decoration: underline;
+        }
+
+        .user-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .user-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border-bottom: 1px solid var(--light);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .user-item:hover {
+            background: var(--light);
+            border-radius: var(--radius);
+        }
+
+        .user-avatar-list {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-bio {
+            font-size: 0.9rem;
+            color: var(--secondary);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 15px 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            z-index: 3000;
+            animation: slideInRight 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notification.error {
+            background: var(--error);
+        }
+
+        .notification.info {
+            background: var(--primary);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
         @media (max-width: 768px) {
-            .inbox-container { flex-direction: column; height: 80vh; }
-            .conversations-sidebar { width: 100%; height: 40%; }
-            .chat-area { height: 60%; }
-            .message { max-width: 85%; }
-            .header h1 { font-size: 2.5rem; }
+            .inbox-container {
+                flex-direction: column;
+                height: 80vh;
+            }
+            
+            .conversations-sidebar {
+                width: 100%;
+                height: 40%;
+            }
+            
+            .chat-area {
+                height: 60%;
+            }
+            
+            .message {
+                max-width: 85%;
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+            }
         }
     </style>
 </head>
@@ -122,11 +701,13 @@
             <h1>AI Prompt Gallery</h1>
             <p>Your creative community for AI art prompts</p>
             
+            <!-- Auth Buttons -->
             <div class="auth-buttons" id="authButtons">
                 <button class="auth-btn" id="loginBtn">Login</button>
                 <button class="auth-btn" id="signupBtn">Sign Up</button>
             </div>
 
+            <!-- User Info -->
             <div class="user-info hidden" id="userInfo">
                 <img src="" alt="User" class="user-avatar" id="userAvatar">
                 <span id="userName">User</span>
@@ -185,6 +766,7 @@
         </div>
     </div>
 
+    <!-- Auth Modals -->
     <div class="modal" id="loginModal">
         <div class="modal-content">
             <button class="close-btn">&times;</button>
@@ -231,6 +813,7 @@
         </div>
     </div>
 
+    <!-- New Conversation Modal -->
     <div class="modal" id="newConversationModal">
         <div class="modal-content">
             <button class="close-btn">&times;</button>
@@ -271,12 +854,9 @@
         let conversations = [];
         let users = {};
         const OWNER_EMAIL = "alizybaby381@gmail.com";
-        let messagesListener = null; // NEW: Global variable for message listener unsubscribe
-        let conversationsListener = null; // NEW: Global variable for conversation listener unsubscribe
 
         // DOM Elements
         const elements = {
-            // Auth elements
             authButtons: document.getElementById('authButtons'),
             userInfo: document.getElementById('userInfo'),
             userAvatar: document.getElementById('userAvatar'),
@@ -284,17 +864,11 @@
             loginBtn: document.getElementById('loginBtn'),
             signupBtn: document.getElementById('signupBtn'),
             logoutBtn: document.getElementById('logoutBtn'),
-            
-            // Modals
             loginModal: document.getElementById('loginModal'),
             signupModal: document.getElementById('signupModal'),
             newConversationModal: document.getElementById('newConversationModal'),
-            
-            // Forms
             loginForm: document.getElementById('loginForm'),
             signupForm: document.getElementById('signupForm'),
-            
-            // Chat elements
             newConversationBtn: document.getElementById('newConversationBtn'),
             conversationsList: document.getElementById('conversationsList'),
             messagesContainer: document.getElementById('messagesContainer'),
@@ -319,9 +893,8 @@
         function initAuth() {
             auth.onAuthStateChanged(async (user) => {
                 if (user) {
-                    // User is signed in
                     currentUser = user;
-                    console.log('User signed in:', user.uid, user.email);
+                    console.log('✅ User signed in:', user.uid, user.email);
                     
                     // Update UI
                     elements.authButtons.classList.add('hidden');
@@ -332,35 +905,26 @@
                     // Create/Update user document
                     await createUserDocument(user);
                     
-                    // Send welcome message and notification
+                    // Send welcome message
                     await sendWelcomeSystem(user);
                     
-                    // Start real-time listener for conversations
-                    if (conversationsListener) conversationsListener(); // Unsubscribe old listener
-                    listenForConversations(); 
+                    // Load conversations
+                    await loadConversations();
                     
                     showNotification(`Welcome back, ${user.displayName || 'User'}!`, 'success');
                     
                 } else {
-                    // User is signed out
                     currentUser = null;
                     elements.authButtons.classList.remove('hidden');
                     elements.userInfo.classList.add('hidden');
-                    
-                    // Unsubscribe all listeners on logout
-                    if (conversationsListener) conversationsListener(); 
-                    if (messagesListener) messagesListener(); 
-                    
-                    // Clear conversations
                     conversations = [];
                     updateConversationsList();
-                    
                     console.log('User signed out');
                 }
             });
         }
 
-        // Create user document in Firestore (No change needed)
+        // Create user document in Firestore
         async function createUserDocument(user) {
             try {
                 const userRef = db.collection('users').doc(user.uid);
@@ -388,79 +952,21 @@
             }
         }
 
-        // Send welcome message and system notification (No change needed)
+        // Send welcome message
         async function sendWelcomeSystem(user) {
-            if (user.email === OWNER_EMAIL) return; 
+            if (user.email === OWNER_EMAIL) return;
             
             try {
                 console.log('🎉 Sending welcome system for new user:', user.uid);
                 
-                // Get owner user
-                const ownerQuery = await db.collection('users').where('email', '==', OWNER_EMAIL).get();
-                let ownerId = null;
-                let ownerData = null;
+                // Get or create owner
+                let ownerId = await getOrCreateOwner();
                 
-                if (!ownerQuery.empty) {
-                    ownerId = ownerQuery.docs[0].id;
-                    ownerData = ownerQuery.docs[0].data();
-                } else {
-                    const ownerRef = db.collection('users').doc();
-                    ownerId = ownerRef.id;
-                    ownerData = {
-                        name: "AI Prompt Gallery",
-                        email: OWNER_EMAIL,
-                        avatar: "https://ui-avatars.com/api/?name=AI+Prompt+Gallery&background=667eea&color=fff",
-                        bio: "Official AI Prompt Gallery Account",
-                        isOwner: true,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    };
-                    await ownerRef.set(ownerData);
-                    console.log('✅ Owner account created');
-                }
-                
-                users[ownerId] = ownerData;
-                
-                // Check if conversation already exists
-                const existingConv = await db.collection('conversations')
-                    .where('participants', 'array-contains', user.uid)
-                    .get();
-                
-                let conversationExists = false;
-                existingConv.forEach(doc => {
-                    const data = doc.data();
-                    if (data.participants.includes(ownerId)) {
-                        conversationExists = true;
-                    }
-                });
+                // Check if conversation exists
+                const conversationExists = await checkConversationExists(user.uid, ownerId);
                 
                 if (!conversationExists) {
-                    // Create welcome conversation
-                    const conversationData = {
-                        participants: [ownerId, user.uid],
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        lastMessage: "Welcome to AI Prompt Gallery! 🎨",
-                        lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        unreadCount: {
-                            [user.uid]: 1 // Mark as unread for the new user
-                        }
-                    };
-                    
-                    const conversationRef = await db.collection('conversations').add(conversationData);
-                    
-                    // Add welcome message
-                    await db.collection('conversations').doc(conversationRef.id)
-                        .collection('messages').add({
-                            text: `Welcome to AI Prompt Gallery, ${user.displayName || 'friend'}! 🎨\n\nWe're thrilled to have you in our creative community! Here you can:\n\n• Share amazing AI art prompts\n• Connect with other creators\n• Get inspiration for your next project\n• Learn from the community\n\nFeel free to explore and start creating! ✨`,
-                            senderId: ownerId,
-                            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                            read: false,
-                            isOfficial: true
-                        });
-                    
-                    console.log('✅ Welcome conversation created for new user');
-                    
-                    // Send notification to all users about new member
-                    await sendNewUserNotification(user);
+                    await createWelcomeConversation(user.uid, ownerId);
                 }
                 
             } catch (error) {
@@ -468,80 +974,103 @@
             }
         }
 
-        // Send notification to all users about new member (No change needed)
-        async function sendNewUserNotification(newUser) {
-            try {
-                const usersSnapshot = await db.collection('users').get();
-                const notificationPromises = [];
-                
-                usersSnapshot.forEach(doc => {
-                    const userData = doc.data();
-                    if (doc.id !== newUser.uid && userData.email !== OWNER_EMAIL) {
-                        const notificationRef = db.collection('notifications').doc();
-                        notificationPromises.push(
-                            notificationRef.set({
-                                userId: doc.id,
-                                title: "New Member Joined!",
-                                message: `${newUser.displayName || 'A new user'} has joined AI Prompt Gallery! Welcome them to the community! 🎉`,
-                                type: "new_member",
-                                read: false,
-                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                            })
-                        );
-                    }
+        // Get or create owner user
+        async function getOrCreateOwner() {
+            const ownerQuery = await db.collection('users').where('email', '==', OWNER_EMAIL).get();
+            
+            if (!ownerQuery.empty) {
+                return ownerQuery.docs[0].id;
+            } else {
+                const ownerRef = db.collection('users').doc();
+                const ownerId = ownerRef.id;
+                await ownerRef.set({
+                    name: "AI Prompt Gallery",
+                    email: OWNER_EMAIL,
+                    avatar: "https://ui-avatars.com/api/?name=AI+Prompt+Gallery&background=667eea&color=fff",
+                    bio: "Official AI Prompt Gallery Account",
+                    isOwner: true,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                
-                await Promise.all(notificationPromises);
-                console.log('✅ New user notifications sent to all users');
-                
-            } catch (error) {
-                console.error('❌ Error sending notifications:', error);
+                console.log('✅ Owner account created');
+                return ownerId;
             }
         }
 
-        // **************** FIX 1: Real-Time Listener for Conversations ****************
-        async function listenForConversations() {
+        // Check if conversation exists
+        async function checkConversationExists(userId, ownerId) {
+            const existingConv = await db.collection('conversations')
+                .where('participants', 'array-contains', userId)
+                .get();
+            
+            let conversationExists = false;
+            existingConv.forEach(doc => {
+                const data = doc.data();
+                if (data.participants.includes(ownerId)) {
+                    conversationExists = true;
+                }
+            });
+            return conversationExists;
+        }
+
+        // Create welcome conversation
+        async function createWelcomeConversation(userId, ownerId) {
+            const conversationData = {
+                participants: [ownerId, userId],
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                lastMessage: "Welcome to AI Prompt Gallery! 🎨",
+                lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+                unreadCount: {
+                    [userId]: 1
+                }
+            };
+            
+            const conversationRef = await db.collection('conversations').add(conversationData);
+            
+            await db.collection('conversations').doc(conversationRef.id)
+                .collection('messages').add({
+                    text: `Welcome to AI Prompt Gallery, ${currentUser.displayName || 'friend'}! 🎨\n\nWe're thrilled to have you in our creative community!`,
+                    senderId: ownerId,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    read: false,
+                    isOfficial: true
+                });
+            
+            console.log('✅ Welcome conversation created');
+        }
+
+        // Load conversations
+        async function loadConversations() {
             if (!currentUser) return;
             
-            console.log('👂 Listening for conversations for user:', currentUser.uid);
-            
-            if (conversationsListener) {
-                conversationsListener(); // Unsubscribe from previous listener
-                conversationsListener = null;
-            }
-
-            conversationsListener = db.collection('conversations')
-                .where('participants', 'array-contains', currentUser.uid)
-                .orderBy('lastMessageAt', 'desc')
-                .onSnapshot(async (snapshot) => {
-                    console.log('🔄 Conversations updated:', snapshot.docs.length);
-                    
-                    conversations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    
-                    // Load user data for participants (needs to be async)
-                    await loadParticipantsData(conversations); 
-                    
-                    updateConversationsList();
-                    
-                    // If a conversation is currently selected, check if it needs re-selecting
-                    if (currentConversation) {
-                        const updatedConv = conversations.find(c => c.id === currentConversation.id);
-                        if (updatedConv) {
-                            currentConversation = updatedConv;
-                            // Messages listener will handle the chat content update automatically
-                        }
-                    }
-                }, error => {
-                    console.error('❌ Error listening to conversations:', error);
-                    showNotification('Error receiving messages', 'error');
+            try {
+                console.log('📥 Loading conversations for user:', currentUser.uid);
+                
+                const snapshot = await db.collection('conversations')
+                    .where('participants', 'array-contains', currentUser.uid)
+                    .orderBy('lastMessageAt', 'desc')
+                    .get();
+                
+                conversations = [];
+                snapshot.forEach(doc => {
+                    conversations.push({ id: doc.id, ...doc.data() });
                 });
+                
+                console.log('✅ Loaded conversations:', conversations.length);
+                updateConversationsList();
+                
+                await loadParticipantsData();
+                
+            } catch (error) {
+                console.error('❌ Error loading conversations:', error);
+                showNotification('Error loading conversations', 'error');
+            }
         }
 
-        // Load participants data (Modified to accept conversations array)
-        async function loadParticipantsData(convs) {
+        // Load participants data
+        async function loadParticipantsData() {
             const allUserIds = new Set();
             
-            convs.forEach(conversation => {
+            conversations.forEach(conversation => {
                 conversation.participants.forEach(uid => {
                     if (uid !== currentUser.uid && !users[uid]) {
                         allUserIds.add(uid);
@@ -564,7 +1093,7 @@
             updateConversationsList();
         }
 
-        // Update conversations list UI (No change needed)
+        // Update conversations list UI
         function updateConversationsList() {
             if (!currentUser) {
                 elements.conversationsList.innerHTML = `
@@ -595,8 +1124,7 @@
                 };
                 
                 const lastMessage = conversation.lastMessage || 'No messages yet';
-                const lastMessageAt = conversation.lastMessageAt;
-                const lastMessageTime = lastMessageAt && lastMessageAt.toDate ? formatTime(lastMessageAt.toDate()) : '';
+                const lastMessageTime = conversation.lastMessageAt ? formatTime(conversation.lastMessageAt.toDate()) : '';
                 const unreadCount = conversation.unreadCount && conversation.unreadCount[currentUser.uid] || 0;
                 const isOwner = otherUser.email === OWNER_EMAIL;
                 
@@ -613,13 +1141,12 @@
                         </div>
                         <div class="conversation-meta">
                             <div class="conversation-time">${lastMessageTime}</div>
-                            ${unreadCount > 0 ? `<div class="conversation-unread">${unreadCount > 9 ? '9+' : unreadCount}</div>` : ''}
+                            ${unreadCount > 0 ? `<div class="conversation-unread">${unreadCount}</div>` : ''}
                         </div>
                     </div>
                 `;
             }).join('');
             
-            // Add click events
             document.querySelectorAll('.conversation-item').forEach(item => {
                 item.addEventListener('click', () => {
                     const conversationId = item.dataset.conversationId;
@@ -628,7 +1155,7 @@
             });
         }
 
-        // **************** FIX 2: Real-Time Listener for Messages ****************
+        // Select conversation
         async function selectConversation(conversationId) {
             if (!currentUser) return;
             
@@ -637,7 +1164,6 @@
             
             console.log('💬 Selecting conversation:', conversationId);
             
-            // Update UI
             document.querySelectorAll('.conversation-item').forEach(item => {
                 item.classList.toggle('active', item.dataset.conversationId === conversationId);
             });
@@ -645,7 +1171,6 @@
             elements.chatHeader.classList.remove('hidden');
             elements.messageInputContainer.classList.remove('hidden');
             
-            // Update chat header
             const otherParticipantId = currentConversation.participants.find(uid => uid !== currentUser.uid);
             const otherUser = users[otherParticipantId] || { 
                 name: 'Unknown User', 
@@ -659,42 +1184,32 @@
             `;
             elements.chatUserStatus.textContent = 'Online';
             
-            // Start real-time listener for messages
-            listenForMessages(conversationId);
-            
-            // Note: markMessagesAsRead is now called inside listenForMessages
+            await loadMessages(conversationId);
+            await markMessagesAsRead(conversationId);
         }
 
-        // **************** FIX 3: Real-Time Message Listener ****************
-        function listenForMessages(conversationId) {
-            if (!currentUser) return;
-
-            // Unsubscribe from previous listener if it exists
-            if (messagesListener) {
-                messagesListener();
-                messagesListener = null;
-            }
-
-            // Set up the new listener
-            messagesListener = db.collection('conversations').doc(conversationId)
-                .collection('messages')
-                .orderBy('timestamp', 'asc')
-                .onSnapshot((snapshot) => {
-                    console.log('🔄 Messages updated:', snapshot.docs.length);
-                    
-                    const messages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    displayMessages(messages);
-                    
-                    // Mark new messages as read immediately after displaying them
-                    markMessagesAsRead(conversationId);
-                    
-                }, error => {
-                    console.error('❌ Error listening to messages:', error);
-                    showNotification('Error receiving messages', 'error');
+        // Load messages
+        async function loadMessages(conversationId) {
+            try {
+                const snapshot = await db.collection('conversations').doc(conversationId)
+                    .collection('messages')
+                    .orderBy('timestamp', 'asc')
+                    .get();
+                
+                const messages = [];
+                snapshot.forEach(doc => {
+                    messages.push({ id: doc.id, ...doc.data() });
                 });
+                
+                displayMessages(messages);
+                
+            } catch (error) {
+                console.error('❌ Error loading messages:', error);
+                showNotification('Error loading messages', 'error');
+            }
         }
-        
-        // Display messages (No change needed, but called by real-time listener)
+
+        // Display messages
         function displayMessages(messages) {
             if (messages.length === 0) {
                 elements.messagesContainer.innerHTML = `
@@ -704,21 +1219,18 @@
                         <p>Start the conversation by sending a message</p>
                     </div>
                 `;
-                elements.messagesContainer.classList.add('empty-chat');
                 return;
             }
             
-            elements.messagesContainer.classList.remove('empty-chat');
-
             elements.messagesContainer.innerHTML = messages.map(message => {
                 const isSent = message.senderId === currentUser.uid;
                 const isOfficial = message.isOfficial;
-                const time = message.timestamp && message.timestamp.toDate ? formatTime(message.timestamp.toDate()) : '';
+                const time = message.timestamp ? formatTime(message.timestamp.toDate()) : '';
                 
                 if (isOfficial) {
                     return `
                         <div class="message official">
-                            <div class="message-text">${message.text.replace(/\n/g, '<br>')}</div>
+                            <div class="message-text">${message.text}</div>
                             <div class="message-time">${time}</div>
                         </div>
                     `;
@@ -726,7 +1238,7 @@
                 
                 return `
                     <div class="message ${isSent ? 'sent' : 'received'}">
-                        <div class="message-text">${message.text.replace(/\n/g, '<br>')}</div>
+                        <div class="message-text">${message.text}</div>
                         <div class="message-time">${time}</div>
                     </div>
                 `;
@@ -735,17 +1247,13 @@
             elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
         }
 
-        // **************** FIX 4: Send Message (Updating Unread Count) ****************
+        // Send message
         async function sendMessage() {
             if (!currentUser || !currentConversation || !elements.messageInput.value.trim()) return;
             
             const messageText = elements.messageInput.value.trim();
-            const otherParticipantId = currentConversation.participants.find(uid => uid !== currentUser.uid);
             
             try {
-                console.log('📤 Sending message:', messageText);
-                
-                // Add message to Firestore
                 await db.collection('conversations').doc(currentConversation.id).collection('messages').add({
                     text: messageText,
                     senderId: currentUser.uid,
@@ -753,70 +1261,68 @@
                     read: false
                 });
                 
-                // Get the recipient's current unread count (or 0)
-                const recipientUnreadCount = currentConversation.unreadCount && currentConversation.unreadCount[otherParticipantId] || 0;
-
-                // Update conversation document (last message and increment recipient's unread count)
                 await db.collection('conversations').doc(currentConversation.id).update({
                     lastMessage: messageText.length > 50 ? messageText.substring(0, 50) + '...' : messageText,
-                    lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    // Increment the unread count for the *other* user
-                    [`unreadCount.${otherParticipantId}`]: recipientUnreadCount + 1
+                    lastMessageAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
-                // Clear input
                 elements.messageInput.value = '';
                 elements.messageInput.style.height = 'auto';
+                
+                await loadConversations();
                 
                 console.log('✅ Message sent successfully');
                 
             } catch (error) {
                 console.error('❌ Error sending message:', error);
-                showNotification('Error sending message: ' + error.message, 'error');
+                showNotification('Error sending message', 'error');
             }
         }
 
-        // **************** FIX 5: Mark Messages as Read (Only clearing count) ****************
+        // Mark messages as read
         async function markMessagesAsRead(conversationId) {
-            if (!currentUser || !currentConversation || currentConversation.id !== conversationId) return; // Only mark read for the active chat
-
-            const unreadCount = currentConversation.unreadCount && currentConversation.unreadCount[currentUser.uid] || 0;
-
-            if (unreadCount > 0) {
-                 try {
-                    // Update conversation to clear the current user's unread count
-                    await db.collection('conversations').doc(conversationId).update({
-                        [`unreadCount.${currentUser.uid}`]: 0
-                    });
-                    
-                    console.log('✅ Unread count cleared for:', currentUser.uid);
-
-                    // Note: The main conversations listener will update the list UI
-                    
-                } catch (error) {
-                    console.error('❌ Error marking messages as read:', error);
-                }
+            if (!currentUser) return;
+            
+            try {
+                const snapshot = await db.collection('conversations').doc(conversationId)
+                    .collection('messages')
+                    .where('senderId', '!=', currentUser.uid)
+                    .where('read', '==', false)
+                    .get();
+                
+                const batch = db.batch();
+                snapshot.forEach(doc => {
+                    batch.update(doc.ref, { read: true });
+                });
+                
+                await batch.commit();
+                
+                await db.collection('conversations').doc(conversationId).update({
+                    [`unreadCount.${currentUser.uid}`]: 0
+                });
+                
+                updateConversationsList();
+                
+            } catch (error) {
+                console.error('❌ Error marking messages as read:', error);
             }
         }
 
-        // New conversation modal (No change needed)
+        // New conversation modal
         async function openNewConversationModal() {
             if (!currentUser) return;
             
             try {
-                console.log('👥 Opening new conversation modal');
-                
-                // Load all users except current user
                 const snapshot = await db.collection('users').get();
                 
                 const allUsers = [];
                 snapshot.forEach(doc => {
                     if (doc.id !== currentUser.uid) {
-                        // Store the user data to memory for later use
-                        users[doc.id] = users[doc.id] || doc.data(); 
                         allUsers.push({ id: doc.id, ...doc.data() });
                     }
                 });
+                
+                console.log('👥 Loaded users for new conversation:', allUsers.length);
                 
                 if (allUsers.length === 0) {
                     elements.userList.innerHTML = `
@@ -827,7 +1333,6 @@
                         </div>
                     `;
                 } else {
-                    // Display users
                     elements.userList.innerHTML = allUsers.map(user => `
                         <div class="user-item" data-user-id="${user.id}">
                             <img src="${user.avatar}" alt="${user.name}" class="user-avatar-list">
@@ -844,8 +1349,7 @@
                 
                 openModal(elements.newConversationModal);
                 
-                // Add click events
-                document.querySelectorAll('#userList .user-item').forEach(item => {
+                document.querySelectorAll('.user-item').forEach(item => {
                     item.addEventListener('click', () => {
                         const userId = item.dataset.userId;
                         startNewConversation(userId);
@@ -855,32 +1359,23 @@
             } catch (error) {
                 console.error('❌ Error loading users:', error);
                 showNotification('Error loading users', 'error');
-                
-                elements.userList.innerHTML = `
-                    <div style="text-align: center; padding: 30px; color: var(--secondary);">
-                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 10px;"></i>
-                        <p>Error loading users</p>
-                        <p>Please try again later</p>
-                    </div>
-                `;
             }
         }
 
-        // Start new conversation (No change needed, relies on listener for UI update)
+        // Start new conversation
         async function startNewConversation(otherUserId) {
             if (!currentUser) return;
             
             try {
                 console.log('💬 Starting new conversation with:', otherUserId);
                 
-                // Check if conversation already exists
+                // Check if conversation exists
                 const existingConversation = conversations.find(conversation => 
                     conversation.participants.includes(otherUserId) && 
                     conversation.participants.includes(currentUser.uid)
                 );
                 
                 if (existingConversation) {
-                    console.log('✅ Conversation already exists, selecting it');
                     closeModal(elements.newConversationModal);
                     selectConversation(existingConversation.id);
                     return;
@@ -892,16 +1387,29 @@
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     lastMessage: 'Conversation started',
                     lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    unreadCount: {
-                         [otherUserId]: 1 // Mark as unread for the recipient
-                    }
+                    unreadCount: {}
                 };
                 
                 const conversationRef = await db.collection('conversations').add(conversationData);
                 
-                // No need to manually add to local array or call updateConversationsList()
-                // The onSnapshot listener (listenForConversations) will handle the update automatically.
-
+                const newConversation = { 
+                    id: conversationRef.id, 
+                    ...conversationData 
+                };
+                conversations.unshift(newConversation);
+                
+                if (!users[otherUserId]) {
+                    try {
+                        const userDoc = await db.collection('users').doc(otherUserId).get();
+                        if (userDoc.exists) {
+                            users[otherUserId] = userDoc.data();
+                        }
+                    } catch (error) {
+                        console.error('Error loading user data:', error);
+                    }
+                }
+                
+                updateConversationsList();
                 closeModal(elements.newConversationModal);
                 selectConversation(conversationRef.id);
                 
@@ -910,22 +1418,16 @@
                 
             } catch (error) {
                 console.error('❌ Error starting new conversation:', error);
-                showNotification('Error starting conversation: ' + error.message, 'error');
+                showNotification('Error starting conversation', 'error');
             }
         }
 
-        // Event Listeners (No change needed)
+        // Event Listeners
         function setupEventListeners() {
-            // Auth buttons
             elements.loginBtn.addEventListener('click', () => openModal(elements.loginModal));
             elements.signupBtn.addEventListener('click', () => openModal(elements.signupModal));
-            elements.logoutBtn.addEventListener('click', () => {
-                if (messagesListener) messagesListener(); // Unsubscribe before logout
-                if (conversationsListener) conversationsListener(); // Unsubscribe before logout
-                auth.signOut();
-            });
+            elements.logoutBtn.addEventListener('click', () => auth.signOut());
             
-            // Auth form switches
             document.getElementById('showSignup').addEventListener('click', () => {
                 closeModal(elements.loginModal);
                 openModal(elements.signupModal);
@@ -936,7 +1438,6 @@
                 openModal(elements.loginModal);
             });
             
-            // Auth forms
             elements.loginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const email = document.getElementById('loginEmail').value;
@@ -969,7 +1470,6 @@
                 }
             });
             
-            // Chat functionality
             elements.newConversationBtn.addEventListener('click', openNewConversationModal);
             elements.sendBtn.addEventListener('click', sendMessage);
             
@@ -985,7 +1485,6 @@
                 this.style.height = (this.scrollHeight) + 'px';
             });
             
-            // Modal close events
             document.querySelectorAll('.close-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const modal = e.target.closest('.modal');
@@ -1000,7 +1499,7 @@
             });
         }
 
-        // Utility functions (No change needed)
+        // Utility functions
         function formatTime(date) {
             const now = new Date();
             const diff = now.getTime() - date.getTime();
@@ -1018,7 +1517,6 @@
         }
 
         function showNotification(message, type = 'info') {
-            document.querySelectorAll('.notification').forEach(notif => notif.remove());
             const notification = document.createElement('div');
             notification.className = `notification ${type}`;
             notification.innerHTML = `
