@@ -68,7 +68,6 @@
             position: relative;
         }
 
-        /* Back Button */
         .back-btn {
             position: absolute;
             top: 25px;
@@ -680,7 +679,6 @@
             display: none !important;
         }
 
-        /* Loading Spinner */
         .loading-spinner {
             display: inline-block;
             width: 20px;
@@ -724,7 +722,6 @@
 <body>
     <div class="container">
         <div class="header">
-            <!-- Back Button -->
             <a href="index.html" class="back-btn">
                 <i class="fas fa-arrow-left"></i> Back to Home
             </a>
@@ -877,7 +874,7 @@
             });
         }
 
-        // ✅ FIXED - Load Conversations (SIMPLE & RELIABLE)
+        // ✅ FIXED - Load Conversations
         async function loadConversations() {
             if (!currentUser) {
                 showNotification('Please login to view messages', 'error');
@@ -895,7 +892,7 @@
                     </div>
                 `;
 
-                // ✅ SIMPLE QUERY - No complex ordering that might fail
+                // ✅ SIMPLE QUERY - No complex ordering
                 const snapshot = await db.collection('conversations').get();
 
                 conversations = [];
@@ -1236,7 +1233,7 @@
             }
         }
 
-        // ✅ FIXED - New Conversation Modal
+        // ✅ FIXED - New Conversation Modal (USERS LOADING FIXED)
         async function openNewConversationModal() {
             if (!currentUser) {
                 showNotification('Please login to start a conversation', 'error');
@@ -1246,12 +1243,20 @@
             try {
                 openModal(elements.newConversationModal);
                 
-                // Load all users except current user and system
+                // Show loading
+                elements.userList.innerHTML = `
+                    <div style="text-align: center; padding: 30px; color: var(--secondary);">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                        <p>Loading users...</p>
+                    </div>
+                `;
+
+                // ✅ FIXED - Load all users except current user
                 const snapshot = await db.collection('users').get();
                 
                 const allUsers = [];
                 snapshot.forEach(doc => {
-                    if (doc.id !== currentUser.uid && doc.id !== 'system') {
+                    if (doc.id !== currentUser.uid) { // Exclude current user
                         const userData = doc.data();
                         allUsers.push({ 
                             id: doc.id, 
@@ -1259,12 +1264,15 @@
                         });
                     }
                 });
-                
+
+                console.log(`✅ Loaded ${allUsers.length} users`);
+
                 if (allUsers.length === 0) {
                     elements.userList.innerHTML = `
                         <div style="text-align: center; padding: 30px; color: var(--secondary);">
                             <i class="fas fa-users" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i>
                             <p>No other users found</p>
+                            <small>Other users need to sign up to appear here</small>
                         </div>
                     `;
                 } else {
@@ -1274,21 +1282,23 @@
                         
                         return `
                             <div class="user-item" data-user-id="${user.id}">
-                                <img src="${user.avatar}" alt="${user.name}" class="user-avatar-list">
+                                <img src="${user.avatar || 'https://ui-avatars.com/api/?name=User&background=667eea&color=fff'}" 
+                                     alt="${user.name}" class="user-avatar-list">
                                 <div class="user-info">
                                     <div class="user-name">
-                                        ${user.name}
+                                        ${user.name || 'User'}
                                         ${(isOwner || isLegendary) ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
                                         ${isOwner ? '<span class="owner-badge">Owner</span>' : ''}
                                         ${isLegendary ? '<span class="legendary-badge">Legendary</span>' : ''}
                                     </div>
-                                    <div class="user-bio">${user.bio}</div>
+                                    <div class="user-bio">${user.bio || 'AI Art Enthusiast'}</div>
                                 </div>
                             </div>
                         `;
                     }).join('');
                 }
                 
+                // Add click listeners
                 document.querySelectorAll('.user-item').forEach(item => {
                     item.addEventListener('click', () => {
                         const userId = item.dataset.userId;
@@ -1302,6 +1312,10 @@
                     <div style="text-align: center; padding: 30px; color: var(--secondary);">
                         <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 10px;"></i>
                         <p>Unable to load users</p>
+                        <small>Please check your internet connection</small>
+                        <button onclick="openNewConversationModal()" style="margin-top: 15px; padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer;">
+                            <i class="fas fa-redo"></i> Try Again
+                        </button>
                     </div>
                 `;
             }
@@ -1321,6 +1335,7 @@
                 if (existingConversation) {
                     closeModal(elements.newConversationModal);
                     selectConversation(existingConversation.id);
+                    showNotification('Conversation already exists', 'info');
                     return;
                 }
                 
@@ -1329,8 +1344,7 @@
                     participants: [currentUser.uid, otherUserId],
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     lastMessage: 'Conversation started',
-                    lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    unreadCount: {}
+                    lastMessageAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
                 
                 const conversationRef = await db.collection('conversations').add(conversationData);
@@ -1338,7 +1352,7 @@
                 // Add first message
                 await db.collection('conversations').doc(conversationRef.id)
                     .collection('messages').add({
-                        text: `Hello! I'd like to connect with you about AI art prompts.`,
+                        text: `Hello! I'd like to connect with you about AI art prompts. 👋`,
                         senderId: currentUser.uid,
                         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                         read: false
