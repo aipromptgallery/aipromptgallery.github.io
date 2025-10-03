@@ -7,10 +7,10 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-storage-compat.js"></script>
 
     <style>
         * {
@@ -845,10 +845,6 @@
             color: white;
         }
 
-        .file-upload-section:hover .upload-icon {
-            color: white;
-        }
-
         .file-upload-section.dragover {
             border-color: var(--success);
             background: var(--success);
@@ -1391,33 +1387,35 @@
 
 
     <script>
-        // === FIREBASE CONFIGURATION (Placeholder) ===
-        // NOTE: In a real app, this should be in a separate, secure config file or handled server-side.
-        // The user must replace these with their own Firebase project credentials.
+        // === FIREBASE CONFIGURATION (Updated with User's API Details) ===
+        // NOTE: This config is now publicly visible. Ensure you understand the security implications.
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyDovL4QBUZfueYzMJpkCjWu_4NLMoQWyiA",
+            authDomain: "gagsta-paradise.firebaseapp.com",
+            projectId: "gagsta-paradise",
+            storageBucket: "gagsta-paradise.firebasestorage.app",
+            messagingSenderId: "78516691257",
+            appId: "1:78516691257:web:466954e941fc6a7eb388e8"
         };
 
-        // Initialize Firebase only if the config is not placeholder
+        // Initialize Firebase
         let db, auth, storage;
-        if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
-            try {
+        try {
+            // Check if firebase global object is available from the CDN scripts (v9 compat)
+            if (typeof firebase !== 'undefined' && typeof firebase.initializeApp === 'function') {
                 firebase.initializeApp(firebaseConfig);
                 db = firebase.firestore();
                 auth = firebase.auth();
                 storage = firebase.storage();
                 console.log("Firebase Initialized Successfully.");
-            } catch (error) {
-                console.error("Firebase Initialization Error:", error);
-                showNotification("Firebase setup error. Check your console and configuration.", 'error');
+            } else {
+                 console.error("Firebase initialization failed. Check CDN links or Firebase object availability.");
+                 // Optionally show a notification if Firebase fails to initialize
+                 // showNotification("Firebase setup error. Check your console.", 'error'); 
             }
-        } else {
-            console.warn("Firebase is using placeholder credentials. No actual data operations will be performed.");
+        } catch (error) {
+            console.error("Firebase Initialization Error:", error);
+            showNotification("Firebase setup error. Check your console and configuration.", 'error');
         }
 
         // Global state
