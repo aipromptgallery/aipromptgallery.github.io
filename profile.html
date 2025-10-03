@@ -921,7 +921,7 @@
         const OWNER_EMAIL = "alizybaby381@gmail.com";
         const LEGENDARY_EMAIL = "ul8763325@gmail.com";
         // सिर्फ इन दो emails को verified tick मिलेगा
-        const VERIFIED_USERS = ["alizybaby381@gmail.com", "ul8763325@gmail.com"];
+        const VERIFIED_USERS = [OWNER_EMAIL, LEGENDARY_EMAIL];
         let currentUser = null;
 
         // === DOM ELEMENTS ===
@@ -1021,6 +1021,7 @@
                 likes: 0,
                 followersList: [],
                 followingList: [],
+                // सिर्फ verified users के लिए true
                 isVerified: VERIFIED_USERS.includes(currentUser.email)
             };
             
@@ -1063,7 +1064,7 @@
                 });
             }
             
-            // Badge और Verification System
+            // Badge और Verification System - STRICTLY ONLY THESE TWO EMAILS
             if (currentUser.email === OWNER_EMAIL) {
                 // Site Owner - Dark Blue
                 elements.avatarBadge.innerHTML = '<i class="fas fa-crown"></i> Owner';
@@ -1074,13 +1075,8 @@
                 elements.avatarBadge.innerHTML = '<i class="fas fa-fire"></i> Legendary';
                 elements.avatarBadge.className = 'avatar-badge legendary-badge';
                 elements.verifiedBadge.classList.remove('hidden');
-            } else if (VERIFIED_USERS.includes(currentUser.email)) {
-                // Other Verified Users - Purple
-                elements.avatarBadge.innerHTML = '<i class="fas fa-star"></i> Verified';
-                elements.avatarBadge.className = 'avatar-badge member-badge';
-                elements.verifiedBadge.classList.remove('hidden');
             } else {
-                // Regular Member - Purple
+                // ALL OTHER USERS - Regular Member (NO VERIFIED TICK)
                 elements.avatarBadge.innerHTML = '<i class="fas fa-user"></i> Member';
                 elements.avatarBadge.className = 'avatar-badge member-badge';
                 elements.verifiedBadge.classList.add('hidden');
@@ -1200,6 +1196,7 @@
                     bio: bio,
                     avatar: avatarUrl,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    // सिर्फ verified users के लिए true रहेगा
                     isVerified: VERIFIED_USERS.includes(currentUser.email)
                 });
                 
