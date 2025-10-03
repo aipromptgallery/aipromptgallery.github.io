@@ -853,6 +853,7 @@
         let currentConversation = null;
         let conversations = [];
         let users = {};
+        let conversationListeners = {};
         const OWNER_EMAIL = "alizybaby381@gmail.com";
 
         // DOM Elements
@@ -917,7 +918,12 @@
                     currentUser = null;
                     elements.authButtons.classList.remove('hidden');
                     elements.userInfo.classList.add('hidden');
+                    
+                    // Clear conversations and stop listeners
                     conversations = [];
+                    Object.values(conversationListeners).forEach(unsubscribe => unsubscribe());
+                    conversationListeners = {};
+                    
                     updateConversationsList();
                     console.log('User signed out');
                 }
@@ -979,18 +985,22 @@
             const ownerQuery = await db.collection('users').where('email', '==', OWNER_EMAIL).get();
             
             if (!ownerQuery.empty) {
-                return ownerQuery.docs[0].id;
+                const ownerDoc = ownerQuery.docs[0];
+                users[ownerDoc.id] = ownerDoc.data();
+                return ownerDoc.id;
             } else {
                 const ownerRef = db.collection('users').doc();
                 const ownerId = ownerRef.id;
-                await ownerRef.set({
+                const ownerData = {
                     name: "AI Prompt Gallery",
                     email: OWNER_EMAIL,
                     avatar: "https://ui-avatars.com/api/?name=AI+Prompt+Gallery&background=667eea&color=fff",
                     bio: "Official AI Prompt Gallery Account",
                     isOwner: true,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                };
+                await ownerRef.set(ownerData);
+                users[ownerId] = ownerData;
                 console.log('✅ Owner account created');
                 return ownerId;
             }
@@ -1159,6 +1169,11 @@
         async function selectConversation(conversationId) {
             if (!currentUser) return;
             
+            // Stop previous listener
+            if (currentConversation && conversationListeners[currentConversation.id]) {
+                conversationListeners[currentConversation.id]();
+            }
+            
             currentConversation = conversations.find(conversation => conversation.id === conversationId);
             if (!currentConversation) return;
             
@@ -1184,7 +1199,10 @@
             `;
             elements.chatUserStatus.textContent = 'Online';
             
+            // Load messages and start real-time listener
             await loadMessages(conversationId);
+            listenForNewMessages(conversationId);
+            
             await markMessagesAsRead(conversationId);
         }
 
@@ -1207,6 +1225,31 @@
                 console.error('❌ Error loading messages:', error);
                 showNotification('Error loading messages', 'error');
             }
+        }
+
+        // Listen for new messages in real-time
+        function listenForNewMessages(conversationId) {
+            conversationListeners[conversationId] = db.collection('conversations').doc(conversationId)
+                .collection('messages')
+                .orderBy('timestamp', 'asc')
+                .onSnapshot(snapshot => {
+                    snapshot.docChanges().forEach(change => {
+                        if (change.type === 'added') {
+                            const message = { id: change.doc.id, ...change.doc.data() };
+                            addMessageToChat(message);
+                            
+                            // Update conversation last message
+                            if (currentConversation && currentConversation.id === conversationId) {
+                                currentConversation.lastMessage = message.text.length > 50 ? 
+                                    message.text.substring(0, 50) + '...' : message.text;
+                                currentConversation.lastMessageAt = message.timestamp;
+                                updateConversationsList();
+                            }
+                        }
+                    });
+                }, error => {
+                    console.error('❌ Error listening to messages:', error);
+                });
         }
 
         // Display messages
@@ -1247,6 +1290,37 @@
             elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
         }
 
+        // Add single message to chat
+        function addMessageToChat(message) {
+            const isSent = message.senderId === currentUser.uid;
+            const isOfficial = message.isOfficial;
+            const time = message.timestamp ? formatTime(message.timestamp.toDate()) : '';
+            
+            const messageElement = document.createElement('div');
+            
+            if (isOfficial) {
+                messageElement.className = 'message official';
+                messageElement.innerHTML = `
+                    <div class="message-text">${message.text}</div>
+                    <div class="message-time">${time}</div>
+                `;
+            } else {
+                messageElement.className = `message ${isSent ? 'sent' : 'received'}`;
+                messageElement.innerHTML = `
+                    <div class="message-text">${message.text}</div>
+                    <div class="message-time">${time}</div>
+                `;
+            }
+            
+            elements.messagesContainer.appendChild(messageElement);
+            elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
+            
+            // Mark as read if it's not our message
+            if (!isSent && currentConversation) {
+                markMessagesAsRead(currentConversation.id);
+            }
+        }
+
         // Send message
         async function sendMessage() {
             if (!currentUser || !currentConversation || !elements.messageInput.value.trim()) return;
@@ -1254,6 +1328,9 @@
             const messageText = elements.messageInput.value.trim();
             
             try {
+                console.log('📤 Sending message:', messageText);
+                
+                // Add message to Firestore
                 await db.collection('conversations').doc(currentConversation.id).collection('messages').add({
                     text: messageText,
                     senderId: currentUser.uid,
@@ -1261,15 +1338,16 @@
                     read: false
                 });
                 
+                // Update conversation last message
                 await db.collection('conversations').doc(currentConversation.id).update({
                     lastMessage: messageText.length > 50 ? messageText.substring(0, 50) + '...' : messageText,
-                    lastMessageAt: firebase.firestore.FieldValue.serverTimestamp()
+                    lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    [`unreadCount.${getOtherParticipantId()}`]: firebase.firestore.FieldValue.increment(1)
                 });
                 
+                // Clear input
                 elements.messageInput.value = '';
                 elements.messageInput.style.height = 'auto';
-                
-                await loadConversations();
                 
                 console.log('✅ Message sent successfully');
                 
@@ -1277,6 +1355,11 @@
                 console.error('❌ Error sending message:', error);
                 showNotification('Error sending message', 'error');
             }
+        }
+
+        // Get other participant ID
+        function getOtherParticipantId() {
+            return currentConversation.participants.find(uid => uid !== currentUser.uid);
         }
 
         // Mark messages as read
@@ -1398,6 +1481,7 @@
                 };
                 conversations.unshift(newConversation);
                 
+                // Load user data for the new participant
                 if (!users[otherUserId]) {
                     try {
                         const userDoc = await db.collection('users').doc(otherUserId).get();
