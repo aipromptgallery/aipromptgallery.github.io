@@ -3,30 +3,272 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Main Content Page</title>
+    <title>AI Prompt Gallery | Discover Amazing AI Art</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+
     <style>
-        /* Global Reset/Base */
-        body {
-            font-family: Arial, sans-serif;
+        /* Base Styles */
+        * {
             margin: 0;
             padding: 0;
-            background: #f1f5f9;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* --- STYLING FOR THE SLIDER (UPLOAD PANEL) --- */
-        .settings-panel {
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #3b82f6;
+            --secondary: #64748b;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --card-bg: #ffffff;
+            --success: #10b981;
+            --error: #ef4444;
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        /* Dark Mode variables (Added this for better theme handling) */
+        body.dark-mode {
+            background-color: var(--dark);
+            color: var(--light);
+        }
+        body.dark-mode .navbar,
+        body.dark-mode .prompt-card,
+        body.dark-mode .filter-sidebar,
+        body.dark-mode .modal-content {
+            background-color: #2d3748;
+            color: var(--light);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.5);
+        }
+        body.dark-mode .input-group input,
+        body.dark-mode .filter-sidebar select {
+            background-color: #4a5568;
+            color: var(--light);
+            border: 1px solid #718096;
+        }
+        
+        /* Layout */
+        body {
+            background-color: var(--light);
+            transition: background-color 0.3s;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: var(--card-bg);
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        .navbar h1 a {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 24px;
+        }
+        .nav-links a, .nav-links button {
+            color: var(--secondary);
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 16px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: color 0.3s, background-color 0.3s;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .nav-links a:hover, .nav-links button:hover {
+            color: var(--primary);
+            background-color: #eff6ff; /* Light hover background */
+        }
+        
+        /* Main Layout */
+        .main-layout {
+            display: flex;
+            max-width: 1200px;
+            margin: 20px auto;
+            gap: 20px;
+            padding: 0 20px;
+        }
+
+        /* Filter Sidebar */
+        .filter-sidebar {
+            width: 250px;
             padding: 20px;
-            background: #fff;
-            margin: 20px;
+            background-color: var(--card-bg);
             border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            flex-shrink: 0;
         }
-        .slider-container {
-            margin-top: 15px;
+        .filter-sidebar h3 {
+            margin-bottom: 15px;
+            color: var(--dark);
         }
-        label {
+        body.dark-mode .filter-sidebar h3 {
+             color: var(--light);
+        }
+        .filter-group {
+            margin-bottom: 20px;
+        }
+        .filter-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--secondary);
+        }
+        .filter-sidebar select,
+        .search-container input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            background-color: var(--light);
+            font-size: 14px;
+        }
+        
+        /* Prompt Gallery Grid */
+        .content-area {
+            flex-grow: 1;
+        }
+        .prompt-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .prompt-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .prompt-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        }
+        .prompt-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .card-info {
+            padding: 15px;
+        }
+        .card-info h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+        body.dark-mode .card-info h3 {
+             color: var(--light);
+        }
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--secondary);
+            margin-top: 10px;
+        }
+
+        /* Modal Base */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none; /* Default hidden */
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+        }
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--secondary);
+            transition: color 0.2s;
+        }
+        .close-btn:hover {
+            color: var(--error);
+        }
+        .modal h2 {
+            margin-bottom: 20px;
+            color: var(--primary-dark);
+        }
+        
+        /* Modal Form Elements */
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
             display: block;
             margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .input-group input,
+        .input-group textarea,
+        .input-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        .submit-btn {
+            padding: 12px 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+        .submit-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        /* --- SLIDER STYLING (For #sliderModal) --- */
+        #sliderModal h2 {
+            color: #333;
+        }
+        body.dark-mode #sliderModal h2 {
+             color: var(--light);
+        }
+
+        .slider-container {
+            margin: 25px 0;
+        }
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
             font-weight: bold;
         }
         
@@ -34,193 +276,410 @@
         input[type=range] {
             -webkit-appearance: none;
             width: 100%;
-            height: 8px;
-            background: #ddd;
+            height: 10px;
+            background: #e0e7ff; /* Light blue track */
             border-radius: 5px;
             outline: none;
-            opacity: 0.7;
+            opacity: 0.9;
             transition: opacity .2s;
         }
         input[type=range]:hover {
             opacity: 1;
         }
+        body.dark-mode input[type=range] {
+            background: #4a5568;
+        }
+        
+        /* Slider Thumb (The circle/handle) */
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
-            background: #3b82f6;
+            background: var(--primary);
             cursor: pointer;
-            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+            margin-top: -6px; /* Center the thumb vertically */
+            border: 2px solid white;
         }
         input[type=range]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
-            background: #3b82f6;
+            background: var(--primary);
             cursor: pointer;
-            border: none;
+            border: 2px solid white;
         }
+        /* --- END SLIDER STYLING --- */
 
-        /* --- RESPONSIVE FILTER/CONTENT LAYOUT --- */
-        .main-layout {
-            display: flex; /* Use Flexbox for side-by-side */
-            padding: 20px;
-            gap: 20px;
-        }
 
-        .filter-sidebar {
-            width: 250px;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            flex-shrink: 0; /* Prevents sidebar from shrinking too much */
-        }
-
-        .content-area {
-            flex-grow: 1;
-        }
-
-        .filter-group {
-            margin-bottom: 20px;
-        }
-
-        .filter-group select {
-            width: 100%;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-
-        .content-item {
-            background: white;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 6px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-        
-        /* --- MOBILE MEDIA QUERY FIX --- */
+        /* --- MOBILE RESPONSSIVENESS FIXES --- */
         @media (max-width: 768px) {
+            .navbar {
+                padding: 10px 15px;
+                flex-wrap: wrap;
+            }
+            .navbar h1 {
+                margin-bottom: 10px;
+                width: 100%;
+                text-align: center;
+            }
+            .nav-links {
+                width: 100%;
+                display: flex;
+                justify-content: space-around;
+                margin-top: 5px;
+            }
+            .nav-links a, .nav-links button {
+                margin: 0;
+                padding: 5px;
+                font-size: 14px;
+            }
+
             .main-layout {
-                flex-direction: column; /* Stack filters above content on mobile */
+                flex-direction: column; /* Stack filters and content */
                 padding: 10px;
             }
+            
             .filter-sidebar {
-                width: 100%; /* Sidebar takes full width */
-                margin-bottom: 20px;
+                width: 100%; /* Filters take full width */
+                margin-bottom: 10px;
             }
-            /* Fix for colliding text/elements in a group */
-            .content-item h3 {
-                word-wrap: break-word; /* Ensure long words break */
-                min-width: 0; /* Allow flex children to shrink */
+            
+            .prompt-grid {
+                grid-template-columns: 1fr; /* Single column layout for cards */
+            }
+
+            .modal-content {
+                width: 95%;
             }
         }
     </style>
 </head>
 <body>
 
-    <div class="settings-panel">
-        <h2>Upload/Settings Panel</h2>
-        <p>This demonstrates the styled slider.</p>
-        <div class="slider-container">
-            <label for="qualitySlider">Image Quality: <span id="qualityValue">80</span>%</label>
-            <input type="range" id="qualitySlider" min="10" max="100" value="80">
+    <div id="notification-container"></div>
+
+    <nav class="navbar">
+        <h1><a href="index.html">AI Gallery</a></h1>
+        <div class="nav-links">
+            <a href="inbox.html"><i class="fas fa-inbox"></i> Inbox</a>
+            <a href="#" onclick="openModal(document.getElementById('uploadModal'))"><i class="fas fa-cloud-upload-alt"></i> Upload</a>
+            <a href="#" onclick="openModal(document.getElementById('sliderModal'))"><i class="fas fa-sliders-h"></i> Settings</a> <a href="profile.html"><i class="fas fa-user-circle"></i> Profile</a>
+            <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            <button onclick="toggleTheme()" id="theme-toggle"><i class="fas fa-sun"></i></button>
         </div>
-    </div>
+    </nav>
 
     <div class="main-layout">
         
         <div class="filter-sidebar">
-            <h3>Content Filters</h3>
+            <h3>Filters & Sorting</h3>
             
+            <div class="filter-group search-container">
+                <label for="search-input"><i class="fas fa-search"></i> Search Prompts</label>
+                <input type="text" id="search-input" placeholder="Keyword..." onkeyup="loadPrompts()">
+            </div>
+
             <div class="filter-group">
                 <label for="categoryFilter">Category</label>
-                <select id="categoryFilter">
+                <select id="categoryFilter" onchange="loadPrompts()">
                     <option value="">All Categories</option>
-                    <option value="promo">Promotion</option>
-                    <option value="news">News</option>
-                    <option value="tech">Tech</option>
-                </select>
+                    <option value="art">Art</option>
+                    <option value="code">Code</option>
+                    <option value="photography">Photography</option>
+                    <option value="writing">Writing</option>
+                    </select>
             </div>
 
             <div class="filter-group">
                 <label for="sortOrder">Sort By</label>
-                <select id="sortOrder">
+                <select id="sortOrder" onchange="loadPrompts()">
                     <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
                     <option value="popular">Most Popular</option>
+                    <option value="oldest">Oldest First</option>
                 </select>
             </div>
 
         </div>
 
-        <div class="content-area" id="contentArea">
-            <div class="content-item">
-                <h3>Content Title 1</h3>
-                <p>This is item content. The layout will now stack cleanly on mobile.</p>
-            </div>
-            <div class="content-item">
-                <h3>Content Title 2: A very long title that would collide on mobile devices before the fix</h3>
-                <p>More content here.</p>
-            </div>
-            <div class="content-item">
-                <h3>Content Title 3</h3>
-                <p>Last item content.</p>
-            </div>
+        <div class="content-area">
+            <div class="prompt-grid" id="prompt-grid">
+                </div>
+            <div id="no-prompts" style="text-align: center; padding: 50px; display: none;">No prompts found. Try adjusting your filters.</div>
         </div>
+    </div>
 
+    <div id="uploadModal" class="modal" onclick="closeModal(this)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-btn" onclick="closeModal(document.getElementById('uploadModal'))">&times;</span>
+            <h2>Upload New Prompt</h2>
+            <form id="upload-form">
+                <div class="input-group">
+                    <label for="prompt-text">Prompt Text</label>
+                    <textarea id="prompt-text" rows="4" placeholder="Enter your detailed prompt here..." required></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="prompt-category">Category</label>
+                    <select id="prompt-category" required>
+                        <option value="">Select Category</option>
+                        <option value="art">Art</option>
+                        <option value="code">Code</option>
+                        <option value="photography">Photography</option>
+                        <option value="writing">Writing</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="prompt-image">Image/Preview (Optional)</label>
+                    <input type="file" id="prompt-image" accept="image/*">
+                </div>
+                <button type="submit" class="submit-btn">Publish Prompt</button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="sliderModal" class="modal" onclick="closeModal(this)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-btn" onclick="closeModal(document.getElementById('sliderModal'))">&times;</span>
+            <h2>Global Settings</h2>
+            
+            <div class="slider-container">
+                <div class="slider-label">
+                    <span>Image Compression Quality:</span>
+                    <span id="qualityValue">80%</span>
+                </div>
+                <input type="range" id="qualitySlider" min="10" max="100" value="80">
+            </div>
+
+            <div class="slider-container">
+                <div class="slider-label">
+                    <span>Max Prompts Per Load:</span>
+                    <span id="limitValue">20</span>
+                </div>
+                <input type="range" id="limitSlider" min="5" max="50" value="20">
+            </div>
+
+            <button class="submit-btn" style="width: 100%;">Save Settings</button>
+        </div>
     </div>
 
     <script>
-        // --- JAVASCRIPT FOR FILTERS AND SLIDER ---
+        // --- FIREBASE CONFIG ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDovL4QBUZfueYzMJpkCjWu_4NLMoQWyiA",
+            authDomain: "gagsta-paradise.firebaseapp.com",
+            projectId: "gagsta-paradise",
+            storageBucket: "gagsta-paradise.firebasestorage.app",
+            messagingSenderId: "78516691257",
+            appId: "1:78516691257:web:466954e941fc6a7eb388e8"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+        let currentUser = null;
 
-        // 1. Slider Value Display
-        const slider = document.getElementById('qualitySlider');
-        const sliderValue = document.getElementById('qualityValue');
-
-        slider.oninput = function() {
-            sliderValue.textContent = this.value;
+        // --- AUTHENTICATION & REDIRECTION ---
+        function initAuth() {
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    currentUser = user;
+                    // User is signed in, load content
+                    loadPrompts();
+                    loadStats();
+                } else {
+                    // User is signed out, redirect to login page
+                    window.location.href = 'login.html';
+                }
+            });
         }
 
+        function logout() {
+            auth.signOut().then(() => {
+                showNotification('Logged out successfully.', 'info');
+                // Redirection handled by onAuthStateChanged
+            }).catch((error) => {
+                showNotification('Logout failed: ' + error.message, 'error');
+            });
+        }
 
-        // 2. Placeholder for Filtering Logic (Adapt this to your Firebase code)
-        const categoryFilter = document.getElementById('categoryFilter');
-        const sortOrder = document.getElementById('sortOrder');
-        const contentArea = document.getElementById('contentArea');
+        // --- PROMPT RENDERING AND FILTERING (FIXED) ---
 
-        function applyFilters() {
-            const selectedCategory = categoryFilter.value;
-            const selectedSort = sortOrder.value;
+        function renderPrompt(doc) {
+            const data = doc.data();
+            const card = document.createElement('div');
+            card.className = 'prompt-card';
+            card.setAttribute('data-id', doc.id);
+            card.innerHTML = `
+                <img src="${data.imageUrl || 'https://via.placeholder.com/280x200?text=No+Image'}" alt="${data.title || 'AI Prompt'}">
+                <div class="card-info">
+                    <h3>${data.title || 'Untitled Prompt'}</h3>
+                    <p style="font-size: 14px; color: var(--secondary);">${data.prompt.substring(0, 50)}...</p>
+                    <div class="card-footer">
+                        <span><i class="fas fa-heart"></i> ${data.likes || 0}</span>
+                        <span>Category: ${data.category || 'General'}</span>
+                    </div>
+                </div>
+            `;
+            // Add click handler to view full prompt if needed
+            // card.onclick = () => openPromptView(doc.id);
+            return card;
+        }
 
-            console.log(`Filtering by: ${selectedCategory}, Sorting by: ${selectedSort}`);
+        async function loadPrompts() {
+            const grid = document.getElementById('prompt-grid');
+            grid.innerHTML = '';
+            document.getElementById('no-prompts').style.display = 'none';
 
-            // **YOUR FIREBASE/CONTENT LOADING LOGIC GOES HERE**
-            // Example: 
-            // db.collection('prompts')
-            //   .where('category', '==', selectedCategory) // if selectedCategory is not empty
-            //   .orderBy('createdAt', selectedSort === 'newest' ? 'desc' : 'asc')
-            //   .get()
-            //   .then(snapshot => {
-            //      // ... update contentArea with new data ...
-            //   });
+            // Get filter values
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
+            const sort = document.getElementById('sortOrder').value;
 
-            // For now, we'll just show an alert
-            contentArea.innerHTML = '<p>Applying filters... (Check console for filter values)</p>';
+            let query = db.collection('prompts');
+
+            // 1. Apply Category Filter
+            if (category) {
+                query = query.where('category', '==', category);
+            }
+            
+            // 2. Apply Sorting
+            if (sort === 'newest') {
+                query = query.orderBy('createdAt', 'desc');
+            } else if (sort === 'oldest') {
+                query = query.orderBy('createdAt', 'asc');
+            } else if (sort === 'popular') {
+                // Assuming 'likes' field exists
+                query = query.orderBy('likes', 'desc').orderBy('createdAt', 'desc');
+            }
+
+            try {
+                const snapshot = await query.limit(20).get(); // Limit to 20 for performance
+
+                if (snapshot.empty) {
+                    document.getElementById('no-prompts').style.display = 'block';
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    
+                    // 3. Apply Search Term Filter (Client-side, since Firestore only supports prefix search easily)
+                    if (!searchTerm || (data.prompt && data.prompt.toLowerCase().includes(searchTerm)) || (data.title && data.title.toLowerCase().includes(searchTerm))) {
+                        grid.appendChild(renderPrompt(doc));
+                    }
+                });
+
+                if (grid.children.length === 0) {
+                    document.getElementById('no-prompts').style.display = 'block';
+                }
+
+            } catch (error) {
+                console.error("Error loading prompts: ", error);
+                showNotification('Error loading prompts: ' + error.message, 'error');
+            }
+        }
+
+        // --- MODALS & HANDLERS ---
+        function setupButtonHandlers() {
+            // Setup upload form submission
+            document.getElementById('upload-form').addEventListener('submit', handleUpload);
+            
+            // Slider value updates
+            document.getElementById('qualitySlider').addEventListener('input', function() {
+                document.getElementById('qualityValue').textContent = this.value + '%';
+            });
+            document.getElementById('limitSlider').addEventListener('input', function() {
+                document.getElementById('limitValue').textContent = this.value;
+            });
+        }
+
+        function openModal(modal) {
+            modal.style.display = 'flex';
+        }
+
+        function closeModal(modal) {
+            modal.style.display = 'none';
+        }
+
+        function setupModalHandlers() {
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.modal').forEach(modal => {
+                        closeModal(modal);
+                    });
+                }
+            });
+        }
+
+        // Placeholder for upload logic
+        function handleUpload(event) {
+            event.preventDefault();
+            showNotification('Upload logic is not yet fully implemented, but form submitted!', 'info');
+            // Your Firebase Storage upload and Firestore save logic goes here.
+            // closeModal(document.getElementById('uploadModal'));
+        }
+
+        // --- THEME/STATISTICS (from your original code) ---
+        function initTheme() {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.body.className = theme + '-mode';
+            document.getElementById('theme-toggle').innerHTML = `<i class="fas fa-${theme === 'dark' ? 'sun' : 'moon'}"></i>`;
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const isDark = body.classList.contains('dark-mode');
+            
+            if (isDark) {
+                body.classList.replace('dark-mode', 'light-mode');
+                localStorage.setItem('theme', 'light');
+                document.getElementById('theme-toggle').innerHTML = '<i class="fas fa-moon"></i>';
+            } else {
+                body.classList.replace('light-mode', 'dark-mode');
+                localStorage.setItem('theme', 'dark');
+                document.getElementById('theme-toggle').innerHTML = '<i class="fas fa-sun"></i>';
+            }
+        }
+
+        function loadStats() {
+            // Function to load user or app stats (placeholder)
+            console.log("Loading app statistics...");
+        }
+
+        // === NOTIFICATION SYSTEM ===
+        function showNotification(message, type = 'info') {
+            document.querySelectorAll('.notification').forEach(notif => notif.remove());
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'}"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
             setTimeout(() => {
-                // Re-add your actual content loading function call here
-                contentArea.innerHTML = 'Content reloaded based on filters.';
-            }, 500);
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
         }
 
-        // Attach the filtering function to the change events
-        categoryFilter.addEventListener('change', applyFilters);
-        sortOrder.addEventListener('change', applyFilters);
+        // === INITIALIZATION ===
+        function initApp() {
+            initTheme();
+            initAuth();
+            setupButtonHandlers();
+            setupModalHandlers();
+            // loadPrompts() is called inside initAuth()
+            loadStats();
+        }
 
-        // Initial load
-        document.addEventListener('DOMContentLoaded', applyFilters);
+        // Start the app
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 </html>
