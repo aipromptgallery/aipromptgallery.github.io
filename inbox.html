@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Prompt Gallery | Inbox</title>
     
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -60,7 +57,6 @@
             padding: 20px;
         }
 
-        /* Header Styles */
         .header {
             background: var(--gradient);
             color: white;
@@ -126,7 +122,6 @@
             margin: 0 auto;
         }
 
-        /* Inbox Container */
         .inbox-container {
             display: flex;
             height: 70vh;
@@ -136,7 +131,6 @@
             overflow: hidden;
         }
 
-        /* Conversations Sidebar */
         .conversations-sidebar {
             width: 350px;
             border-right: 1px solid var(--light);
@@ -291,7 +285,6 @@
             font-weight: 600;
         }
 
-        /* Chat Area */
         .chat-area {
             flex: 1;
             display: flex;
@@ -479,7 +472,6 @@
             padding: 40px;
         }
 
-        /* Modals */
         .modal {
             display: none;
             position: fixed;
@@ -536,7 +528,6 @@
             transform: rotate(90deg);
         }
 
-        /* User List */
         .user-list {
             max-height: 400px;
             overflow-y: auto;
@@ -583,7 +574,6 @@
             color: var(--secondary);
         }
 
-        /* Notification */
         .notification {
             position: fixed;
             top: 20px;
@@ -650,7 +640,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <div class="header">
             <a href="index.html" class="back-btn">
                 <i class="fas fa-arrow-left"></i> Back to Home
@@ -664,9 +653,7 @@
             <p>Connect with other AI art creators</p>
         </div>
 
-        <!-- Inbox Container -->
         <div class="inbox-container">
-            <!-- Conversations Sidebar -->
             <div class="conversations-sidebar">
                 <div class="conversations-header">
                     <h2>Messages</h2>
@@ -684,7 +671,6 @@
                 </div>
             </div>
             
-            <!-- Chat Area -->
             <div class="chat-area">
                 <div class="chat-header hidden" id="chatHeader">
                     <img src="" alt="User" class="chat-user-avatar" id="chatUserAvatar">
@@ -720,7 +706,6 @@
         </div>
     </div>
 
-    <!-- New Conversation Modal -->
     <div class="modal" id="newConversationModal">
         <div class="modal-content">
             <button class="close-btn">&times;</button>
@@ -737,7 +722,7 @@
     </div>
 
     <script>
-        // === FIREBASE CONFIGURATION ===
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDovL4QBUZfueYzMJpkCjWu_4NLMoQWyiA",
             authDomain: "gagsta-paradise.firebaseapp.com",
@@ -752,7 +737,7 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        // === GLOBAL VARIABLES ===
+        // Global Variables
         let currentUser = null;
         let currentConversation = null;
         let conversations = [];
@@ -760,7 +745,7 @@
         let conversationListeners = {};
         const OWNER_EMAIL = "alizybaby381@gmail.com";
 
-        // === DOM ELEMENTS ===
+        // DOM Elements
         const elements = {
             themeToggle: document.getElementById('themeToggle'),
             newConversationBtn: document.getElementById('newConversationBtn'),
@@ -779,7 +764,7 @@
             chatUserStatus: document.getElementById('chatUserStatus')
         };
 
-        // === THEME MANAGEMENT ===
+        // Theme Management
         function initTheme() {
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.body.setAttribute('data-theme', savedTheme);
@@ -798,7 +783,7 @@
             icon.className = newTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
         });
 
-        // === AUTHENTICATION SYSTEM ===
+        // Authentication
         function initAuth() {
             auth.onAuthStateChanged(async (user) => {
                 if (user) {
@@ -807,29 +792,25 @@
                     await loadUserData(user.uid);
                     showNotification(`Welcome to messages, ${user.displayName || 'User'}!`, 'success');
                     
-                    // Load conversations for the user
                     loadConversations();
                     
-                    // Send auto welcome message from owner
                     if (user.email !== OWNER_EMAIL) {
                         await sendWelcomeMessage(user.uid);
                     }
                 } else {
-                    // Use demo mode with anonymous authentication
                     try {
                         console.log('No user found, signing in anonymously...');
                         await auth.signInAnonymously();
                     } catch (error) {
                         console.error('Authentication failed:', error);
                         showNotification('Please login to access messages', 'error');
-                        // Use demo data for testing
                         setupDemoMode();
                     }
                 }
             });
         }
 
-        // Demo mode for testing without authentication
+        // Demo mode for testing
         function setupDemoMode() {
             console.log('Setting up demo mode...');
             currentUser = {
@@ -851,7 +832,6 @@
                 email: OWNER_EMAIL
             };
             
-            // Create demo conversations
             conversations = [{
                 id: 'demo-conversation-1',
                 participants: ['demo-user', 'owner'],
@@ -868,7 +848,6 @@
             try {
                 const userDoc = await db.collection('users').doc(uid).get();
                 if (!userDoc.exists) {
-                    // Create user document if it doesn't exist
                     await db.collection('users').doc(uid).set({
                         name: currentUser.displayName || 'User',
                         email: currentUser.email || 'anonymous@example.com',
@@ -884,13 +863,11 @@
                         lastSeen: firebase.firestore.FieldValue.serverTimestamp()
                     });
                 } else {
-                    // Update last seen
                     await db.collection('users').doc(uid).update({
                         lastSeen: firebase.firestore.FieldValue.serverTimestamp()
                     });
                 }
                 
-                // Store user data in memory
                 const userData = userDoc.exists ? userDoc.data() : {
                     name: currentUser.displayName || 'User',
                     avatar: currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'User')}&background=random`,
@@ -900,7 +877,6 @@
                 users[uid] = userData;
             } catch (error) {
                 console.error('Error loading user data:', error);
-                // Use fallback user data
                 users[uid] = {
                     name: currentUser.displayName || 'User',
                     avatar: currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'User')}&background=random`,
@@ -909,21 +885,18 @@
             }
         }
 
-        // === AUTO WELCOME MESSAGE ===
+        // Welcome message
         async function sendWelcomeMessage(userId) {
             try {
-                // Get or create owner user
                 let ownerId = null;
                 let ownerData = null;
                 
-                // Find owner by email
                 const ownerQuery = await db.collection('users').where('email', '==', OWNER_EMAIL).get();
                 
                 if (!ownerQuery.empty) {
                     ownerId = ownerQuery.docs[0].id;
                     ownerData = ownerQuery.docs[0].data();
                 } else {
-                    // Create owner user if not exists
                     const ownerRef = db.collection('users').doc();
                     ownerId = ownerRef.id;
                     ownerData = {
@@ -938,10 +911,8 @@
                     await db.collection('users').doc(ownerId).set(ownerData);
                 }
                 
-                // Store owner data in memory
                 users[ownerId] = ownerData;
                 
-                // Check if conversation already exists between user and owner
                 const existingConv = await db.collection('conversations')
                     .where('participants', 'array-contains', userId)
                     .get();
@@ -955,7 +926,6 @@
                 });
                 
                 if (!conversationExists) {
-                    // Create new conversation
                     const conversationData = {
                         participants: [ownerId, userId],
                         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -968,7 +938,6 @@
                     
                     const conversationRef = await db.collection('conversations').add(conversationData);
                     
-                    // Add welcome message
                     await db.collection('conversations').doc(conversationRef.id)
                         .collection('messages').add({
                             text: "Welcome to AI Prompt Gallery! 🎨\n\nWe're excited to have you in our creative community. Start exploring amazing AI art prompts and connect with other creators.\n\nFeel free to ask any questions about AI art creation!",
@@ -979,8 +948,6 @@
                         });
                         
                     console.log('Welcome message sent successfully');
-                    
-                    // Reload conversations to show the new one
                     loadConversations();
                 }
                 
@@ -989,7 +956,7 @@
             }
         }
 
-        // === CONVERSATIONS SYSTEM ===
+        // Load conversations
         async function loadConversations() {
             if (!currentUser) {
                 console.log('No current user, cannot load conversations');
@@ -997,7 +964,6 @@
             }
             
             try {
-                // Get conversations where current user is a participant
                 const snapshot = await db.collection('conversations')
                     .where('participants', 'array-contains', currentUser.uid)
                     .orderBy('lastMessageAt', 'desc')
@@ -1011,14 +977,12 @@
                 console.log('Loaded conversations:', conversations.length);
                 updateConversationsList();
                 
-                // Load user data for all participants
                 await loadParticipantsData();
                 
             } catch (error) {
                 console.error('Error loading conversations:', error);
                 showNotification('Error loading conversations. Please check your connection.', 'error');
                 
-                // Fallback: Show empty state
                 elements.conversationsList.innerHTML = `
                     <div style="text-align: center; padding: 40px; color: var(--secondary);">
                         <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 15px;"></i>
@@ -1040,14 +1004,12 @@
                 });
             });
             
-            // Load user data for all participants
             const userPromises = Array.from(allUserIds).map(async (uid) => {
                 try {
                     const userDoc = await db.collection('users').doc(uid).get();
                     if (userDoc.exists) {
                         users[uid] = userDoc.data();
                     } else {
-                        // Create basic user data if document doesn't exist
                         users[uid] = {
                             name: 'Unknown User',
                             avatar: 'https://ui-avatars.com/api/?name=User&background=random',
@@ -1122,7 +1084,6 @@
                 `;
             }).join('');
             
-            // Add click events to conversation items
             document.querySelectorAll('.conversation-item').forEach(item => {
                 item.addEventListener('click', () => {
                     const conversationId = item.dataset.conversationId;
@@ -1137,7 +1098,6 @@
                 return;
             }
             
-            // Stop listening to previous conversation
             if (currentConversation && conversationListeners[currentConversation.id]) {
                 conversationListeners[currentConversation.id]();
             }
@@ -1145,16 +1105,13 @@
             currentConversation = conversations.find(conversation => conversation.id === conversationId);
             if (!currentConversation) return;
             
-            // Update active state in conversations list
             document.querySelectorAll('.conversation-item').forEach(item => {
                 item.classList.toggle('active', item.dataset.conversationId === conversationId);
             });
             
-            // Show chat header and input
             elements.chatHeader.classList.remove('hidden');
             elements.messageInputContainer.classList.remove('hidden');
             
-            // Update chat header with user info
             const otherParticipantId = currentConversation.participants.find(uid => uid !== currentUser.uid);
             const otherUser = users[otherParticipantId] || { 
                 name: 'Unknown User', 
@@ -1170,16 +1127,10 @@
                 ${otherUser.email === OWNER_EMAIL ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
             `;
             
-            // Update online status based on last seen
             updateUserStatus(otherParticipantId);
             
-            // Load messages for this conversation
             await loadMessages(conversationId);
-            
-            // Mark messages as read
             await markMessagesAsRead(conversationId);
-            
-            // Listen for new messages
             listenForNewMessages(conversationId);
         }
 
@@ -1240,7 +1191,6 @@
                 console.error('Error loading messages:', error);
                 showNotification('Error loading messages. Please try again.', 'error');
                 
-                // Fallback: Show error state
                 elements.messagesContainer.innerHTML = `
                     <div class="empty-chat">
                         <i class="fas fa-exclamation-triangle"></i>
@@ -1285,7 +1235,6 @@
                 `;
             }).join('');
             
-            // Scroll to bottom
             elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
         }
 
@@ -1299,7 +1248,6 @@
                             const message = { id: change.doc.id, ...change.doc.data() };
                             addMessageToChat(message);
                             
-                            // Update last message in conversations list
                             if (currentConversation && currentConversation.id === conversationId) {
                                 currentConversation.lastMessage = message.text.length > 50 ? 
                                     message.text.substring(0, 50) + '...' : message.text;
@@ -1335,11 +1283,8 @@
             }
             
             elements.messagesContainer.appendChild(messageElement);
-            
-            // Scroll to bottom
             elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
             
-            // Mark as read if it's not our message
             if (!isSent && currentConversation) {
                 markMessagesAsRead(currentConversation.id);
             }
@@ -1354,7 +1299,6 @@
             }
         });
 
-        // Auto-resize textarea
         elements.messageInput.addEventListener('input', function() {
             this.style.height = 'auto';
             this.style.height = (this.scrollHeight) + 'px';
@@ -1366,7 +1310,6 @@
             const messageText = elements.messageInput.value.trim();
             
             try {
-                // Add message to Firestore
                 await db.collection('conversations').doc(currentConversation.id).collection('messages').add({
                     text: messageText,
                     senderId: currentUser.uid,
@@ -1374,14 +1317,12 @@
                     read: false
                 });
                 
-                // Update conversation's last message
                 await db.collection('conversations').doc(currentConversation.id).update({
                     lastMessage: messageText.length > 50 ? messageText.substring(0, 50) + '...' : messageText,
                     lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
                     [`unreadCount.${getOtherParticipantId()}`]: firebase.firestore.FieldValue.increment(1)
                 });
                 
-                // Clear input
                 elements.messageInput.value = '';
                 elements.messageInput.style.height = 'auto';
                 
@@ -1401,14 +1342,12 @@
             if (!currentUser) return;
             
             try {
-                // Get unread messages
                 const snapshot = await db.collection('conversations').doc(conversationId)
                     .collection('messages')
                     .where('senderId', '!=', currentUser.uid)
                     .where('read', '==', false)
                     .get();
                 
-                // Mark them as read
                 const batch = db.batch();
                 snapshot.forEach(doc => {
                     batch.update(doc.ref, { read: true });
@@ -1416,12 +1355,10 @@
                 
                 await batch.commit();
                 
-                // Update unread count in conversation
                 await db.collection('conversations').doc(conversationId).update({
                     [`unreadCount.${currentUser.uid}`]: 0
                 });
                 
-                // Update UI
                 updateConversationsList();
                 
             } catch (error) {
@@ -1429,7 +1366,7 @@
             }
         }
 
-        // === NEW CONVERSATION FUNCTIONALITY ===
+        // New conversation
         elements.newConversationBtn.addEventListener('click', () => {
             if (!currentUser) {
                 showNotification('Please login to start a conversation', 'error');
@@ -1440,7 +1377,6 @@
 
         async function openNewConversationModal() {
             try {
-                // Load all users (except current user)
                 const snapshot = await db.collection('users').get();
                 
                 const allUsers = [];
@@ -1457,7 +1393,6 @@
                 console.error('Error loading users:', error);
                 showNotification('Error loading users. Please try again.', 'error');
                 
-                // Fallback: Show error state
                 elements.userList.innerHTML = `
                     <div style="text-align: center; padding: 30px; color: var(--secondary);">
                         <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 10px;"></i>
@@ -1494,7 +1429,6 @@
                 </div>
             `).join('');
             
-            // Add click events to user items
             document.querySelectorAll('.user-item').forEach(item => {
                 item.addEventListener('click', () => {
                     const userId = item.dataset.userId;
@@ -1507,20 +1441,17 @@
             if (!currentUser) return;
             
             try {
-                // Check if conversation already exists
                 const existingConversation = conversations.find(conversation => 
                     conversation.participants.includes(otherUserId) && 
                     conversation.participants.includes(currentUser.uid)
                 );
                 
                 if (existingConversation) {
-                    // Select existing conversation
                     closeModal(elements.newConversationModal);
                     selectConversation(existingConversation.id);
                     return;
                 }
                 
-                // Create new conversation
                 const conversationData = {
                     participants: [currentUser.uid, otherUserId],
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -1534,14 +1465,12 @@
                 
                 const conversationRef = await db.collection('conversations').add(conversationData);
                 
-                // Add to local conversations and select it
                 const newConversation = { 
                     id: conversationRef.id, 
                     ...conversationData 
                 };
                 conversations.unshift(newConversation);
                 
-                // Load user data for the new conversation participant
                 if (!users[otherUserId]) {
                     try {
                         const userDoc = await db.collection('users').doc(otherUserId).get();
@@ -1565,7 +1494,7 @@
             }
         }
 
-        // === UTILITY FUNCTIONS ===
+        // Utility functions
         function formatTime(date) {
             const now = new Date();
             const diff = now.getTime() - date.getTime();
@@ -1601,7 +1530,7 @@
             }, 4000);
         }
 
-        // === MODAL MANAGEMENT ===
+        // Modal management
         function openModal(modal) {
             modal.style.display = 'block';
         }
@@ -1610,7 +1539,6 @@
             modal.style.display = 'none';
         }
 
-        // Close modals when clicking outside or on close button
         document.querySelectorAll('.close-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const modal = e.target.closest('.modal');
@@ -1624,13 +1552,12 @@
             }
         });
 
-        // === INITIALIZATION ===
+        // Initialize app
         function initApp() {
             initTheme();
             initAuth();
         }
 
-        // Start the app
         document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
