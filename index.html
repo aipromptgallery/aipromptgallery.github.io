@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Prompt Gallery | Complete Platform</title>
+    <title>AI Prompt Gallery | Home</title>
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -142,6 +142,30 @@
             object-fit: cover;
         }
 
+        .user-tag {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .owner-tag {
+            background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+            color: white;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        .member-tag {
+            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+            color: white;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 5px #ef4444; }
+            to { box-shadow: 0 0 15px #ef4444, 0 0 20px #f97316; }
+        }
+
         .header h1 {
             font-size: 3rem;
             margin-bottom: 15px;
@@ -153,200 +177,6 @@
             opacity: 0.9;
             max-width: 600px;
             margin: 0 auto;
-        }
-
-        /* Navigation */
-        .navigation {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .nav-btn {
-            padding: 12px 24px;
-            border: 2px solid var(--primary);
-            background: var(--card-bg);
-            color: var(--primary);
-            border-radius: 25px;
-            cursor: pointer;
-            transition: var(--transition);
-            font-weight: 600;
-        }
-
-        .nav-btn:hover {
-            background: var(--primary-light);
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        .nav-btn.active {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        /* Search */
-        .search-container {
-            margin-bottom: 30px;
-            position: relative;
-        }
-
-        .search-box {
-            width: 100%;
-            padding: 15px 20px;
-            border: 2px solid var(--primary);
-            border-radius: 25px;
-            font-size: 1rem;
-            background: var(--card-bg);
-            color: var(--dark);
-            transition: var(--transition);
-        }
-
-        .search-box:focus {
-            outline: none;
-            border-color: var(--primary-dark);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        /* Categories */
-        .categories {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .category-btn {
-            padding: 10px 20px;
-            border: 2px solid var(--primary);
-            background: var(--card-bg);
-            color: var(--primary);
-            border-radius: 20px;
-            cursor: pointer;
-            transition: var(--transition);
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .category-btn:hover {
-            background: var(--primary-light);
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        .category-btn.active {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        /* Gallery */
-        .gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 25px;
-            margin-bottom: 50px;
-        }
-
-        .prompt-card {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-        }
-
-        .prompt-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-        }
-
-        .prompt-image {
-            width: 100%;
-            height: 250px;
-            object-fit: cover;
-        }
-
-        .prompt-content {
-            padding: 20px;
-        }
-
-        .prompt-title {
-            font-size: 1.3rem;
-            margin-bottom: 10px;
-            color: var(--dark);
-            font-weight: 700;
-        }
-
-        .prompt-text {
-            color: var(--secondary);
-            margin-bottom: 15px;
-            background: var(--light);
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid var(--primary);
-            line-height: 1.5;
-        }
-
-        .prompt-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .author-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .author-info:hover {
-            opacity: 0.8;
-        }
-
-        .author-avatar {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--primary);
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .action-btn {
-            padding: 8px 15px;
-            border: 1px solid var(--secondary);
-            background: transparent;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-weight: 600;
-        }
-
-        .action-btn:hover {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-            transform: translateY(-2px);
-        }
-
-        .action-btn.liked {
-            background: var(--like);
-            color: white;
-            border-color: var(--like);
         }
 
         /* Dashboard Buttons */
@@ -416,312 +246,6 @@
             transform: translateX(0);
         }
 
-        /* Modals */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 2000;
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: var(--radius);
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            animation: modalSlideIn 0.3s ease;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translate(-50%, -60%);
-            }
-            to {
-                opacity: 1;
-                transform: translate(-50%, -50%);
-            }
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--secondary);
-            transition: var(--transition);
-        }
-
-        .close-btn:hover {
-            color: var(--error);
-            transform: rotate(90deg);
-        }
-
-        .auth-tabs {
-            display: flex;
-            margin-bottom: 25px;
-            border-bottom: 2px solid var(--light);
-            border-radius: var(--radius);
-            overflow: hidden;
-        }
-
-        .auth-tab {
-            flex: 1;
-            padding: 15px;
-            text-align: center;
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: var(--secondary);
-            font-weight: 600;
-            transition: var(--transition);
-            position: relative;
-        }
-
-        .auth-tab.active {
-            color: var(--primary);
-        }
-
-        .auth-tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--primary);
-            border-radius: 3px;
-        }
-
-        .auth-form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .form-label {
-            font-weight: 600;
-            color: var(--dark);
-            font-size: 0.9rem;
-        }
-
-        .form-input, .form-textarea, .form-select {
-            padding: 12px 15px;
-            border: 2px solid var(--light);
-            border-radius: var(--radius);
-            background: var(--light);
-            color: var(--dark);
-            font-size: 1rem;
-            transition: var(--transition);
-            resize: vertical;
-        }
-
-        .form-input:focus, .form-textarea:focus, .form-select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        .file-input-container {
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-            width: 100%;
-        }
-
-        .file-input {
-            position: absolute;
-            left: -9999px;
-        }
-
-        .file-input-label {
-            display: block;
-            padding: 12px 15px;
-            border: 2px dashed var(--light);
-            border-radius: var(--radius);
-            background: var(--light);
-            color: var(--secondary);
-            text-align: center;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .file-input-label:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .file-input-label.has-file {
-            border-color: var(--success);
-            color: var(--success);
-            background: rgba(16, 185, 129, 0.1);
-        }
-
-        .auth-submit-btn {
-            background: var(--gradient);
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: var(--transition);
-            font-weight: 600;
-            font-size: 1rem;
-            margin-top: 10px;
-        }
-
-        .auth-submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
-        }
-
-        .form-options {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9rem;
-        }
-
-        .remember-me {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .forgot-password {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .forgot-password:hover {
-            text-decoration: underline;
-        }
-
-        .auth-divider {
-            text-align: center;
-            margin: 20px 0;
-            position: relative;
-        }
-
-        .auth-divider::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: var(--light);
-        }
-
-        .auth-divider span {
-            background: var(--card-bg);
-            padding: 0 15px;
-            color: var(--secondary);
-            font-size: 0.9rem;
-        }
-
-        .google-auth-btn {
-            width: 100%;
-            background: white;
-            color: var(--dark);
-            border: 2px solid var(--light);
-            padding: 12px;
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-weight: 600;
-        }
-
-        .google-auth-btn:hover {
-            border-color: var(--primary);
-            transform: translateY(-2px);
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        /* Profile Modal Styles */
-        .profile-modal-content {
-            text-align: center;
-            padding: 20px;
-        }
-
-        .profile-avatar-large {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid var(--primary);
-            margin-bottom: 15px;
-        }
-
-        .profile-stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin: 25px 0;
-        }
-
-        .profile-stat {
-            text-align: center;
-            padding: 15px;
-            background: var(--light);
-            border-radius: var(--radius);
-            transition: var(--transition);
-        }
-
-        .profile-stat:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
-        }
-
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--primary);
-            display: block;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: var(--secondary);
-        }
-
-        .profile-actions {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
         /* Notification */
         .notification {
             position: fixed;
@@ -758,11 +282,11 @@
             }
         }
 
+        .hidden {
+            display: none !important;
+        }
+
         @media (max-width: 768px) {
-            .gallery {
-                grid-template-columns: 1fr;
-            }
-            
             .dashboard-buttons {
                 bottom: 20px;
                 right: 20px;
@@ -781,20 +305,6 @@
             .auth-buttons {
                 flex-direction: column;
                 gap: 8px;
-            }
-            
-            .categories {
-                justify-content: flex-start;
-                overflow-x: auto;
-                padding-bottom: 10px;
-            }
-
-            .profile-stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .profile-actions {
-                flex-direction: column;
             }
         }
     </style>
@@ -818,261 +328,52 @@
 
             <div class="user-profile hidden" id="userProfile">
                 <img src="https://ui-avatars.com/api/?name=User&background=random" alt="User" class="user-avatar" id="userAvatar">
-                <span class="user-name" id="userName">User</span>
+                <div>
+                    <div class="user-name" id="userName">User</div>
+                    <div class="user-tag member-tag" id="userTag">Member</div>
+                </div>
             </div>
 
             <h1>AI Prompt Gallery</h1>
             <p>Share, discover and collaborate on amazing AI art prompts with the community</p>
         </div>
 
-        <!-- Search -->
-        <div class="search-container">
-            <input type="text" class="search-box" id="searchBox" placeholder="Search for prompts, categories, or users...">
-        </div>
-
-        <!-- Categories -->
-        <div class="categories">
-            <button class="category-btn active" data-category="all">All</button>
-            <button class="category-btn" data-category="male">Male</button>
-            <button class="category-btn" data-category="female">Female</button>
-            <button class="category-btn" data-category="kid">Kid</button>
-            <button class="category-btn" data-category="couple">Couple</button>
-            <button class="category-btn" data-category="selfie">Selfie</button>
-            <button class="category-btn" data-category="game">Game</button>
-            <button class="category-btn" data-category="film">Film</button>
-            <button class="category-btn" data-category="others">Others</button>
-        </div>
-
-        <!-- Navigation -->
-        <div class="navigation">
-            <button class="nav-btn active" data-page="home">Home</button>
-            <button class="nav-btn" data-page="explore">Explore</button>
-            <button class="nav-btn" data-page="trending">Trending</button>
-        </div>
-
-        <!-- Gallery -->
-        <div class="gallery" id="promptsGallery">
-            <div style="text-align: center; padding: 40px; color: var(--secondary);">
-                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 15px;"></i>
-                <p>Loading amazing AI prompts...</p>
-            </div>
-        </div>
-
-        <!-- Dashboard Buttons -->
-        <div class="dashboard-buttons">
-            <!-- Profile Button -->
-            <button class="dashboard-btn profile" id="profileBtn">
-                <i class="fas fa-user"></i>
-            </button>
-            <div class="btn-label">Profile</div>
-
-            <!-- Inbox Button -->
-            <button class="dashboard-btn inbox" id="inboxBtn">
-                <i class="fas fa-inbox"></i>
-            </button>
-            <div class="btn-label">Messages</div>
-
-            <!-- Upload Button -->
-            <button class="dashboard-btn upload" id="uploadBtn">
-                <i class="fas fa-plus"></i>
-            </button>
-            <div class="btn-label">Upload</div>
-        </div>
-    </div>
-
-    <!-- Auth Modal -->
-    <div class="modal" id="authModal">
-        <div class="modal-content">
-            <button class="close-btn">&times;</button>
+        <!-- Main Content -->
+        <div style="text-align: center; padding: 60px 20px;">
+            <i class="fas fa-palette" style="font-size: 4rem; color: var(--primary); margin-bottom: 20px;"></i>
+            <h2 style="margin-bottom: 15px; color: var(--dark);">Welcome to AI Prompt Gallery</h2>
+            <p style="color: var(--secondary); margin-bottom: 30px;">Discover amazing AI art prompts created by our creative community</p>
             
-            <div class="auth-tabs">
-                <button class="auth-tab active" data-tab="login">Login</button>
-                <button class="auth-tab" data-tab="signup">Sign Up</button>
-            </div>
-
-            <form class="auth-form" id="loginForm">
-                <div class="form-group">
-                    <label class="form-label">Email Address</label>
-                    <input type="email" class="form-input" id="loginEmail" placeholder="Enter your email" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <input type="password" class="form-input" id="loginPassword" placeholder="Enter your password" required>
-                </div>
-                <div class="form-options">
-                    <label class="remember-me">
-                        <input type="checkbox" id="rememberMe">
-                        Remember me
-                    </label>
-                    <a href="#" class="forgot-password">Forgot password?</a>
-                </div>
-                <button type="submit" class="auth-submit-btn">Sign In</button>
-            </form>
-
-            <form class="auth-form hidden" id="signupForm">
-                <div class="form-group">
-                    <label class="form-label">Full Name</label>
-                    <input type="text" class="form-input" id="signupName" placeholder="Enter your full name" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Email Address</label>
-                    <input type="email" class="form-input" id="signupEmail" placeholder="Enter your email" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <input type="password" class="form-input" id="signupPassword" placeholder="Create a password" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Confirm Password</label>
-                    <input type="password" class="form-input" id="signupConfirmPassword" placeholder="Confirm your password" required>
-                </div>
-                <button type="submit" class="auth-submit-btn">Create Account</button>
-            </form>
-
-            <div class="auth-divider">
-                <span>Or continue with</span>
-            </div>
-
-            <button class="google-auth-btn" id="googleAuthBtn">
-                <i class="fab fa-google"></i>
-                Continue with Google
-            </button>
-        </div>
-    </div>
-
-    <!-- Upload Modal -->
-    <div class="modal" id="uploadModal">
-        <div class="modal-content">
-            <button class="close-btn">&times;</button>
-            <h2 style="margin-bottom: 20px; color: var(--dark);">Upload New Prompt</h2>
-            
-            <form class="auth-form" id="uploadForm">
-                <div class="form-group">
-                    <label class="form-label">Prompt Title</label>
-                    <input type="text" class="form-input" id="promptTitle" placeholder="Enter prompt title" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Prompt Text</label>
-                    <textarea class="form-textarea" id="promptText" placeholder="Enter your AI prompt..." rows="4" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Category</label>
-                    <select class="form-select" id="promptCategory">
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="kid">Kid</option>
-                        <option value="couple">Couple</option>
-                        <option value="selfie">Selfie</option>
-                        <option value="game">Game</option>
-                        <option value="film">Film</option>
-                        <option value="others">Others</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Upload Image</label>
-                    <div class="file-input-container">
-                        <input type="file" class="file-input" id="promptImage" accept="image/*">
-                        <label for="promptImage" class="file-input-label" id="fileInputLabel">
-                            <i class="fas fa-cloud-upload-alt"></i> Choose an image file
-                        </label>
-                    </div>
-                </div>
-                <button type="submit" class="auth-submit-btn">
-                    <i class="fas fa-upload"></i> Upload Prompt
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <button class="auth-btn" style="background: white; color: var(--primary);" id="exploreBtn">
+                    <i class="fas fa-compass"></i> Explore Prompts
                 </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Profile Modal -->
-    <div class="modal" id="profileModal">
-        <div class="modal-content">
-            <button class="close-btn">&times;</button>
-            <div class="profile-modal-content">
-                <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile" 
-                     class="profile-avatar-large" id="modalProfileAvatar">
-                <h3 id="modalProfileName" style="margin-bottom: 10px; color: var(--dark);">User Name</h3>
-                <p id="modalProfileBio" style="color: var(--secondary); margin-bottom: 20px;">This is my bio</p>
-                
-                <div class="profile-stats-grid">
-                    <div class="profile-stat">
-                        <span class="stat-value" id="modalPromptsCount">0</span>
-                        <span class="stat-label">Prompts</span>
-                    </div>
-                    <div class="profile-stat">
-                        <span class="stat-value" id="modalFollowersCount">0</span>
-                        <span class="stat-label">Followers</span>
-                    </div>
-                    <div class="profile-stat">
-                        <span class="stat-value" id="modalFollowingCount">0</span>
-                        <span class="stat-label">Following</span>
-                    </div>
-                    <div class="profile-stat">
-                        <span class="stat-value" id="modalLikesCount">0</span>
-                        <span class="stat-label">Likes</span>
-                    </div>
-                </div>
-                
-                <div class="profile-actions">
-                    <button class="auth-submit-btn" style="background: var(--primary);" id="editProfileBtn">
-                        <i class="fas fa-edit"></i> Edit Profile
-                    </button>
-                    <button class="auth-submit-btn" style="background: var(--error);" id="logoutBtn">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Profile Modal -->
-    <div class="modal" id="editProfileModal">
-        <div class="modal-content">
-            <button class="close-btn">&times;</button>
-            <h2 style="margin-bottom: 20px; color: var(--dark);">Edit Profile</h2>
-            
-            <form class="auth-form" id="editProfileForm">
-                <div class="form-group">
-                    <label class="form-label">Profile Picture</label>
-                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
-                        <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile" 
-                             class="profile-avatar-large" id="editProfileAvatar">
-                        <div class="file-input-container" style="flex: 1;">
-                            <input type="file" class="file-input" id="editProfileImage" accept="image/*">
-                            <label for="editProfileImage" class="file-input-label" id="editFileInputLabel">
-                                <i class="fas fa-camera"></i> Change Photo
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Full Name</label>
-                    <input type="text" class="form-input" id="editProfileName" placeholder="Enter your full name" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Bio</label>
-                    <textarea class="form-textarea" id="editProfileBio" placeholder="Tell us about yourself..." rows="3"></textarea>
-                </div>
-                <button type="submit" class="auth-submit-btn">
-                    <i class="fas fa-save"></i> Save Changes
+                <button class="auth-btn" style="background: var(--primary); color: white;" id="getStartedBtn">
+                    <i class="fas fa-rocket"></i> Get Started
                 </button>
-            </form>
+            </div>
         </div>
     </div>
 
-    <!-- Inbox Modal -->
-    <div class="modal" id="inboxModal">
-        <div class="modal-content">
-            <button class="close-btn">&times;</button>
-            <h2 style="margin-bottom: 20px; color: var(--dark);">Messages</h2>
-            
-            <div style="text-align: center; padding: 40px; color: var(--secondary);">
-                <i class="fas fa-comments" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
-                <h3 style="margin-bottom: 10px;">Messages Coming Soon!</h3>
-                <p>We're working on bringing you an amazing messaging experience.</p>
-                <p style="font-size: 0.9rem; margin-top: 10px;">Stay tuned for updates!</p>
-            </div>
-        </div>
+    <!-- Dashboard Buttons -->
+    <div class="dashboard-buttons">
+        <!-- Profile Button -->
+        <button class="dashboard-btn profile" id="profileBtn">
+            <i class="fas fa-user"></i>
+        </button>
+        <div class="btn-label">Profile</div>
+
+        <!-- Inbox Button -->
+        <button class="dashboard-btn inbox" id="inboxBtn">
+            <i class="fas fa-inbox"></i>
+        </button>
+        <div class="btn-label">Messages</div>
+
+        <!-- Upload Button -->
+        <button class="dashboard-btn upload" id="uploadBtn">
+            <i class="fas fa-plus"></i>
+        </button>
+        <div class="btn-label">Upload</div>
     </div>
 
     <script>
@@ -1088,15 +389,11 @@
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
         const auth = firebase.auth();
-        const storage = firebase.storage();
 
         // === GLOBAL VARIABLES ===
         let currentUser = null;
-        let prompts = [];
-        let users = {};
-        let currentCategory = 'all';
+        const OWNER_EMAIL = "alizybaby381@gmail.com";
 
         // === DOM ELEMENTS ===
         const elements = {
@@ -1105,49 +402,12 @@
             userProfile: document.getElementById('userProfile'),
             loginBtn: document.getElementById('loginBtn'),
             signupBtn: document.getElementById('signupBtn'),
-            authModal: document.getElementById('authModal'),
-            uploadModal: document.getElementById('uploadModal'),
-            profileModal: document.getElementById('profileModal'),
-            editProfileModal: document.getElementById('editProfileModal'),
-            inboxModal: document.getElementById('inboxModal'),
-            loginForm: document.getElementById('loginForm'),
-            signupForm: document.getElementById('signupForm'),
-            uploadForm: document.getElementById('uploadForm'),
-            editProfileForm: document.getElementById('editProfileForm'),
-            promptsGallery: document.getElementById('promptsGallery'),
-            uploadBtn: document.getElementById('uploadBtn'),
             profileBtn: document.getElementById('profileBtn'),
             inboxBtn: document.getElementById('inboxBtn'),
-            editProfileBtn: document.getElementById('editProfileBtn'),
-            logoutBtn: document.getElementById('logoutBtn'),
-            googleAuthBtn: document.getElementById('googleAuthBtn'),
-            categoryButtons: document.querySelectorAll('.category-btn'),
-            promptImage: document.getElementById('promptImage'),
-            fileInputLabel: document.getElementById('fileInputLabel'),
-            editProfileImage: document.getElementById('editProfileImage'),
-            editFileInputLabel: document.getElementById('editFileInputLabel')
+            uploadBtn: document.getElementById('uploadBtn'),
+            exploreBtn: document.getElementById('exploreBtn'),
+            getStartedBtn: document.getElementById('getStartedBtn')
         };
-
-        // === PERSISTENT AUTH STATE ===
-        function initAuth() {
-            return new Promise((resolve) => {
-                const unsubscribe = auth.onAuthStateChanged(async (user) => {
-                    if (user) {
-                        console.log('User is signed in:', user.uid);
-                        currentUser = user;
-                        await loadUserData(user.uid);
-                        showUserProfile();
-                        resolve(user);
-                    } else {
-                        console.log('No user signed in');
-                        currentUser = null;
-                        showAuthButtons();
-                        resolve(null);
-                    }
-                    unsubscribe();
-                });
-            });
-        }
 
         // === THEME MANAGEMENT ===
         function initTheme() {
@@ -1169,43 +429,17 @@
         });
 
         // === AUTHENTICATION SYSTEM ===
-        async function loadUserData(uid) {
-            try {
-                const userDoc = await db.collection('users').doc(uid).get();
-                if (!userDoc.exists) {
-                    await db.collection('users').doc(uid).set({
-                        name: currentUser.displayName || 'User',
-                        email: currentUser.email,
-                        avatar: currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'User')}&background=random`,
-                        bio: "This is my bio. I love creating AI art prompts!",
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        followers: [],
-                        following: [],
-                        prompts: 0,
-                        likes: 0
-                    });
+        function initAuth() {
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    currentUser = user;
+                    showUserProfile();
+                    showNotification(`Welcome back, ${user.displayName || 'User'}!`, 'success');
                 } else {
-                    const userData = userDoc.data();
-                    if (currentUser.displayName && userData.name !== currentUser.displayName) {
-                        await db.collection('users').doc(uid).update({
-                            name: currentUser.displayName,
-                            avatar: currentUser.photoURL || userData.avatar
-                        });
-                    }
+                    currentUser = null;
+                    showAuthButtons();
                 }
-                
-                users[uid] = userDoc.exists ? userDoc.data() : {
-                    name: currentUser.displayName || 'User',
-                    avatar: currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'User')}&background=random`,
-                    bio: "This is my bio. I love creating AI art prompts!",
-                    followers: [],
-                    following: [],
-                    prompts: 0,
-                    likes: 0
-                };
-            } catch (error) {
-                console.error('Error loading user data:', error);
-            }
+            });
         }
 
         function showUserProfile() {
@@ -1214,9 +448,19 @@
             
             const userAvatar = document.getElementById('userAvatar');
             const userName = document.getElementById('userName');
+            const userTag = document.getElementById('userTag');
             
             userAvatar.src = currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'User')}&background=random`;
             userName.textContent = currentUser.displayName || 'User';
+            
+            // Set user tag based on email
+            if (currentUser.email === OWNER_EMAIL) {
+                userTag.textContent = "Site Owner";
+                userTag.className = "user-tag owner-tag";
+            } else {
+                userTag.textContent = "Member";
+                userTag.className = "user-tag member-tag";
+            }
         }
 
         function showAuthButtons() {
@@ -1224,515 +468,53 @@
             elements.userProfile.classList.add('hidden');
         }
 
-        // Login function
-        elements.loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            try {
-                await auth.signInWithEmailAndPassword(email, password);
-                closeModal(elements.authModal);
-                showNotification('Login successful!', 'success');
-            } catch (error) {
-                showNotification(error.message, 'error');
-            }
-        });
-
-        // Signup function
-        elements.signupForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const name = document.getElementById('signupName').value;
-            const email = document.getElementById('signupEmail').value;
-            const password = document.getElementById('signupPassword').value;
-            const confirmPassword = document.getElementById('signupConfirmPassword').value;
-            
-            if (password !== confirmPassword) {
-                showNotification('Passwords do not match!', 'error');
-                return;
-            }
-            
-            try {
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                await userCredential.user.updateProfile({
-                    displayName: name
-                });
-                
-                closeModal(elements.authModal);
-                showNotification('Account created successfully!', 'success');
-            } catch (error) {
-                showNotification(error.message, 'error');
-            }
-        });
-
-        // Google Auth
-        elements.googleAuthBtn.addEventListener('click', async () => {
-            try {
-                const provider = new firebase.auth.GoogleAuthProvider();
-                await auth.signInWithPopup(provider);
-                closeModal(elements.authModal);
-                showNotification('Google login successful!', 'success');
-            } catch (error) {
-                showNotification(error.message, 'error');
-            }
-        });
-
-        // === DASHBOARD BUTTONS ===
-        function setupDashboardButtons() {
-            // Upload Button
-            elements.uploadBtn.addEventListener('click', () => {
-                if (!currentUser) {
-                    openModal(elements.authModal);
-                    showNotification('Please login to upload prompts', 'error');
-                    return;
-                }
-                openModal(elements.uploadModal);
-            });
-
+        // === BUTTON HANDLERS ===
+        function setupButtonHandlers() {
             // Profile Button
             elements.profileBtn.addEventListener('click', () => {
                 if (!currentUser) {
-                    openModal(elements.authModal);
                     showNotification('Please login to view profile', 'error');
                     return;
                 }
-                openProfileModal();
+                window.location.href = 'profile.html';
             });
 
             // Inbox Button
             elements.inboxBtn.addEventListener('click', () => {
                 if (!currentUser) {
-                    openModal(elements.authModal);
                     showNotification('Please login to view messages', 'error');
                     return;
                 }
-                openModal(elements.inboxModal);
+                window.location.href = 'inbox.html';
             });
 
-            // Logout Button
-            elements.logoutBtn.addEventListener('click', () => {
-                auth.signOut();
-                closeModal(elements.profileModal);
-                showNotification('Logged out successfully', 'info');
-            });
-
-            // EDIT PROFILE BUTTON - YEH FIX HAI
-            elements.editProfileBtn.addEventListener('click', () => {
-                closeModal(elements.profileModal);
-                openEditProfileModal();
-            });
-        }
-
-        // === PROFILE MODAL ===
-        async function openProfileModal() {
-            if (!currentUser) return;
-            
-            try {
-                const userDoc = await db.collection('users').doc(currentUser.uid).get();
-                if (userDoc.exists) {
-                    const userData = userDoc.data();
-                    
-                    document.getElementById('modalProfileName').textContent = userData.name;
-                    document.getElementById('modalProfileBio').textContent = userData.bio || "No bio yet";
-                    document.getElementById('modalProfileAvatar').src = userData.avatar;
-                    document.getElementById('modalPromptsCount').textContent = userData.prompts || 0;
-                    document.getElementById('modalFollowersCount').textContent = userData.followers ? userData.followers.length : 0;
-                    document.getElementById('modalFollowingCount').textContent = userData.following ? userData.following.length : 0;
-                    document.getElementById('modalLikesCount').textContent = userData.likes || 0;
+            // Upload Button
+            elements.uploadBtn.addEventListener('click', () => {
+                if (!currentUser) {
+                    showNotification('Please login to upload prompts', 'error');
+                    return;
                 }
-                
-                openModal(elements.profileModal);
-                
-            } catch (error) {
-                console.error('Error loading profile:', error);
-                showNotification('Error loading profile', 'error');
-            }
-        }
-
-        // === EDIT PROFILE MODAL ===
-        function openEditProfileModal() {
-            if (!currentUser) return;
-            
-            // Populate form with current data
-            document.getElementById('editProfileName').value = currentUser.displayName || '';
-            document.getElementById('editProfileBio').value = users[currentUser.uid]?.bio || '';
-            document.getElementById('editProfileAvatar').src = users[currentUser.uid]?.avatar || 
-                `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'User')}&background=random`;
-            
-            openModal(elements.editProfileModal);
-        }
-
-        // Edit Profile Form Submission
-        elements.editProfileForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            if (!currentUser) return;
-            
-            const name = document.getElementById('editProfileName').value;
-            const bio = document.getElementById('editProfileBio').value;
-            const imageFile = document.getElementById('editProfileImage').files[0];
-            
-            const submitBtn = elements.editProfileForm.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-            submitBtn.disabled = true;
-            
-            try {
-                let avatarUrl = users[currentUser.uid]?.avatar;
-                
-                // Upload new profile image if selected
-                if (imageFile) {
-                    const storageRef = storage.ref();
-                    const imageRef = storageRef.child(`profiles/${currentUser.uid}_${Date.now()}`);
-                    const snapshot = await imageRef.put(imageFile);
-                    avatarUrl = await snapshot.ref.getDownloadURL();
-                }
-                
-                // Update user profile in Firebase Auth
-                await currentUser.updateProfile({
-                    displayName: name,
-                    photoURL: avatarUrl
-                });
-                
-                // Update user data in Firestore
-                await db.collection('users').doc(currentUser.uid).update({
-                    name: name,
-                    bio: bio,
-                    avatar: avatarUrl
-                });
-                
-                // Update all prompts by this user with new profile data
-                const promptsSnapshot = await db.collection('prompts')
-                    .where('authorId', '==', currentUser.uid)
-                    .get();
-                
-                const updatePromises = promptsSnapshot.docs.map(doc => 
-                    doc.ref.update({
-                        authorName: name,
-                        authorAvatar: avatarUrl
-                    })
-                );
-                
-                await Promise.all(updatePromises);
-                
-                // Update local user data
-                users[currentUser.uid] = {
-                    ...users[currentUser.uid],
-                    name: name,
-                    bio: bio,
-                    avatar: avatarUrl
-                };
-                
-                closeModal(elements.editProfileModal);
-                showNotification('Profile updated successfully!', 'success');
-                
-                // Refresh UI
-                showUserProfile();
-                openProfileModal();
-                loadPrompts();
-                
-            } catch (error) {
-                console.error('Error updating profile:', error);
-                showNotification('Error updating profile', 'error');
-            } finally {
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            }
-        });
-
-        // === FILE UPLOAD UI ===
-        function setupFileUpload() {
-            elements.promptImage.addEventListener('change', function() {
-                if (this.files.length > 0) {
-                    elements.fileInputLabel.innerHTML = `<i class="fas fa-check"></i> ${this.files[0].name}`;
-                    elements.fileInputLabel.classList.add('has-file');
-                } else {
-                    elements.fileInputLabel.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Choose an image file';
-                    elements.fileInputLabel.classList.remove('has-file');
-                }
+                showNotification('Upload feature - Go to Explore page', 'info');
             });
 
-            elements.editProfileImage.addEventListener('change', function() {
-                if (this.files.length > 0) {
-                    elements.editFileInputLabel.innerHTML = `<i class="fas fa-check"></i> ${this.files[0].name}`;
-                    elements.editFileInputLabel.classList.add('has-file');
-                    
-                    // Preview the selected image
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        document.getElementById('editProfileAvatar').src = e.target.result;
-                    }
-                    reader.readAsDataURL(this.files[0]);
-                } else {
-                    elements.editFileInputLabel.innerHTML = '<i class="fas fa-camera"></i> Change Photo';
-                    elements.editFileInputLabel.classList.remove('has-file');
-                }
-            });
-        }
-
-        // === CATEGORY FILTERING ===
-        function setupCategories() {
-            elements.categoryButtons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const category = btn.dataset.category;
-                    
-                    elements.categoryButtons.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    
-                    currentCategory = category;
-                    filterPromptsByCategory();
-                });
-            });
-        }
-
-        function filterPromptsByCategory() {
-            if (currentCategory === 'all') {
-                displayPrompts(prompts);
-            } else {
-                const filteredPrompts = prompts.filter(prompt => prompt.category === currentCategory);
-                displayPrompts(filteredPrompts);
-            }
-        }
-
-        // === MODAL MANAGEMENT ===
-        function setupModals() {
-            // Auth modal
+            // Auth Buttons
             elements.loginBtn.addEventListener('click', () => {
-                openModal(elements.authModal);
-                showAuthTab('login');
+                window.location.href = 'login.html';
             });
-            
+
             elements.signupBtn.addEventListener('click', () => {
-                openModal(elements.authModal);
-                showAuthTab('signup');
+                window.location.href = 'login.html';
             });
-            
-            // Close modals
-            document.querySelectorAll('.close-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const modal = e.target.closest('.modal');
-                    closeModal(modal);
-                });
+
+            // Explore Button
+            elements.exploreBtn.addEventListener('click', () => {
+                showNotification('Explore page coming soon!', 'info');
             });
-            
-            // Auth tabs
-            document.querySelectorAll('.auth-tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    const tabName = tab.dataset.tab;
-                    showAuthTab(tabName);
-                });
+
+            // Get Started Button
+            elements.getStartedBtn.addEventListener('click', () => {
+                window.location.href = 'login.html';
             });
-            
-            // Close modals when clicking outside
-            window.addEventListener('click', (e) => {
-                if (e.target.classList.contains('modal')) {
-                    closeModal(e.target);
-                }
-            });
-        }
-
-        function openModal(modal) {
-            modal.style.display = 'block';
-        }
-
-        function closeModal(modal) {
-            modal.style.display = 'none';
-        }
-
-        function showAuthTab(tab) {
-            document.querySelectorAll('.auth-tab').forEach(t => {
-                t.classList.toggle('active', t.dataset.tab === tab);
-            });
-            
-            elements.loginForm.classList.toggle('hidden', tab !== 'login');
-            elements.signupForm.classList.toggle('hidden', tab !== 'signup');
-        }
-
-        // === PROMPTS MANAGEMENT ===
-        async function loadPrompts() {
-            try {
-                const snapshot = await db.collection('prompts')
-                    .orderBy('createdAt', 'desc')
-                    .limit(20)
-                    .get();
-                
-                prompts = [];
-                snapshot.forEach(doc => {
-                    prompts.push({ id: doc.id, ...doc.data() });
-                });
-                
-                displayPrompts(prompts);
-            } catch (error) {
-                console.error('Error loading prompts:', error);
-                elements.promptsGallery.innerHTML = `
-                    <div style="text-align: center; padding: 40px; color: var(--error);">
-                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 15px;"></i>
-                        <p>Error loading prompts. Please try again.</p>
-                    </div>
-                `;
-            }
-        }
-
-        function displayPrompts(promptsToShow) {
-            if (promptsToShow.length === 0) {
-                elements.promptsGallery.innerHTML = `
-                    <div style="text-align: center; padding: 60px; color: var(--secondary);">
-                        <i class="fas fa-images" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
-                        <h3>No prompts yet</h3>
-                        <p>Be the first to upload an amazing AI prompt!</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            elements.promptsGallery.innerHTML = promptsToShow.map(prompt => `
-                <div class="prompt-card">
-                    <img src="${prompt.imageUrl || 'https://via.placeholder.com/400x300/667eea/white?text=AI+Art'}" 
-                         alt="${prompt.title}" class="prompt-image">
-                    <div class="prompt-content">
-                        <h3 class="prompt-title">${prompt.title}</h3>
-                        <div class="prompt-text">${prompt.text}</div>
-                        
-                        <div class="prompt-meta">
-                            <div class="author-info">
-                                <img src="${prompt.authorAvatar || 'https://ui-avatars.com/api/?name=User&background=random'}" 
-                                     alt="${prompt.authorName}" class="author-avatar">
-                                <span>${prompt.authorName}</span>
-                            </div>
-                            <div style="color: var(--secondary); font-size: 0.9rem;">
-                                ${prompt.createdAt ? new Date(prompt.createdAt.toDate()).toLocaleDateString() : 'Recently'}
-                            </div>
-                        </div>
-                        
-                        <div class="action-buttons">
-                            <button class="action-btn like-btn" onclick="toggleLike('${prompt.id}')">
-                                <i class="fas fa-heart"></i> Like (${prompt.likes || 0})
-                            </button>
-                            <button class="action-btn" onclick="showComments('${prompt.id}')">
-                                <i class="fas fa-comment"></i> Comment
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // === UPLOAD SYSTEM ===
-        elements.uploadForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            if (!currentUser) {
-                showNotification('Please login to upload prompts', 'error');
-                return;
-            }
-            
-            const title = document.getElementById('promptTitle').value;
-            const text = document.getElementById('promptText').value;
-            const category = document.getElementById('promptCategory').value;
-            const imageFile = document.getElementById('promptImage').files[0];
-            
-            const submitBtn = elements.uploadForm.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
-            submitBtn.disabled = true;
-            
-            try {
-                let imageUrl = '';
-                
-                if (imageFile) {
-                    const storageRef = storage.ref();
-                    const imageRef = storageRef.child(`prompts/${Date.now()}_${imageFile.name}`);
-                    const snapshot = await imageRef.put(imageFile);
-                    imageUrl = await snapshot.ref.getDownloadURL();
-                }
-                
-                const promptData = {
-                    title,
-                    text,
-                    category,
-                    imageUrl,
-                    authorId: currentUser.uid,
-                    authorName: currentUser.displayName || 'User',
-                    authorAvatar: currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'User')}&background=random`,
-                    likes: 0,
-                    downloads: 0,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-                
-                await db.collection('prompts').add(promptData);
-                
-                await db.collection('users').doc(currentUser.uid).update({
-                    prompts: firebase.firestore.FieldValue.increment(1)
-                });
-                
-                closeModal(elements.uploadModal);
-                elements.uploadForm.reset();
-                elements.fileInputLabel.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Choose an image file';
-                elements.fileInputLabel.classList.remove('has-file');
-                
-                showNotification('Prompt uploaded successfully!', 'success');
-                loadPrompts();
-                
-            } catch (error) {
-                console.error('Upload error:', error);
-                showNotification('Error uploading prompt', 'error');
-            } finally {
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            }
-        });
-
-        // === INTERACTION FUNCTIONS ===
-        async function toggleLike(promptId) {
-            if (!currentUser) {
-                showNotification('Please login to like prompts', 'error');
-                return;
-            }
-            
-            try {
-                const promptRef = db.collection('prompts').doc(promptId);
-                const promptDoc = await promptRef.get();
-                const prompt = promptDoc.data();
-                
-                const likeRef = db.collection('likes').doc(`${currentUser.uid}_${promptId}`);
-                const likeDoc = await likeRef.get();
-                
-                if (likeDoc.exists) {
-                    await likeRef.delete();
-                    await promptRef.update({
-                        likes: firebase.firestore.FieldValue.increment(-1)
-                    });
-                    
-                    await db.collection('users').doc(prompt.authorId).update({
-                        likes: firebase.firestore.FieldValue.increment(-1)
-                    });
-                    
-                    showNotification('Prompt unliked', 'info');
-                } else {
-                    await likeRef.set({
-                        userId: currentUser.uid,
-                        promptId: promptId,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    await promptRef.update({
-                        likes: firebase.firestore.FieldValue.increment(1)
-                    });
-                    
-                    await db.collection('users').doc(prompt.authorId).update({
-                        likes: firebase.firestore.FieldValue.increment(1)
-                    });
-                    
-                    showNotification('Prompt liked!', 'success');
-                }
-                
-                loadPrompts();
-                
-            } catch (error) {
-                console.error('Like error:', error);
-                showNotification('Error liking prompt', 'error');
-            }
         }
 
         // === UTILITY FUNCTIONS ===
@@ -1756,32 +538,14 @@
         }
 
         // === INITIALIZATION ===
-        async function initApp() {
+        function initApp() {
             initTheme();
-            setupModals();
-            setupCategories();
-            setupDashboardButtons();
-            setupFileUpload();
-            
-            await initAuth();
-            loadPrompts();
+            initAuth();
+            setupButtonHandlers();
         }
 
         // Start the app
         document.addEventListener('DOMContentLoaded', initApp);
-
-        // Export functions to global scope
-        window.toggleLike = toggleLike;
-        window.showComments = function(promptId) {
-            if (!currentUser) {
-                showNotification('Please login to comment', 'error');
-                return;
-            }
-            const comment = prompt('Enter your comment:');
-            if (comment) {
-                showNotification('Comment added!', 'success');
-            }
-        };
     </script>
 </body>
 </html>
