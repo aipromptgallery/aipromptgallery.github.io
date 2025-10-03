@@ -852,7 +852,7 @@
                     </div>
                     
                     <button type="submit" class="submit-btn" id="saveProfileBtn">
-                        <div class="loading-spinner" id="saveSpinner"></div>
+                        <div class="loading-spinner" id="saveSpinner" style="display: none;"></div>
                         <i class="fas fa-save" id="saveIcon"></i> 
                         <span id="saveText">Save Changes</span>
                     </button>
@@ -937,7 +937,7 @@
                 if (user) {
                     currentUser = user;
                     await loadUserData(user.uid);
-                    showNotification('Welcome back!', 'success');
+                    showNotification('Welcome to your profile!', 'success');
                 } else {
                     // Redirect to login if not authenticated
                     window.location.href = 'login.html';
@@ -1040,6 +1040,16 @@
             elements.editProfileModal.style.display = 'block';
         }
 
+        // Image to base64 conversion function
+        function convertImageToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            });
+        }
+
         elements.editProfileForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -1058,8 +1068,17 @@
                 let avatarUrl = elements.profileAvatar.src;
                 
                 // Convert image to base64 if uploaded
-                if (currentImageBase64) {
-                    avatarUrl = currentImageBase64;
+                if (elements.editProfileImage.files[0]) {
+                    const file = elements.editProfileImage.files[0];
+                    
+                    // File size check
+                    if (file.size > 1 * 1024 * 1024) {
+                        showNotification('Image should be less than 1MB', 'error');
+                        setSaveButtonLoading(false);
+                        return;
+                    }
+                    
+                    avatarUrl = await convertImageToBase64(file);
                 }
                 
                 // Update Firebase Auth profile
@@ -1069,19 +1088,12 @@
                 });
                 
                 // Update Firestore user document
-                const updateData = {
+                await db.collection('users').doc(currentUser.uid).update({
                     name: name,
                     bio: bio,
                     avatar: avatarUrl,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-
-                // Add base64 data only if custom image is uploaded
-                if (currentImageBase64) {
-                    updateData.avatarBase64 = currentImageBase64;
-                }
-
-                await db.collection('users').doc(currentUser.uid).update(updateData);
+                });
                 
                 // Update UI
                 elements.profileName.textContent = name;
@@ -1107,9 +1119,9 @@
         elements.editProfileImage.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                // Validate file size (max 2MB)
-                if (file.size > 2 * 1024 * 1024) {
-                    showNotification('Image size should be less than 2MB', 'error');
+                // Validate file size (max 1MB)
+                if (file.size > 1 * 1024 * 1024) {
+                    showNotification('Image size should be less than 1MB', 'error');
                     this.value = '';
                     return;
                 }
@@ -1123,10 +1135,8 @@
                 
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    // Store base64 data
-                    currentImageBase64 = e.target.result;
                     // Update preview
-                    elements.editProfileAvatar.src = currentImageBase64;
+                    elements.editProfileAvatar.src = e.target.result;
                 };
                 reader.readAsDataURL(file);
             }
