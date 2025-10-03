@@ -200,13 +200,13 @@
 
         .edit-avatar-btn {
             position: absolute;
-            bottom: 10px;
-            right: 10px;
+            bottom: 8px;
+            right: 8px;
             background: var(--primary);
             color: white;
             border: none;
-            width: 45px;
-            height: 45px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             cursor: pointer;
             transition: var(--transition);
@@ -214,7 +214,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.1rem;
+            font-size: 0.9rem;
+            border: 2px solid white;
+            z-index: 3;
         }
 
         .edit-avatar-btn:hover {
@@ -232,21 +234,25 @@
             margin: 0;
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 15px;
             margin-bottom: 15px;
             background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
+        /* User Tag - Chota aur Better Styling */
         .user-tag {
-            padding: 8px 20px;
-            border-radius: 25px;
-            font-size: 0.9rem;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.7rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .owner-tag {
@@ -260,14 +266,19 @@
             color: white;
         }
 
+        .verified-badge {
+            color: #3b82f6;
+            font-size: 0.9rem;
+        }
+
         @keyframes glow {
             from { 
-                box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+                box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
                 transform: scale(1);
             }
             to { 
-                box-shadow: 0 6px 25px rgba(239, 68, 68, 0.6), 0 0 30px rgba(249, 115, 22, 0.4);
-                transform: scale(1.05);
+                box-shadow: 0 4px 15px rgba(239, 68, 68, 0.6), 0 0 20px rgba(249, 115, 22, 0.4);
+                transform: scale(1.02);
             }
         }
 
@@ -719,6 +730,11 @@
             .stat {
                 padding: 12px 15px;
             }
+            
+            .user-tag {
+                font-size: 0.6rem;
+                padding: 3px 8px;
+            }
         }
     </style>
 </head>
@@ -754,7 +770,10 @@
                     <div class="profile-info">
                         <div class="profile-name">
                             <span id="profileName">User Name</span>
-                            <div class="user-tag member-tag" id="userTag">Member</div>
+                            <div class="user-tag member-tag" id="userTag">
+                                <i class="fas fa-user"></i> Member
+                            </div>
+                            <i class="fas fa-check-circle verified-badge hidden" id="verifiedBadge"></i>
                         </div>
                         
                         <p class="profile-bio" id="profileBio">This is my bio. I love creating amazing AI art and sharing prompts with the community!</p>
@@ -831,6 +850,9 @@
                                 <label for="editProfileImage" class="file-input-label">
                                     <i class="fas fa-camera"></i> Change Profile Photo
                                 </label>
+                                <div style="font-size: 0.8rem; color: var(--secondary); margin-top: 8px;">
+                                    Max 500KB - PNG, JPG, WEBP
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -879,8 +901,8 @@
 
         // === GLOBAL VARIABLES ===
         const OWNER_EMAIL = "alizybaby381@gmail.com";
+        const VERIFIED_USERS = ["alizybaby381@gmail.com"]; // Blue tick wale users
         let currentUser = null;
-        let currentImageBase64 = null;
 
         // === DOM ELEMENTS ===
         const elements = {
@@ -889,6 +911,7 @@
             profileName: document.getElementById('profileName'),
             profileBio: document.getElementById('profileBio'),
             userTag: document.getElementById('userTag'),
+            verifiedBadge: document.getElementById('verifiedBadge'),
             userEmail: document.getElementById('userEmail'),
             userId: document.getElementById('userId'),
             joinDate: document.getElementById('joinDate'),
@@ -977,7 +1000,8 @@
                 following: 0,
                 likes: 0,
                 followersList: [],
-                followingList: []
+                followingList: [],
+                isVerified: VERIFIED_USERS.includes(currentUser.email)
             };
             
             await db.collection('users').doc(uid).set(userData);
@@ -987,8 +1011,16 @@
         function updateProfileUI(userData) {
             elements.profileName.textContent = userData.name || 'User';
             elements.profileBio.textContent = userData.bio || 'This is my bio. I love creating amazing AI art and sharing prompts with the community!';
-            elements.profileAvatar.src = userData.avatar || 'https://ui-avatars.com/api/?name=User&background=667eea&color=fff';
-            elements.editProfileAvatar.src = userData.avatar || 'https://ui-avatars.com/api/?name=User&background=667eea&color=fff';
+            
+            // Avatar optimization - agar base64 hai toh compress karo
+            let avatarUrl = userData.avatar || 'https://ui-avatars.com/api/?name=User&background=667eea&color=fff';
+            if (avatarUrl.startsWith('data:image') && avatarUrl.length > 10000) {
+                // Agar base64 image bahut bada hai, default avatar use karo
+                avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name || 'User')}&background=667eea&color=fff`;
+            }
+            
+            elements.profileAvatar.src = avatarUrl;
+            elements.editProfileAvatar.src = avatarUrl;
             elements.userEmail.textContent = currentUser.email;
             elements.userId.textContent = currentUser.uid.substring(0, 8) + '...';
             
@@ -1012,12 +1044,19 @@
                 });
             }
             
+            // User Tag aur Verification Badge
             if (currentUser.email === OWNER_EMAIL) {
-                elements.userTag.textContent = 'Site Owner';
+                elements.userTag.innerHTML = '<i class="fas fa-crown"></i> Site Owner';
                 elements.userTag.className = 'user-tag owner-tag';
+                elements.verifiedBadge.classList.remove('hidden');
+            } else if (VERIFIED_USERS.includes(currentUser.email)) {
+                elements.userTag.innerHTML = '<i class="fas fa-star"></i> Verified';
+                elements.userTag.className = 'user-tag owner-tag';
+                elements.verifiedBadge.classList.remove('hidden');
             } else {
-                elements.userTag.textContent = 'Member';
+                elements.userTag.innerHTML = '<i class="fas fa-user"></i> Member';
                 elements.userTag.className = 'user-tag member-tag';
+                elements.verifiedBadge.classList.add('hidden');
             }
             
             elements.accountStatus.textContent = 'Active';
@@ -1036,15 +1075,48 @@
             elements.editProfileName.value = elements.profileName.textContent;
             elements.editProfileBio.value = elements.profileBio.textContent;
             elements.editProfileAvatar.src = elements.profileAvatar.src;
-            currentImageBase64 = null;
             elements.editProfileModal.style.display = 'block';
         }
 
-        // Image to base64 conversion function
+        // Image to base64 conversion function with compression
         function convertImageToBase64(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        // Max dimensions
+                        const MAX_WIDTH = 400;
+                        const MAX_HEIGHT = 400;
+                        let width = img.width;
+                        let height = img.height;
+                        
+                        // Calculate new dimensions
+                        if (width > height) {
+                            if (width > MAX_WIDTH) {
+                                height *= MAX_WIDTH / width;
+                                width = MAX_WIDTH;
+                            }
+                        } else {
+                            if (height > MAX_HEIGHT) {
+                                width *= MAX_HEIGHT / height;
+                                height = MAX_HEIGHT;
+                            }
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        
+                        // Draw and compress image
+                        ctx.drawImage(img, 0, 0, width, height);
+                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7); // 70% quality
+                        resolve(compressedDataUrl);
+                    };
+                    img.src = e.target.result;
+                };
                 reader.onerror = error => reject(error);
                 reader.readAsDataURL(file);
             });
@@ -1067,13 +1139,21 @@
             try {
                 let avatarUrl = elements.profileAvatar.src;
                 
-                // Convert image to base64 if uploaded
+                // Convert image to base64 if uploaded (with compression)
                 if (elements.editProfileImage.files[0]) {
                     const file = elements.editProfileImage.files[0];
                     
-                    // File size check
-                    if (file.size > 1 * 1024 * 1024) {
-                        showNotification('Image should be less than 1MB', 'error');
+                    // File size check (500KB max)
+                    if (file.size > 500 * 1024) {
+                        showNotification('Image should be less than 500KB', 'error');
+                        setSaveButtonLoading(false);
+                        return;
+                    }
+                    
+                    // Validate file type
+                    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+                    if (!validTypes.includes(file.type)) {
+                        showNotification('Please select a valid image file (JPEG, PNG, WEBP)', 'error');
                         setSaveButtonLoading(false);
                         return;
                     }
@@ -1092,7 +1172,8 @@
                     name: name,
                     bio: bio,
                     avatar: avatarUrl,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    isVerified: VERIFIED_USERS.includes(currentUser.email)
                 });
                 
                 // Update UI
@@ -1103,7 +1184,6 @@
                 // Close modal and reset form
                 elements.editProfileModal.style.display = 'none';
                 elements.editProfileImage.value = '';
-                currentImageBase64 = null;
                 
                 showNotification('Profile updated successfully!', 'success');
                 
@@ -1119,9 +1199,9 @@
         elements.editProfileImage.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                // Validate file size (max 1MB)
-                if (file.size > 1 * 1024 * 1024) {
-                    showNotification('Image size should be less than 1MB', 'error');
+                // Validate file size (max 500KB)
+                if (file.size > 500 * 1024) {
+                    showNotification('Image size should be less than 500KB', 'error');
                     this.value = '';
                     return;
                 }
@@ -1213,7 +1293,6 @@
         function closeModal(modal) {
             modal.style.display = 'none';
             elements.editProfileImage.value = '';
-            currentImageBase64 = null;
             setSaveButtonLoading(false);
         }
 
