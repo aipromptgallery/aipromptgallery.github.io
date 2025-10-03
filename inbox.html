@@ -67,28 +67,30 @@
             position: relative;
         }
 
-        .auth-buttons {
+        /* Back Button - Profile jaisa */
+        .back-btn {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 10px;
-        }
-
-        .auth-btn {
+            top: 25px;
+            left: 25px;
             background: rgba(255,255,255,0.2);
-            color: white;
-            border: 2px solid white;
-            padding: 8px 16px;
-            border-radius: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 12px 20px;
+            border-radius: 25px;
             cursor: pointer;
+            color: white;
             transition: var(--transition);
+            backdrop-filter: blur(10px);
+            z-index: 2;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
             font-weight: 600;
         }
 
-        .auth-btn:hover {
-            background: white;
-            color: var(--primary);
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
         }
 
         .user-info {
@@ -525,66 +527,6 @@
             transform: rotate(90deg);
         }
 
-        .auth-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .form-input {
-            padding: 12px 15px;
-            border: 2px solid var(--light);
-            border-radius: 10px;
-            background: var(--light);
-            color: var(--dark);
-            font-size: 1rem;
-            transition: var(--transition);
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .submit-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: var(--transition);
-            margin-top: 10px;
-        }
-
-        .submit-btn:hover {
-            background: var(--primary-dark);
-        }
-
-        .auth-switch {
-            text-align: center;
-            margin-top: 15px;
-            color: var(--secondary);
-        }
-
-        .auth-link {
-            color: var(--primary);
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .auth-link:hover {
-            text-decoration: underline;
-        }
-
         .user-list {
             max-height: 400px;
             overflow-y: auto;
@@ -698,20 +640,19 @@
 <body>
     <div class="container">
         <div class="header">
+            <!-- Back Button Added -->
+            <a href="index.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+
             <h1>AI Prompt Gallery</h1>
             <p>Connect with the creative community</p>
             
-            <!-- Auth Buttons -->
-            <div class="auth-buttons" id="authButtons">
-                <button class="auth-btn" id="loginBtn">Login</button>
-                <button class="auth-btn" id="signupBtn">Sign Up</button>
-            </div>
-
-            <!-- User Info -->
+            <!-- User Info Only - No Login/Signup Buttons -->
             <div class="user-info hidden" id="userInfo">
                 <img src="" alt="User" class="user-avatar" id="userAvatar">
                 <span id="userName">User</span>
-                <button class="auth-btn" id="logoutBtn">Logout</button>
+                <button class="back-btn" id="logoutBtn" style="padding: 8px 16px;">Logout</button>
             </div>
         </div>
 
@@ -766,53 +707,6 @@
         </div>
     </div>
 
-    <!-- Auth Modals -->
-    <div class="modal" id="loginModal">
-        <div class="modal-content">
-            <button class="close-btn">&times;</button>
-            <h2 style="margin-bottom: 20px; color: var(--dark);">Login</h2>
-            <form class="auth-form" id="loginForm">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" class="form-input" id="loginEmail" required>
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" class="form-input" id="loginPassword" required>
-                </div>
-                <button type="submit" class="submit-btn">Login</button>
-            </form>
-            <div class="auth-switch">
-                Don't have an account? <span class="auth-link" id="showSignup">Sign Up</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="signupModal">
-        <div class="modal-content">
-            <button class="close-btn">&times;</button>
-            <h2 style="margin-bottom: 20px; color: var(--dark);">Sign Up</h2>
-            <form class="auth-form" id="signupForm">
-                <div class="form-group">
-                    <label>Name</label>
-                    <input type="text" class="form-input" id="signupName" required>
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" class="form-input" id="signupEmail" required>
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" class="form-input" id="signupPassword" required minlength="6">
-                </div>
-                <button type="submit" class="submit-btn">Create Account</button>
-            </form>
-            <div class="auth-switch">
-                Already have an account? <span class="auth-link" id="showLogin">Login</span>
-            </div>
-        </div>
-    </div>
-
     <!-- New Conversation Modal -->
     <div class="modal" id="newConversationModal">
         <div class="modal-content">
@@ -858,18 +752,11 @@
 
         // DOM Elements
         const elements = {
-            authButtons: document.getElementById('authButtons'),
             userInfo: document.getElementById('userInfo'),
             userAvatar: document.getElementById('userAvatar'),
             userName: document.getElementById('userName'),
-            loginBtn: document.getElementById('loginBtn'),
-            signupBtn: document.getElementById('signupBtn'),
             logoutBtn: document.getElementById('logoutBtn'),
-            loginModal: document.getElementById('loginModal'),
-            signupModal: document.getElementById('signupModal'),
             newConversationModal: document.getElementById('newConversationModal'),
-            loginForm: document.getElementById('loginForm'),
-            signupForm: document.getElementById('signupForm'),
             newConversationBtn: document.getElementById('newConversationBtn'),
             conversationsList: document.getElementById('conversationsList'),
             messagesContainer: document.getElementById('messagesContainer'),
@@ -898,7 +785,6 @@
                     console.log('✅ User signed in:', user.uid, user.email);
                     
                     // Update UI
-                    elements.authButtons.classList.add('hidden');
                     elements.userInfo.classList.remove('hidden');
                     elements.userName.textContent = user.displayName || 'User';
                     elements.userAvatar.src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'User')}&background=random`;
@@ -916,7 +802,6 @@
                     
                 } else {
                     currentUser = null;
-                    elements.authButtons.classList.remove('hidden');
                     elements.userInfo.classList.add('hidden');
                     
                     // Clear conversations and stop listeners
@@ -926,6 +811,9 @@
                     
                     updateConversationsList();
                     console.log('User signed out');
+                    
+                    // Redirect to login if not authenticated
+                    window.location.href = 'login.html';
                 }
             });
         }
@@ -1394,11 +1282,26 @@
             }
         }
 
-        // New conversation modal
+        // New conversation modal - FIXED VERSION
         async function openNewConversationModal() {
-            if (!currentUser) return;
+            if (!currentUser) {
+                showNotification('Please login to start a conversation', 'error');
+                return;
+            }
             
             try {
+                console.log('👥 Opening new conversation modal');
+                
+                // Show loading
+                elements.userList.innerHTML = `
+                    <div style="text-align: center; padding: 30px; color: var(--secondary);">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                        <p>Loading users...</p>
+                    </div>
+                `;
+                
+                openModal(elements.newConversationModal);
+                
                 const snapshot = await db.collection('users').get();
                 
                 const allUsers = [];
@@ -1433,8 +1336,6 @@
                     `).join('');
                 }
                 
-                openModal(elements.newConversationModal);
-                
                 document.querySelectorAll('.user-item').forEach(item => {
                     item.addEventListener('click', () => {
                         const userId = item.dataset.userId;
@@ -1445,10 +1346,11 @@
             } catch (error) {
                 console.error('❌ Error loading users:', error);
                 showNotification('Error loading users', 'error');
+                closeModal(elements.newConversationModal);
             }
         }
 
-        // Start new conversation
+        // Start new conversation - FIXED VERSION
         async function startNewConversation(otherUserId) {
             if (!currentUser) return;
             
@@ -1464,6 +1366,7 @@
                 if (existingConversation) {
                     closeModal(elements.newConversationModal);
                     selectConversation(existingConversation.id);
+                    showNotification('Conversation already exists!', 'info');
                     return;
                 }
                 
@@ -1509,57 +1412,25 @@
             }
         }
 
-        // Event Listeners
+        // Event Listeners - FIXED
         function setupEventListeners() {
-            elements.loginBtn.addEventListener('click', () => openModal(elements.loginModal));
-            elements.signupBtn.addEventListener('click', () => openModal(elements.signupModal));
-            elements.logoutBtn.addEventListener('click', () => auth.signOut());
-            
-            document.getElementById('showSignup').addEventListener('click', () => {
-                closeModal(elements.loginModal);
-                openModal(elements.signupModal);
+            // Logout button
+            elements.logoutBtn.addEventListener('click', () => {
+                auth.signOut().then(() => {
+                    window.location.href = 'index.html';
+                }).catch((error) => {
+                    console.error('Error signing out:', error);
+                    showNotification('Error signing out', 'error');
+                });
             });
-            
-            document.getElementById('showLogin').addEventListener('click', () => {
-                closeModal(elements.signupModal);
-                openModal(elements.loginModal);
-            });
-            
-            elements.loginForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const email = document.getElementById('loginEmail').value;
-                const password = document.getElementById('loginPassword').value;
-                
-                try {
-                    await auth.signInWithEmailAndPassword(email, password);
-                    closeModal(elements.loginModal);
-                    showNotification('Login successful!', 'success');
-                } catch (error) {
-                    showNotification('Login failed: ' + error.message, 'error');
-                }
-            });
-            
-            elements.signupForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const name = document.getElementById('signupName').value;
-                const email = document.getElementById('signupEmail').value;
-                const password = document.getElementById('signupPassword').value;
-                
-                try {
-                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                    await userCredential.user.updateProfile({
-                        displayName: name
-                    });
-                    closeModal(elements.signupModal);
-                    showNotification('Account created successfully!', 'success');
-                } catch (error) {
-                    showNotification('Signup failed: ' + error.message, 'error');
-                }
-            });
-            
+
+            // New conversation button - FIXED
             elements.newConversationBtn.addEventListener('click', openNewConversationModal);
+            
+            // Send message button
             elements.sendBtn.addEventListener('click', sendMessage);
             
+            // Enter key to send message
             elements.messageInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -1567,11 +1438,13 @@
                 }
             });
             
+            // Auto-resize textarea
             elements.messageInput.addEventListener('input', function() {
                 this.style.height = 'auto';
                 this.style.height = (this.scrollHeight) + 'px';
             });
             
+            // Close modal buttons
             document.querySelectorAll('.close-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const modal = e.target.closest('.modal');
@@ -1579,6 +1452,7 @@
                 });
             });
             
+            // Close modal when clicking outside
             window.addEventListener('click', (e) => {
                 if (e.target.classList.contains('modal')) {
                     closeModal(e.target);
@@ -1588,6 +1462,8 @@
 
         // Utility functions
         function formatTime(date) {
+            if (!date) return '';
+            
             const now = new Date();
             const diff = now.getTime() - date.getTime();
             const diffDays = Math.floor(diff / (1000 * 60 * 60 * 24));
