@@ -3,15 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Prompt Gallery | Inbox</title>
+    <title>AI Prompt Gallery | Real Chat</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Firebase SDK v8 (Compatability version) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
 
     <style>
         * {
@@ -70,10 +67,15 @@
             position: relative;
         }
 
-        .back-btn {
+        .auth-buttons {
             position: absolute;
             top: 20px;
-            left: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .auth-btn {
             background: rgba(255,255,255,0.2);
             color: white;
             border: 2px solid white;
@@ -82,34 +84,28 @@
             cursor: pointer;
             transition: var(--transition);
             font-weight: 600;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
-        .back-btn:hover {
+        .auth-btn:hover {
             background: white;
             color: var(--primary);
-            transform: translateY(-2px);
         }
 
-        .theme-toggle {
+        .user-info {
             position: absolute;
             top: 20px;
             right: 20px;
-            background: rgba(255,255,255,0.2);
-            border: none;
-            padding: 10px;
-            border-radius: 50%;
-            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             color: white;
-            transition: var(--transition);
         }
 
-        .theme-toggle:hover {
-            background: rgba(255,255,255,0.3);
-            transform: rotate(180deg);
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid white;
         }
 
         .header h1 {
@@ -496,11 +492,9 @@
             padding: 30px;
             border-radius: var(--radius);
             width: 90%;
-            max-width: 500px;
+            max-width: 400px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.3);
             animation: modalSlideIn 0.3s ease;
-            max-height: 90vh;
-            overflow-y: auto;
         }
 
         @keyframes modalSlideIn {
@@ -529,6 +523,66 @@
         .close-btn:hover {
             color: var(--error);
             transform: rotate(90deg);
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-input {
+            padding: 12px 15px;
+            border: 2px solid var(--light);
+            border-radius: 10px;
+            background: var(--light);
+            color: var(--dark);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .submit-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: var(--transition);
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 15px;
+            color: var(--secondary);
+        }
+
+        .auth-link {
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .auth-link:hover {
+            text-decoration: underline;
         }
 
         .user-list {
@@ -644,16 +698,21 @@
 <body>
     <div class="container">
         <div class="header">
-            <a href="index.html" class="back-btn">
-                <i class="fas fa-arrow-left"></i> Back to Home
-            </a>
-
-            <button class="theme-toggle" id="themeToggle">
-                <i class="fas fa-moon"></i>
-            </button>
-
             <h1>AI Prompt Gallery</h1>
-            <p>Connect with other AI art creators</p>
+            <p>Your creative community for AI art prompts</p>
+            
+            <!-- Auth Buttons -->
+            <div class="auth-buttons" id="authButtons">
+                <button class="auth-btn" id="loginBtn">Login</button>
+                <button class="auth-btn" id="signupBtn">Sign Up</button>
+            </div>
+
+            <!-- User Info -->
+            <div class="user-info hidden" id="userInfo">
+                <img src="" alt="User" class="user-avatar" id="userAvatar">
+                <span id="userName">User</span>
+                <button class="auth-btn" id="logoutBtn">Logout</button>
+            </div>
         </div>
 
         <div class="inbox-container">
@@ -671,26 +730,21 @@
                 
                 <div class="conversations-list" id="conversationsList">
                     <div style="text-align: center; padding: 40px; color: var(--secondary);">
-                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 15px;"></i>
-                        <p>Loading conversations...</p>
+                        <i class="fas fa-comments" style="font-size: 2rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                        <p>Please login to view messages</p>
                     </div>
                 </div>
             </div>
             
             <div class="chat-area">
                 <div class="chat-header hidden" id="chatHeader">
-                    <img src="https://ui-avatars.com/api/?name=User&background=random" alt="User" class="chat-user-avatar" id="chatUserAvatar">
+                    <img src="" alt="User" class="chat-user-avatar" id="chatUserAvatar">
                     <div class="chat-user-info">
                         <div class="chat-user-name" id="chatUserName">
                             User Name
                             <i class="fas fa-check-circle verified-badge"></i>
                         </div>
                         <div class="chat-user-status" id="chatUserStatus">Online</div>
-                    </div>
-                    <div class="chat-actions">
-                        <button class="chat-action-btn" id="chatInfoBtn">
-                            <i class="fas fa-info-circle"></i>
-                        </button>
                     </div>
                 </div>
                 
@@ -712,6 +766,54 @@
         </div>
     </div>
 
+    <!-- Auth Modals -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <button class="close-btn">&times;</button>
+            <h2 style="margin-bottom: 20px; color: var(--dark);">Login</h2>
+            <form class="auth-form" id="loginForm">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" class="form-input" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" class="form-input" id="loginPassword" required>
+                </div>
+                <button type="submit" class="submit-btn">Login</button>
+            </form>
+            <div class="auth-switch">
+                Don't have an account? <span class="auth-link" id="showSignup">Sign Up</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="signupModal">
+        <div class="modal-content">
+            <button class="close-btn">&times;</button>
+            <h2 style="margin-bottom: 20px; color: var(--dark);">Sign Up</h2>
+            <form class="auth-form" id="signupForm">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" class="form-input" id="signupName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" class="form-input" id="signupEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" class="form-input" id="signupPassword" required minlength="6">
+                </div>
+                <button type="submit" class="submit-btn">Create Account</button>
+            </form>
+            <div class="auth-switch">
+                Already have an account? <span class="auth-link" id="showLogin">Login</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Conversation Modal -->
     <div class="modal" id="newConversationModal">
         <div class="modal-content">
             <button class="close-btn">&times;</button>
@@ -723,7 +825,7 @@
             
             <div class="user-list" id="userList">
                 <div style="text-align: center; padding: 30px; color: var(--secondary);">
-                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                    <i class="fas fa-users" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i>
                     <p>Loading users...</p>
                 </div>
             </div>
@@ -731,173 +833,248 @@
     </div>
 
     <script>
-        // Firebase Configuration - Tumhara exact configuration
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDovL4QBUZfueYzMJpkCjWu_4NLMoQWyiA",
             authDomain: "gagsta-paradise.firebaseapp.com",
-            databaseURL: "https://gagsta-paradise-default-rtdb.firebaseio.com",
             projectId: "gagsta-paradise",
             storageBucket: "gagsta-paradise.firebasestorage.app",
             messagingSenderId: "78516691257",
-            appId: "1:78516691257:web:466954e941fc6a7eb388e8",
-            measurementId: "G-CDFQN2N12D"
+            appId: "1:78516691257:web:466954e941fc6a7eb388e8"
         };
 
-        // Initialize Firebase with v8 SDK
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
-        
-        // Initialize Analytics
-        const analytics = firebase.analytics();
-        
-        // Initialize Firestore and Auth
         const db = firebase.firestore();
         const auth = firebase.auth();
-
-        // Enable offline persistence
-        db.enablePersistence()
-          .catch((err) => {
-              console.log('Firestore persistence failed: ', err);
-          });
 
         // Global Variables
         let currentUser = null;
         let currentConversation = null;
         let conversations = [];
         let users = {};
-        let conversationListeners = {};
         const OWNER_EMAIL = "alizybaby381@gmail.com";
 
         // DOM Elements
         const elements = {
-            themeToggle: document.getElementById('themeToggle'),
-            newConversationBtn: document.getElementById('newConversationBtn'),
+            // Auth elements
+            authButtons: document.getElementById('authButtons'),
+            userInfo: document.getElementById('userInfo'),
+            userAvatar: document.getElementById('userAvatar'),
+            userName: document.getElementById('userName'),
+            loginBtn: document.getElementById('loginBtn'),
+            signupBtn: document.getElementById('signupBtn'),
+            logoutBtn: document.getElementById('logoutBtn'),
+            
+            // Modals
+            loginModal: document.getElementById('loginModal'),
+            signupModal: document.getElementById('signupModal'),
             newConversationModal: document.getElementById('newConversationModal'),
+            
+            // Forms
+            loginForm: document.getElementById('loginForm'),
+            signupForm: document.getElementById('signupForm'),
+            
+            // Chat elements
+            newConversationBtn: document.getElementById('newConversationBtn'),
             conversationsList: document.getElementById('conversationsList'),
             messagesContainer: document.getElementById('messagesContainer'),
             messageInput: document.getElementById('messageInput'),
             messageInputContainer: document.getElementById('messageInputContainer'),
             sendBtn: document.getElementById('sendBtn'),
             userList: document.getElementById('userList'),
-            userSearch: document.getElementById('userSearch'),
-            conversationsSearch: document.getElementById('conversationsSearch'),
             chatHeader: document.getElementById('chatHeader'),
             chatUserAvatar: document.getElementById('chatUserAvatar'),
             chatUserName: document.getElementById('chatUserName'),
             chatUserStatus: document.getElementById('chatUserStatus')
         };
 
-        // Theme Management
-        function initTheme() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.body.setAttribute('data-theme', savedTheme);
-            
-            const icon = elements.themeToggle.querySelector('i');
-            icon.className = savedTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+        // Initialize App
+        function initApp() {
+            console.log('🚀 Initializing AI Prompt Gallery...');
+            setupEventListeners();
+            initAuth();
         }
 
-        elements.themeToggle.addEventListener('click', () => {
-            const currentTheme = document.body.getAttribute('data-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            document.body.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            
-            const icon = elements.themeToggle.querySelector('i');
-            icon.className = newTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
-        });
-
-        // Authentication with better error handling
+        // Authentication System
         function initAuth() {
             auth.onAuthStateChanged(async (user) => {
-                console.log('Auth state changed:', user);
-                
                 if (user) {
+                    // User is signed in
                     currentUser = user;
-                    console.log('User logged in:', user.uid, user.email);
+                    console.log('User signed in:', user.uid, user.email);
                     
-                    try {
-                        await loadUserData(user.uid);
-                        showNotification(`Welcome to messages, ${user.displayName || 'User'}!`, 'success');
-                        
-                        // Load conversations
-                        await loadConversations();
-                        
-                        // Send welcome message if not owner
-                        if (user.email !== OWNER_EMAIL) {
-                            await sendWelcomeMessage(user.uid);
-                        }
-                        
-                        // Log analytics event
-                        analytics.logEvent('user_logged_in');
-                        
-                    } catch (error) {
-                        console.error('Error in auth state change:', error);
-                        showNotification('Error loading user data', 'error');
-                    }
+                    // Update UI
+                    elements.authButtons.classList.add('hidden');
+                    elements.userInfo.classList.remove('hidden');
+                    elements.userName.textContent = user.displayName || 'User';
+                    elements.userAvatar.src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'User')}&background=random`;
+                    
+                    // Create/Update user document
+                    await createUserDocument(user);
+                    
+                    // Send welcome message and notification
+                    await sendWelcomeSystem(user);
+                    
+                    // Load conversations
+                    await loadConversations();
+                    
+                    showNotification(`Welcome back, ${user.displayName || 'User'}!`, 'success');
+                    
                 } else {
-                    console.log('No user, trying anonymous auth...');
-                    // Try anonymous authentication
-                    try {
-                        await auth.signInAnonymously();
-                    } catch (error) {
-                        console.error('Anonymous auth failed:', error);
-                        showNotification('Please login to access messages', 'error');
-                        setupDemoMode();
-                    }
+                    // User is signed out
+                    currentUser = null;
+                    elements.authButtons.classList.remove('hidden');
+                    elements.userInfo.classList.add('hidden');
+                    
+                    // Clear conversations
+                    conversations = [];
+                    updateConversationsList();
+                    
+                    console.log('User signed out');
                 }
             });
         }
 
-        // Load user data
-        async function loadUserData(uid) {
+        // Create user document in Firestore
+        async function createUserDocument(user) {
             try {
-                const userDoc = await db.collection('users').doc(uid).get();
+                const userRef = db.collection('users').doc(user.uid);
+                const userDoc = await userRef.get();
                 
                 if (!userDoc.exists) {
-                    // Create user document
-                    await db.collection('users').doc(uid).set({
-                        name: currentUser.displayName || 'Anonymous User',
-                        email: currentUser.email || 'anonymous@example.com',
-                        avatar: currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'User')}&background=random`,
+                    // New user - create document
+                    await userRef.set({
+                        name: user.displayName || 'User',
+                        email: user.email,
+                        avatar: user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'User')}&background=random`,
                         bio: "AI art enthusiast",
                         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                         lastSeen: firebase.firestore.FieldValue.serverTimestamp()
                     });
-                    console.log('New user created:', uid);
+                    console.log('New user document created');
                 } else {
-                    // Update last seen
-                    await db.collection('users').doc(uid).update({
+                    // Existing user - update last seen
+                    await userRef.update({
                         lastSeen: firebase.firestore.FieldValue.serverTimestamp()
                     });
                 }
                 
-                // Store user data
-                users[uid] = userDoc.exists ? userDoc.data() : {
-                    name: currentUser.displayName || 'User',
-                    avatar: currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'User')}&background=random`,
-                    bio: "AI art enthusiast"
-                };
+            } catch (error) {
+                console.error('Error creating user document:', error);
+            }
+        }
+
+        // Send welcome message and system notification
+        async function sendWelcomeSystem(user) {
+            if (user.email === OWNER_EMAIL) return; // Don't send to owner
+            
+            try {
+                // Get owner user
+                const ownerQuery = await db.collection('users').where('email', '==', OWNER_EMAIL).get();
+                let ownerId = null;
+                
+                if (!ownerQuery.empty) {
+                    ownerId = ownerQuery.docs[0].id;
+                } else {
+                    // Create owner if not exists
+                    const ownerRef = db.collection('users').doc();
+                    ownerId = ownerRef.id;
+                    await ownerRef.set({
+                        name: "AI Prompt Gallery",
+                        email: OWNER_EMAIL,
+                        avatar: "https://ui-avatars.com/api/?name=AI+Prompt+Gallery&background=667eea&color=fff",
+                        bio: "Official AI Prompt Gallery Account",
+                        isOwner: true,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                
+                // Check if conversation already exists
+                const existingConv = await db.collection('conversations')
+                    .where('participants', 'array-contains', user.uid)
+                    .get();
+                
+                let conversationExists = false;
+                existingConv.forEach(doc => {
+                    const data = doc.data();
+                    if (data.participants.includes(ownerId)) {
+                        conversationExists = true;
+                    }
+                });
+                
+                if (!conversationExists) {
+                    // Create welcome conversation
+                    const conversationData = {
+                        participants: [ownerId, user.uid],
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastMessage: "Welcome to AI Prompt Gallery! 🎨",
+                        lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        unreadCount: {
+                            [user.uid]: 1
+                        }
+                    };
+                    
+                    const conversationRef = await db.collection('conversations').add(conversationData);
+                    
+                    // Add welcome message
+                    await db.collection('conversations').doc(conversationRef.id)
+                        .collection('messages').add({
+                            text: `Welcome to AI Prompt Gallery, ${user.displayName || 'friend'}! 🎨\n\nWe're thrilled to have you in our creative community! Here you can:\n\n• Share amazing AI art prompts\n• Connect with other creators\n• Get inspiration for your next project\n• Learn from the community\n\nFeel free to explore and start creating! ✨`,
+                            senderId: ownerId,
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                            read: false,
+                            isOfficial: true
+                        });
+                    
+                    console.log('Welcome system activated for new user');
+                    
+                    // Send notification to all users about new member
+                    await sendNewUserNotification(user);
+                }
                 
             } catch (error) {
-                console.error('Error loading user data:', error);
-                // Fallback data
-                users[uid] = {
-                    name: currentUser.displayName || 'User',
-                    avatar: 'https://ui-avatars.com/api/?name=User&background=random',
-                    bio: "AI art enthusiast"
-                };
+                console.error('Error in welcome system:', error);
+            }
+        }
+
+        // Send notification to all users about new member
+        async function sendNewUserNotification(newUser) {
+            try {
+                // Get all users except the new one
+                const usersSnapshot = await db.collection('users').get();
+                const notificationPromises = [];
+                
+                usersSnapshot.forEach(doc => {
+                    if (doc.id !== newUser.uid && doc.data().email !== OWNER_EMAIL) {
+                        // Create notification document
+                        const notificationRef = db.collection('notifications').doc();
+                        notificationPromises.push(
+                            notificationRef.set({
+                                userId: doc.id,
+                                title: "New Member Joined!",
+                                message: `${newUser.displayName || 'A new user'} has joined AI Prompt Gallery! Welcome them to the community! 🎉`,
+                                type: "new_member",
+                                read: false,
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                            })
+                        );
+                    }
+                });
+                
+                await Promise.all(notificationPromises);
+                console.log('New user notifications sent');
+                
+            } catch (error) {
+                console.error('Error sending notifications:', error);
             }
         }
 
         // Load conversations
         async function loadConversations() {
-            if (!currentUser) {
-                console.log('No current user');
-                return;
-            }
+            if (!currentUser) return;
             
             try {
-                console.log('Loading conversations for user:', currentUser.uid);
-                
                 const snapshot = await db.collection('conversations')
                     .where('participants', 'array-contains', currentUser.uid)
                     .orderBy('lastMessageAt', 'desc')
@@ -905,62 +1082,415 @@
                 
                 conversations = [];
                 snapshot.forEach(doc => {
-                    conversations.push({ 
-                        id: doc.id, 
-                        ...doc.data() 
-                    });
+                    conversations.push({ id: doc.id, ...doc.data() });
                 });
                 
                 console.log('Loaded conversations:', conversations.length);
-                
-                if (conversations.length === 0) {
-                    console.log('No conversations found for user');
-                }
-                
                 updateConversationsList();
+                
+                // Load user data for participants
                 await loadParticipantsData();
                 
             } catch (error) {
                 console.error('Error loading conversations:', error);
                 showNotification('Error loading conversations', 'error');
-                
-                // Show empty state
-                elements.conversationsList.innerHTML = `
-                    <div style="text-align: center; padding: 40px; color: var(--secondary);">
-                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 15px;"></i>
-                        <p>Unable to load conversations</p>
-                        <p>Please check your connection</p>
-                        <button onclick="location.reload()" style="margin-top: 15px; padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 20px; cursor: pointer;">
-                            Retry
-                        </button>
-                    </div>
-                `;
             }
         }
 
-        // Rest of the code remains the same as previous working version...
-        // [Include all the other functions from the previous working code]
-
-        // Initialize app
-        function initApp() {
-            console.log('Initializing app...');
-            initTheme();
-            initAuth();
+        // Load participants data
+        async function loadParticipantsData() {
+            const allUserIds = new Set();
             
-            // Setup event listeners
-            setupEventListeners();
+            conversations.forEach(conversation => {
+                conversation.participants.forEach(uid => {
+                    if (uid !== currentUser.uid && !users[uid]) {
+                        allUserIds.add(uid);
+                    }
+                });
+            });
+            
+            const userPromises = Array.from(allUserIds).map(async (uid) => {
+                try {
+                    const userDoc = await db.collection('users').doc(uid).get();
+                    if (userDoc.exists) {
+                        users[uid] = userDoc.data();
+                    }
+                } catch (error) {
+                    console.error('Error loading user data:', error);
+                }
+            });
+            
+            await Promise.all(userPromises);
+            updateConversationsList();
         }
 
-        // Basic event listeners setup
-        function setupEventListeners() {
-            elements.newConversationBtn.addEventListener('click', () => {
-                if (!currentUser) {
-                    showNotification('Please login to start a conversation', 'error');
+        // Update conversations list UI
+        function updateConversationsList() {
+            if (!currentUser) {
+                elements.conversationsList.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--secondary);">
+                        <i class="fas fa-sign-in-alt" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                        <p>Please login to view messages</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            if (conversations.length === 0) {
+                elements.conversationsList.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--secondary);">
+                        <i class="fas fa-comments" style="font-size: 2rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                        <p>No conversations yet</p>
+                        <p>Start a new conversation to connect with others</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            elements.conversationsList.innerHTML = conversations.map(conversation => {
+                const otherParticipantId = conversation.participants.find(uid => uid !== currentUser.uid);
+                const otherUser = users[otherParticipantId] || { 
+                    name: 'Unknown User', 
+                    avatar: 'https://ui-avatars.com/api/?name=User&background=random' 
+                };
+                
+                const lastMessage = conversation.lastMessage || 'No messages yet';
+                const lastMessageTime = conversation.lastMessageAt ? formatTime(conversation.lastMessageAt.toDate()) : '';
+                const unreadCount = conversation.unreadCount && conversation.unreadCount[currentUser.uid] || 0;
+                const isOwner = otherUser.email === OWNER_EMAIL;
+                
+                return `
+                    <div class="conversation-item ${currentConversation && currentConversation.id === conversation.id ? 'active' : ''}" 
+                         data-conversation-id="${conversation.id}">
+                        <img src="${otherUser.avatar}" alt="${otherUser.name}" class="conversation-avatar">
+                        <div class="conversation-info">
+                            <div class="conversation-name">
+                                ${otherUser.name}
+                                ${isOwner ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
+                            </div>
+                            <div class="conversation-last-message">${lastMessage}</div>
+                        </div>
+                        <div class="conversation-meta">
+                            <div class="conversation-time">${lastMessageTime}</div>
+                            ${unreadCount > 0 ? `<div class="conversation-unread">${unreadCount}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Add click events
+            document.querySelectorAll('.conversation-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const conversationId = item.dataset.conversationId;
+                    selectConversation(conversationId);
+                });
+            });
+        }
+
+        // Select conversation
+        async function selectConversation(conversationId) {
+            if (!currentUser) return;
+            
+            currentConversation = conversations.find(conversation => conversation.id === conversationId);
+            if (!currentConversation) return;
+            
+            // Update UI
+            document.querySelectorAll('.conversation-item').forEach(item => {
+                item.classList.toggle('active', item.dataset.conversationId === conversationId);
+            });
+            
+            elements.chatHeader.classList.remove('hidden');
+            elements.messageInputContainer.classList.remove('hidden');
+            
+            // Update chat header
+            const otherParticipantId = currentConversation.participants.find(uid => uid !== currentUser.uid);
+            const otherUser = users[otherParticipantId] || { 
+                name: 'Unknown User', 
+                avatar: 'https://ui-avatars.com/api/?name=User&background=random' 
+            };
+            
+            elements.chatUserAvatar.src = otherUser.avatar;
+            elements.chatUserName.innerHTML = `
+                ${otherUser.name}
+                ${otherUser.email === OWNER_EMAIL ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
+            `;
+            elements.chatUserStatus.textContent = 'Online';
+            
+            // Load messages
+            await loadMessages(conversationId);
+            
+            // Mark as read
+            await markMessagesAsRead(conversationId);
+        }
+
+        // Load messages
+        async function loadMessages(conversationId) {
+            try {
+                const snapshot = await db.collection('conversations').doc(conversationId)
+                    .collection('messages')
+                    .orderBy('timestamp', 'asc')
+                    .get();
+                
+                const messages = [];
+                snapshot.forEach(doc => {
+                    messages.push({ id: doc.id, ...doc.data() });
+                });
+                
+                displayMessages(messages);
+                
+            } catch (error) {
+                console.error('Error loading messages:', error);
+                showNotification('Error loading messages', 'error');
+            }
+        }
+
+        // Display messages
+        function displayMessages(messages) {
+            if (messages.length === 0) {
+                elements.messagesContainer.innerHTML = `
+                    <div class="empty-chat">
+                        <i class="fas fa-comment-slash"></i>
+                        <h3>No messages yet</h3>
+                        <p>Start the conversation by sending a message</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            elements.messagesContainer.innerHTML = messages.map(message => {
+                const isSent = message.senderId === currentUser.uid;
+                const isOfficial = message.isOfficial;
+                const time = message.timestamp ? formatTime(message.timestamp.toDate()) : '';
+                
+                if (isOfficial) {
+                    return `
+                        <div class="message official">
+                            <div class="message-text">${message.text}</div>
+                            <div class="message-time">${time}</div>
+                        </div>
+                    `;
+                }
+                
+                return `
+                    <div class="message ${isSent ? 'sent' : 'received'}">
+                        <div class="message-text">${message.text}</div>
+                        <div class="message-time">${time}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
+        }
+
+        // Send message
+        async function sendMessage() {
+            if (!currentUser || !currentConversation || !elements.messageInput.value.trim()) return;
+            
+            const messageText = elements.messageInput.value.trim();
+            
+            try {
+                // Add message to Firestore
+                await db.collection('conversations').doc(currentConversation.id).collection('messages').add({
+                    text: messageText,
+                    senderId: currentUser.uid,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    read: false
+                });
+                
+                // Update conversation
+                await db.collection('conversations').doc(currentConversation.id).update({
+                    lastMessage: messageText.length > 50 ? messageText.substring(0, 50) + '...' : messageText,
+                    lastMessageAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Clear input
+                elements.messageInput.value = '';
+                elements.messageInput.style.height = 'auto';
+                
+                // Reload conversations to update last message
+                await loadConversations();
+                
+            } catch (error) {
+                console.error('Error sending message:', error);
+                showNotification('Error sending message', 'error');
+            }
+        }
+
+        // Mark messages as read
+        async function markMessagesAsRead(conversationId) {
+            if (!currentUser) return;
+            
+            try {
+                const snapshot = await db.collection('conversations').doc(conversationId)
+                    .collection('messages')
+                    .where('senderId', '!=', currentUser.uid)
+                    .where('read', '==', false)
+                    .get();
+                
+                const batch = db.batch();
+                snapshot.forEach(doc => {
+                    batch.update(doc.ref, { read: true });
+                });
+                
+                await batch.commit();
+                
+                // Update unread count
+                await db.collection('conversations').doc(conversationId).update({
+                    [`unreadCount.${currentUser.uid}`]: 0
+                });
+                
+                updateConversationsList();
+                
+            } catch (error) {
+                console.error('Error marking messages as read:', error);
+            }
+        }
+
+        // New conversation
+        async function openNewConversationModal() {
+            if (!currentUser) return;
+            
+            try {
+                // Load all users except current user
+                const snapshot = await db.collection('users').get();
+                
+                const allUsers = [];
+                snapshot.forEach(doc => {
+                    if (doc.id !== currentUser.uid) {
+                        allUsers.push({ id: doc.id, ...doc.data() });
+                    }
+                });
+                
+                // Display users
+                elements.userList.innerHTML = allUsers.map(user => `
+                    <div class="user-item" data-user-id="${user.id}">
+                        <img src="${user.avatar}" alt="${user.name}" class="user-avatar-list">
+                        <div class="user-info">
+                            <div class="user-name">
+                                ${user.name}
+                                ${user.email === OWNER_EMAIL ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
+                            </div>
+                            <div class="user-bio">${user.bio}</div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                openModal(elements.newConversationModal);
+                
+                // Add click events
+                document.querySelectorAll('.user-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const userId = item.dataset.userId;
+                        startNewConversation(userId);
+                    });
+                });
+                
+            } catch (error) {
+                console.error('Error loading users:', error);
+                showNotification('Error loading users', 'error');
+            }
+        }
+
+        // Start new conversation
+        async function startNewConversation(otherUserId) {
+            if (!currentUser) return;
+            
+            try {
+                // Check if conversation already exists
+                const existingConversation = conversations.find(conversation => 
+                    conversation.participants.includes(otherUserId) && 
+                    conversation.participants.includes(currentUser.uid)
+                );
+                
+                if (existingConversation) {
+                    closeModal(elements.newConversationModal);
+                    selectConversation(existingConversation.id);
                     return;
                 }
-                openNewConversationModal();
-            });
+                
+                // Create new conversation
+                const conversationData = {
+                    participants: [currentUser.uid, otherUserId],
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastMessage: 'Conversation started',
+                    lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    unreadCount: {}
+                };
+                
+                const conversationRef = await db.collection('conversations').add(conversationData);
+                
+                // Add to local conversations
+                const newConversation = { 
+                    id: conversationRef.id, 
+                    ...conversationData 
+                };
+                conversations.unshift(newConversation);
+                
+                updateConversationsList();
+                closeModal(elements.newConversationModal);
+                selectConversation(conversationRef.id);
+                
+                showNotification('New conversation started!', 'success');
+                
+            } catch (error) {
+                console.error('Error starting new conversation:', error);
+                showNotification('Error starting conversation', 'error');
+            }
+        }
 
+        // Event Listeners
+        function setupEventListeners() {
+            // Auth buttons
+            elements.loginBtn.addEventListener('click', () => openModal(elements.loginModal));
+            elements.signupBtn.addEventListener('click', () => openModal(elements.signupModal));
+            elements.logoutBtn.addEventListener('click', () => auth.signOut());
+            
+            // Auth form switches
+            document.getElementById('showSignup').addEventListener('click', () => {
+                closeModal(elements.loginModal);
+                openModal(elements.signupModal);
+            });
+            
+            document.getElementById('showLogin').addEventListener('click', () => {
+                closeModal(elements.signupModal);
+                openModal(elements.loginModal);
+            });
+            
+            // Auth forms
+            elements.loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                
+                try {
+                    await auth.signInWithEmailAndPassword(email, password);
+                    closeModal(elements.loginModal);
+                    showNotification('Login successful!', 'success');
+                } catch (error) {
+                    showNotification('Login failed: ' + error.message, 'error');
+                }
+            });
+            
+            elements.signupForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const name = document.getElementById('signupName').value;
+                const email = document.getElementById('signupEmail').value;
+                const password = document.getElementById('signupPassword').value;
+                
+                try {
+                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    await userCredential.user.updateProfile({
+                        displayName: name
+                    });
+                    closeModal(elements.signupModal);
+                    showNotification('Account created successfully!', 'success');
+                } catch (error) {
+                    showNotification('Signup failed: ' + error.message, 'error');
+                }
+            });
+            
+            // Chat functionality
+            elements.newConversationBtn.addEventListener('click', openNewConversationModal);
             elements.sendBtn.addEventListener('click', sendMessage);
             
             elements.messageInput.addEventListener('keypress', (e) => {
@@ -969,15 +1499,20 @@
                     sendMessage();
                 }
             });
-
-            // Close modal events
+            
+            elements.messageInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+            
+            // Modal close events
             document.querySelectorAll('.close-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const modal = e.target.closest('.modal');
                     closeModal(modal);
                 });
             });
-
+            
             window.addEventListener('click', (e) => {
                 if (e.target.classList.contains('modal')) {
                     closeModal(e.target);
@@ -986,6 +1521,22 @@
         }
 
         // Utility functions
+        function formatTime(date) {
+            const now = new Date();
+            const diff = now.getTime() - date.getTime();
+            const diffDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 0) {
+                return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            } else if (diffDays === 1) {
+                return 'Yesterday';
+            } else if (diffDays < 7) {
+                return date.toLocaleDateString([], { weekday: 'short' });
+            } else {
+                return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+            }
+        }
+
         function showNotification(message, type = 'info') {
             const notification = document.createElement('div');
             notification.className = `notification ${type}`;
@@ -1007,28 +1558,6 @@
 
         // Start the app
         document.addEventListener('DOMContentLoaded', initApp);
-
-        // Demo mode fallback
-        function setupDemoMode() {
-            console.log('Setting up demo mode...');
-            currentUser = {
-                uid: 'demo-user',
-                displayName: 'Demo User'
-            };
-            
-            // Show demo notification
-            showNotification('Demo mode: Using local data only', 'info');
-            
-            // You can add demo data here if needed
-            elements.conversationsList.innerHTML = `
-                <div style="text-align: center; padding: 40px; color: var(--secondary);">
-                    <i class="fas fa-users" style="font-size: 2rem; margin-bottom: 15px;"></i>
-                    <p>Demo Mode</p>
-                    <p>Please login for real-time messaging</p>
-                </div>
-            `;
-        }
-
     </script>
 </body>
 </html>
