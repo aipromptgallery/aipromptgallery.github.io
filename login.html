@@ -7,8 +7,8 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-auth-compat.js"></script>
 
     <style>
         * {
@@ -469,11 +469,11 @@
             content: '';
             height: 100px;
             position: absolute;
-            background: #ffffff;
+            background: white;
             transform: rotate(-45deg);
         }
 
-        .check-icon .icon-line {
+        .icon-line {
             height: 5px;
             background-color: #10b981;
             display: block;
@@ -482,358 +482,479 @@
             z-index: 10;
         }
 
-        .check-icon .icon-line.long {
-            width: 47px;
-            right: 8px;
-            top: 39px;
-            transform: rotate(-45deg);
-            animation: icon-line-long 0.75s;
-        }
-
-        .check-icon .icon-line.tip {
-            width: 25px;
+        .icon-line.line-tip {
+            top: 46px;
             left: 14px;
-            top: 45px;
+            width: 25px;
             transform: rotate(45deg);
             animation: icon-line-tip 0.75s;
         }
 
+        .icon-line.line-long {
+            top: 38px;
+            right: 8px;
+            width: 47px;
+            transform: rotate(-45deg);
+            animation: icon-line-long 0.75s;
+        }
+
         @keyframes rotate-circle {
-            0% { transform: translate(-50%, -50%) rotate(-45deg); }
-            5% { transform: translate(-50%, -50%) rotate(-45deg); }
-            12% { transform: translate(-50%, -50%) rotate(-405deg); }
-            100% { transform: translate(-50%, -50%) rotate(-405deg); }
+            0% { transform: rotate(-45deg); }
+            5% { transform: rotate(-45deg); }
+            12% { transform: rotate(-405deg); }
+            100% { transform: rotate(-405deg); }
         }
 
         @keyframes icon-line-tip {
-            0% { width: 0; left: 1px; top: 19px; transform: rotate(45deg); }
-            50% { width: 0; left: 1px; top: 19px; transform: rotate(45deg); }
-            100% { width: 25px; left: 14px; top: 45px; transform: rotate(45deg); }
+            0% { width: 0; left: 1px; top: 19px; }
+            54% { width: 0; left: 1px; top: 19px; }
+            70% { width: 50px; left: -8px; top: 37px; }
+            84% { width: 17px; left: 21px; top: 48px; }
+            100% { width: 25px; left: 14px; top: 45px; }
         }
 
         @keyframes icon-line-long {
-            0% { width: 0; right: 46px; top: 54px; transform: rotate(-45deg); }
-            65% { width: 0; right: 46px; top: 54px; transform: rotate(-45deg); }
-            100% { width: 47px; right: 8px; top: 39px; transform: rotate(-45deg); }
+            0% { width: 0; right: 46px; top: 54px; }
+            65% { width: 0; right: 46px; top: 54px; }
+            84% { width: 55px; right: 0px; top: 35px; }
+            100% { width: 47px; right: 8px; top: 38px; }
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: #10b981;
+            color: white;
+            padding: 18px 24px;
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+            z-index: 3000;
+            animation: slideInRight 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 400px;
+            border-left: 4px solid #059669;
+        }
+
+        .notification.error {
+            background: #ef4444;
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);
+            border-left-color: #dc2626;
+        }
+
+        .notification.info {
+            background: #3b82f6;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+            border-left-color: #1d4ed8;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .auth-container {
+                padding: 40px 25px;
+                margin: 20px;
+            }
+            
+            .logo h1 {
+                font-size: 2.2rem;
+            }
+            
+            .logo-icon {
+                width: 70px;
+                height: 70px;
+            }
+            
+            .logo-icon i {
+                font-size: 2rem;
+            }
+            
+            .form-input {
+                padding: 16px 20px 16px 48px;
+            }
+            
+            .auth-tab {
+                padding: 14px 16px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Loading Animation */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
     <div class="auth-container">
-        
         <div class="logo">
             <div class="logo-icon">
-                <i class="fas fa-robot"></i>
+                <i class="fas fa-palette"></i>
             </div>
-            <h1>Prompt Gallery</h1>
-            <p>Unleash your creativity</p>
+            <h1>AI Prompt Gallery</h1>
+            <p>Join our creative community</p>
         </div>
 
         <div class="auth-tabs">
-            <button class="auth-tab active" id="tabLogin">Login</button>
-            <button class="auth-tab" id="tabSignup">Sign Up</button>
-            <div class="tab-indicator login" id="tabIndicator"></div>
+            <div class="tab-indicator login"></div>
+            <button class="auth-tab active" data-tab="login">Sign In</button>
+            <button class="auth-tab" data-tab="signup">Create Account</button>
         </div>
 
-        <div id="loginForm">
-            <form class="auth-form" id="loginAuthForm">
-                <div class="form-group">
-                    <input type="email" class="form-input" id="loginEmail" placeholder="Email Address" required>
-                    <i class="input-icon fas fa-envelope"></i>
-                </div>
-                <div class="form-group">
-                    <input type="password" class="form-input" id="loginPassword" placeholder="Password" required>
-                    <i class="input-icon fas fa-lock"></i>
-                    <button type="button" class="password-toggle" id="toggleLoginPassword">
-                        <i class="fas fa-eye-slash"></i>
-                    </button>
-                </div>
-                
-                <div class="form-options">
-                    <label class="remember-me">
-                        <input type="checkbox"> Remember Me
-                    </label>
-                    <a href="#" class="forgot-password">Forgot Password?</a>
-                </div>
-
-                <button type="submit" class="auth-submit-btn" id="loginSubmitBtn">
-                    <i class="fas fa-sign-in-alt"></i> Login
+        <form class="auth-form" id="loginForm">
+            <div class="form-group">
+                <i class="fas fa-envelope input-icon"></i>
+                <input type="email" class="form-input" id="loginEmail" placeholder="Enter your email" required>
+            </div>
+            
+            <div class="form-group">
+                <i class="fas fa-lock input-icon"></i>
+                <input type="password" class="form-input" id="loginPassword" placeholder="Enter your password" required>
+                <button type="button" class="password-toggle" onclick="togglePassword('loginPassword')">
+                    <i class="fas fa-eye"></i>
                 </button>
-            </form>
-        </div>
+            </div>
 
-        <div id="signupForm" class="hidden">
-            <form class="auth-form" id="signupAuthForm">
-                <div class="form-group">
-                    <input type="text" class="form-input" id="signupUsername" placeholder="Username" required>
-                    <i class="input-icon fas fa-user"></i>
-                </div>
-                <div class="form-group">
-                    <input type="email" class="form-input" id="signupEmail" placeholder="Email Address" required>
-                    <i class="input-icon fas fa-envelope"></i>
-                </div>
-                <div class="form-group">
-                    <input type="password" class="form-input" id="signupPassword" placeholder="Password (min 6 chars)" required>
-                    <i class="input-icon fas fa-lock"></i>
-                    <button type="button" class="password-toggle" id="toggleSignupPassword">
-                        <i class="fas fa-eye-slash"></i>
-                    </button>
-                </div>
-                <div class="form-group">
-                    <input type="password" class="form-input" id="signupConfirmPassword" placeholder="Confirm Password" required>
-                    <i class="input-icon fas fa-lock"></i>
-                    <button type="button" class="password-toggle" id="toggleSignupConfirmPassword">
-                        <i class="fas fa-eye-slash"></i>
-                    </button>
-                </div>
+            <div class="form-options">
+                <label class="remember-me">
+                    <input type="checkbox" id="rememberMe">
+                    Remember me
+                </label>
+                <a href="#" class="forgot-password">Forgot password?</a>
+            </div>
 
-                <button type="submit" class="auth-submit-btn" id="signupSubmitBtn">
-                    <i class="fas fa-user-plus"></i> Sign Up
+            <button type="submit" class="auth-submit-btn" id="loginSubmitBtn">
+                <i class="fas fa-sign-in-alt"></i> Sign In to Your Account
+            </button>
+        </form>
+
+        <form class="auth-form hidden" id="signupForm">
+            <div class="form-group">
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" class="form-input" id="signupName" placeholder="Enter your full name" required>
+            </div>
+            
+            <div class="form-group">
+                <i class="fas fa-envelope input-icon"></i>
+                <input type="email" class="form-input" id="signupEmail" placeholder="Enter your email" required>
+            </div>
+            
+            <div class="form-group">
+                <i class="fas fa-lock input-icon"></i>
+                <input type="password" class="form-input" id="signupPassword" placeholder="Create a password" required>
+                <button type="button" class="password-toggle" onclick="togglePassword('signupPassword')">
+                    <i class="fas fa-eye"></i>
                 </button>
-                
-                <div id="signupSuccess" class="hidden">
-                    <div class="success-checkmark">
-                        <div class="check-icon">
-                            <span class="icon-line tip"></span>
-                            <span class="icon-line long"></span>
-                            <div class="icon-circle"></div>
-                            <div class="icon-fix"></div>
-                        </div>
-                    </div>
-                    <p style="text-align: center; color: #10b981; font-weight: 600;">Account Created! Please check your email for verification.</p>
-                </div>
-            </form>
-        </div>
+            </div>
+            
+            <div class="form-group">
+                <i class="fas fa-lock input-icon"></i>
+                <input type="password" class="form-input" id="signupConfirmPassword" placeholder="Confirm your password" required>
+                <button type="button" class="password-toggle" onclick="togglePassword('signupConfirmPassword')">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+
+            <button type="submit" class="auth-submit-btn" id="signupSubmitBtn">
+                <i class="fas fa-user-plus"></i> Create Your Account
+            </button>
+        </form>
 
         <div class="auth-divider">
-            <span>OR</span>
+            <span>Or continue with</span>
         </div>
 
         <button class="google-auth-btn" id="googleAuthBtn">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Logo_and_wordmark_of_Google_G_Suite.svg" alt="Google Logo" class="google-icon">
+            <svg class="google-icon" viewBox="0 0 24 24" width="20" height="20">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
             Continue with Google
         </button>
-        
-        <p class="auth-footer" id="authFooter">
-            By proceeding, you agree to our 
-            <a href="#">Terms of Service</a> and 
-            <a href="#">Privacy Policy</a>.
-        </p>
 
+        <div class="auth-footer">
+            By continuing, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+        </div>
     </div>
 
-    <div id="notificationArea" style="position: fixed; top: 20px; right: 20px; z-index: 1000;"></div>
-
     <script>
-        // === FIREBASE CONFIGURATION ===
+        // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyDovL4QBUZfueYzMJpkCjWu_4NLMoQWyiA",
+            authDomain: "gagsta-paradise.firebaseapp.com",
+            databaseURL: "https://gagsta-paradise-default-rtdb.firebaseio.com",
+            projectId: "gagsta-paradise",
+            storageBucket: "gagsta-paradise.firebasestorage.app",
+            messagingSenderId: "78516691257",
+            appId: "1:78516691257:web:466954e941fc6a7eb388e8",
+            measurementId: "G-CDFQN2N12D"
         };
 
         // Initialize Firebase
+        // Note: The compatibility scripts (v9 compat) make 'firebase' global, 
+        // allowing the old v8 style initialization to work.
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
-        const googleProvider = new firebase.auth.GoogleAuthProvider();
 
-        // === ELEMENTS ===
-        const loginForm = document.getElementById('loginAuthForm');
-        const signupForm = document.getElementById('signupAuthForm');
+        // DOM Elements
+        const authTabs = document.querySelectorAll('.auth-tab');
+        const loginForm = document.getElementById('loginForm');
+        const signupForm = document.getElementById('signupForm');
         const googleAuthBtn = document.getElementById('googleAuthBtn');
-        const authContainer = document.querySelector('.auth-container');
-        const tabLogin = document.getElementById('tabLogin');
-        const tabSignup = document.getElementById('tabSignup');
-        const tabIndicator = document.getElementById('tabIndicator');
-        const loginDiv = document.getElementById('loginForm');
-        const signupDiv = document.getElementById('signupForm');
-        const signupSuccessDiv = document.getElementById('signupSuccess');
+        const tabIndicator = document.querySelector('.tab-indicator');
+        const loginSubmitBtn = document.getElementById('loginSubmitBtn');
+        const signupSubmitBtn = document.getElementById('signupSubmitBtn');
 
-        // === TAB SWITCHING ===
-        tabLogin.addEventListener('click', () => switchTab('login'));
-        tabSignup.addEventListener('click', () => switchTab('signup'));
-
-        function switchTab(mode) {
-            if (mode === 'login') {
-                tabLogin.classList.add('active');
-                tabSignup.classList.remove('active');
-                tabIndicator.classList.add('login');
-                tabIndicator.classList.remove('signup');
-                loginDiv.classList.remove('hidden');
-                signupDiv.classList.add('hidden');
-                signupSuccessDiv.classList.add('hidden');
-            } else if (mode === 'signup') {
-                tabSignup.classList.add('active');
-                tabLogin.classList.remove('active');
-                tabIndicator.classList.add('signup');
-                tabIndicator.classList.remove('login');
-                signupDiv.classList.remove('hidden');
-                loginDiv.classList.add('hidden');
-            }
-        }
-
-        // === PASSWORD TOGGLE ===
-        document.querySelectorAll('.password-toggle').forEach(button => {
-            button.addEventListener('click', () => {
-                const inputId = button.id.replace('toggle', '');
-                const input = document.getElementById(inputId);
-                const icon = button.querySelector('i');
-
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    icon.className = 'fas fa-eye';
+        // Tab Switching with Smooth Animation
+        authTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.dataset.tab;
+                
+                // Update active tab
+                authTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Update tab indicator
+                tabIndicator.className = `tab-indicator ${tabName}`;
+                
+                // Show correct form with fade animation
+                if (tabName === 'login') {
+                    signupForm.style.opacity = '0';
+                    setTimeout(() => {
+                        signupForm.classList.add('hidden');
+                        loginForm.classList.remove('hidden');
+                        setTimeout(() => {
+                            loginForm.style.opacity = '1';
+                        }, 50);
+                    }, 300);
                 } else {
-                    input.type = 'password';
-                    icon.className = 'fas fa-eye-slash';
+                    loginForm.style.opacity = '0';
+                    setTimeout(() => {
+                        loginForm.classList.add('hidden');
+                        signupForm.classList.remove('hidden');
+                        setTimeout(() => {
+                            signupForm.style.opacity = '1';
+                        }, 50);
+                    }, 300);
                 }
             });
         });
 
-        // === NOTIFICATION SYSTEM ===
+        // Password Toggle with Animation
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const toggle = input.nextElementSibling;
+            const icon = toggle.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+                toggle.style.transform = 'translateY(-50%) scale(1.1)';
+                setTimeout(() => {
+                    toggle.style.transform = 'translateY(-50%) scale(1)';
+                }, 200);
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+                toggle.style.transform = 'translateY(-50%) scale(1.1)';
+                setTimeout(() => {
+                    toggle.style.transform = 'translateY(-50%) scale(1)';
+                }, 200);
+            }
+        }
+
+        // Input Focus Effects
+        document.querySelectorAll('.form-input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.querySelector('.input-icon').style.color = '#2563eb';
+                this.parentElement.querySelector('.input-icon').style.transform = 'translateY(-50%) scale(1.1)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.querySelector('.input-icon').style.color = '#64748b';
+                this.parentElement.querySelector('.input-icon').style.transform = 'translateY(-50%) scale(1)';
+            });
+        });
+
+        // Show Notification with Better Animation
         function showNotification(message, type = 'info') {
-            const notificationArea = document.getElementById('notificationArea');
-            // Remove existing notifications
-            notificationArea.innerHTML = '';
+            document.querySelectorAll('.notification').forEach(notif => notif.remove());
             
             const notification = document.createElement('div');
             notification.className = `notification ${type}`;
-            
-            const iconClass = type === 'success' ? 'fas fa-check-circle' : 
-                              type === 'error' ? 'fas fa-exclamation-circle' : 
-                              'fas fa-info-circle';
-            
             notification.innerHTML = `
-                <div style="background: white; color: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#2563eb'}; padding: 5px; border-radius: 50%;"><i class="${iconClass}"></i></div>
-                <span style="font-weight: 500; margin-left: 10px;">${message}</span>
-            `;
-
-            // Basic CSS for notification
-            notification.style.cssText = `
-                display: flex;
-                align-items: center;
-                background: white;
-                border-radius: 10px;
-                padding: 15px 20px;
-                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-                border-left: 5px solid ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#2563eb'};
-                margin-bottom: 10px;
-                opacity: 0;
-                transform: translateX(100%);
-                transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'}"></i>
+                <span>${message}</span>
             `;
             
-            notificationArea.appendChild(notification);
+            document.body.appendChild(notification);
             
-            // Trigger animation
+            // Auto remove with fade out
             setTimeout(() => {
-                notification.style.opacity = '1';
-                notification.style.transform = 'translateX(0)';
-            }, 50);
-
-            // Auto-hide
-            setTimeout(() => {
-                notification.style.opacity = '0';
-                notification.style.transform = 'translateX(100%)';
-                setTimeout(() => notification.remove(), 500);
-            }, 5000);
+                notification.style.animation = 'slideInRight 0.5s cubic-bezier(0.4, 0, 0.2, 1) reverse';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 500);
+            }, 4000);
         }
 
-        // === AUTHENTICATION FUNCTIONS ===
-        
-        // Helper to show error
-        function displayAuthError(error, formElement) {
-            const container = formElement.closest('.auth-container');
-            container.style.animation = 'shake 0.4s ease-in-out';
-            setTimeout(() => container.style.animation = 'none', 400);
-
-            showNotification(formatErrorMessage(error), 'error');
-        }
-
-        // 1. Email/Password Login
+        // Login Function with Enhanced UI
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
-
+            const originalText = loginSubmitBtn.innerHTML;
+            
+            // Show loading state
+            loginSubmitBtn.innerHTML = '<div class="loading-spinner"></div> Signing In...';
+            loginSubmitBtn.disabled = true;
+            
             try {
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                // Check if email is verified - THIS IS THE ERROR the user asked to restore!
-                if (!userCredential.user.emailVerified) {
-                    showNotification('Please verify your email address to login.', 'error');
-                    // Force sign out if not verified
-                    await auth.signOut();
-                    return; 
-                }
+                showNotification('Login successful! Welcome back!', 'success');
                 
-                showNotification('Login successful!', 'success');
-                // Redirect on success
-                // window.location.href = 'index.html';
-
+                // Add success animation delay
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+                
             } catch (error) {
-                displayAuthError(error, loginForm);
+                showNotification(getErrorMessage(error), 'error');
+                // Shake animation for error
+                loginForm.style.animation = 'shake 0.5s ease-in-out';
+                setTimeout(() => {
+                    loginForm.style.animation = '';
+                }, 500);
+            } finally {
+                loginSubmitBtn.innerHTML = originalText;
+                loginSubmitBtn.disabled = false;
             }
         });
 
-        // 2. Email/Password Sign Up
+        // Signup Function with Enhanced UI
         signupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            const name = document.getElementById('signupName').value;
             const email = document.getElementById('signupEmail').value;
             const password = document.getElementById('signupPassword').value;
             const confirmPassword = document.getElementById('signupConfirmPassword').value;
-            const username = document.getElementById('signupUsername').value;
-
+            const originalText = signupSubmitBtn.innerHTML;
+            
+            // Show loading state
+            signupSubmitBtn.innerHTML = '<div class="loading-spinner"></div> Creating Account...';
+            signupSubmitBtn.disabled = true;
+            
+            // Validation with better UX
             if (password !== confirmPassword) {
-                showNotification('Passwords do not match.', 'error');
+                showNotification('Passwords do not match! Please try again.', 'error');
+                document.getElementById('signupConfirmPassword').focus();
+                signupSubmitBtn.innerHTML = originalText;
+                signupSubmitBtn.disabled = false;
                 return;
             }
-
+            
+            if (password.length < 6) {
+                showNotification('Password should be at least 6 characters long', 'error');
+                document.getElementById('signupPassword').focus();
+                signupSubmitBtn.innerHTML = originalText;
+                signupSubmitBtn.disabled = false;
+                return;
+            }
+            
             try {
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                
-                // Set username
                 await userCredential.user.updateProfile({
-                    displayName: username
+                    displayName: name
                 });
-
-                // Send verification email
-                await userCredential.user.sendEmailVerification();
-
-                // Show success message and hide form
-                document.getElementById('signupAuthForm').classList.add('hidden');
-                signupSuccessDiv.classList.remove('hidden');
+                
+                showNotification('Account created successfully! Welcome to AI Prompt Gallery!', 'success');
+                
+                // Add success animation delay
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
                 
             } catch (error) {
-                displayAuthError(error, signupForm);
+                showNotification(getErrorMessage(error), 'error');
+                // Shake animation for error
+                signupForm.style.animation = 'shake 0.5s ease-in-out';
+                setTimeout(() => {
+                    signupForm.style.animation = '';
+                }, 500);
+            } finally {
+                signupSubmitBtn.innerHTML = originalText;
+                signupSubmitBtn.disabled = false;
             }
         });
 
-        // 3. Google Sign In
+        // Google Authentication with Enhanced UI
         googleAuthBtn.addEventListener('click', async () => {
+            const originalText = googleAuthBtn.innerHTML;
+            googleAuthBtn.innerHTML = '<div class="loading-spinner" style="border-top-color: #374151;"></div> Continuing with Google...';
+            googleAuthBtn.disabled = true;
+            
             try {
-                await auth.signInWithPopup(googleProvider);
-                // The user will be redirected by the onAuthStateChanged listener
+                const provider = new firebase.auth.GoogleAuthProvider();
+                const userCredential = await auth.signInWithPopup(provider);
+                
+                showNotification('Google login successful! Welcome!', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+                
             } catch (error) {
-                displayAuthError(error, googleAuthBtn);
+                showNotification(getErrorMessage(error), 'error');
+            } finally {
+                googleAuthBtn.innerHTML = originalText;
+                googleAuthBtn.disabled = false;
             }
         });
 
-        // Helper to format Firebase errors
-        function formatErrorMessage(error) {
+        // Better Error Messages
+        function getErrorMessage(error) {
             switch (error.code) {
                 case 'auth/invalid-email':
-                    return 'The email address is not valid.';
+                    return 'Please enter a valid email address.';
                 case 'auth/user-disabled':
-                    return 'This user account has been disabled.';
+                    return 'This account has been disabled.';
                 case 'auth/user-not-found':
+                    return 'No account found with this email.';
                 case 'auth/wrong-password':
-                    return 'Invalid email or password.';
+                    return 'Incorrect password. Please try again.';
                 case 'auth/email-already-in-use':
-                    return 'This email is already in use.';
-                case 'auth/operation-not-allowed':
-                    return 'Email/password accounts are not enabled.';
+                    return 'An account with this email already exists.';
                 case 'auth/weak-password':
                     return 'Password is too weak. Please choose a stronger password.';
                 case 'auth/network-request-failed':
@@ -873,6 +994,12 @@
                 }
             `;
             document.head.appendChild(bgAnimation);
+            
+            // Check URL for signup mode
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('mode') === 'signup') {
+                document.querySelector('.auth-tab[data-tab="signup"]').click();
+            }
         });
     </script>
 </body>
