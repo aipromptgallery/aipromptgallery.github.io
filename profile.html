@@ -621,6 +621,7 @@
 
     <script>
         // === FIREBASE CONFIGURATION ===
+        // YEH TUMHARA REAL FIREBASE CONFIGURATION HAI
         const firebaseConfig = {
             apiKey: "AIzaSyDovL4QBUZfueYzMJpkCjWu_4NLMoQWyiA",
             authDomain: "gagsta-paradise.firebaseapp.com",
@@ -691,11 +692,11 @@
                 if (user) {
                     currentUser = user;
                     await loadUserData(user.uid);
+                    showNotification('Successfully logged in!', 'success');
                 } else {
-                    // For demo purposes, we'll simulate a logged-in user
-                    // In a real app, redirect to login if not authenticated
-                    // window.location.href = 'login.html';
+                    // Demo mode for testing
                     simulateLoggedInUser();
+                    showNotification('Demo mode: Using sample data', 'info');
                 }
             });
         }
@@ -703,9 +704,11 @@
         // === USER DATA MANAGEMENT ===
         async function loadUserData(uid) {
             try {
+                console.log('Loading user data for:', uid);
                 const userDoc = await db.collection('users').doc(uid).get();
                 
                 if (!userDoc.exists) {
+                    console.log('Creating new user document');
                     // Create user document if it doesn't exist
                     await createUserDocument(uid);
                     await loadUserData(uid); // Reload data
@@ -713,6 +716,7 @@
                 }
                 
                 const userData = userDoc.data();
+                console.log('User data loaded:', userData);
                 updateProfileUI(userData);
                 
             } catch (error) {
@@ -736,6 +740,7 @@
                 followingList: []
             };
             
+            console.log('Creating user document:', userData);
             await db.collection('users').doc(uid).set(userData);
             return userData;
         }
@@ -759,6 +764,12 @@
             if (userData.createdAt) {
                 const joinDate = userData.createdAt.toDate();
                 elements.joinDate.textContent = joinDate.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long',
+                    day: 'numeric'
+                });
+            } else {
+                elements.joinDate.textContent = new Date().toLocaleDateString('en-US', { 
                     year: 'numeric', 
                     month: 'long',
                     day: 'numeric'
@@ -813,20 +824,24 @@
                 
                 // Upload new image if selected
                 if (imageFile) {
+                    showNotification('Uploading image...', 'info');
                     avatarUrl = await uploadProfileImage(imageFile);
                 }
                 
                 // Update Firebase Auth profile
-                await currentUser.updateProfile({
-                    displayName: name,
-                    photoURL: avatarUrl
-                });
+                if (currentUser.updateProfile) {
+                    await currentUser.updateProfile({
+                        displayName: name,
+                        photoURL: avatarUrl
+                    });
+                }
                 
                 // Update Firestore user document
                 await db.collection('users').doc(currentUser.uid).update({
                     name: name,
                     bio: bio,
-                    avatar: avatarUrl
+                    avatar: avatarUrl,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
                 // Update UI
@@ -843,16 +858,18 @@
                 
             } catch (error) {
                 console.error('Error updating profile:', error);
-                showNotification('Error updating profile', 'error');
+                showNotification('Error updating profile: ' + error.message, 'error');
             }
         });
 
         async function uploadProfileImage(file) {
             try {
+                console.log('Uploading image:', file.name);
                 const storageRef = storage.ref();
-                const imageRef = storageRef.child(`profiles/${currentUser.uid}_${Date.now()}`);
+                const imageRef = storageRef.child(`profiles/${currentUser.uid}_${Date.now()}_${file.name}`);
                 const snapshot = await imageRef.put(file);
                 const downloadURL = await snapshot.ref.getDownloadURL();
+                console.log('Image uploaded successfully:', downloadURL);
                 return downloadURL;
             } catch (error) {
                 console.error('Error uploading image:', error);
@@ -874,12 +891,16 @@
 
         // === LOGOUT ===
         elements.logoutBtn.addEventListener('click', () => {
-            auth.signOut().then(() => {
-                window.location.href = 'index.html';
-            }).catch((error) => {
-                console.error('Error signing out:', error);
-                showNotification('Error signing out', 'error');
-            });
+            if (auth.signOut) {
+                auth.signOut().then(() => {
+                    window.location.href = 'index.html';
+                }).catch((error) => {
+                    console.error('Error signing out:', error);
+                    showNotification('Error signing out', 'error');
+                });
+            } else {
+                showNotification('Logout not available in demo mode', 'info');
+            }
         });
 
         // === NOTIFICATION SYSTEM ===
@@ -959,8 +980,6 @@
                 likes: 128,
                 createdAt: { toDate: () => new Date('2024-01-15') }
             });
-            
-            showNotification('Demo mode: Using sample data', 'info');
         }
 
         // === INITIALIZATION ===
@@ -968,6 +987,9 @@
             initTheme();
             initAuth();
             setupModalHandlers();
+            
+            // Add debug info
+            console.log('Firebase initialized with config:', firebaseConfig);
         }
 
         // Start the app
