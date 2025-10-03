@@ -3,178 +3,322 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile Page</title>
+    <title>AI Prompt Gallery | My Profile</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
     <style>
+        /* BASE & THEME STYLES (MATCHING index.html) */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+
+        :root {
+            --primary: #667eea; 
+            --primary-dark: #764ba2; 
+            --secondary: #64748b;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --card-bg: #ffffff;
+            --gradient: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --error: #ef4444;
+        }
+
         body {
-            background: #f1f5f9;
-            padding: 40px 20px;
+            background: var(--light);
+            padding: 30px;
+            color: var(--dark);
         }
+
+        /* Container and Card */
         .container {
-            max-width: 700px;
+            max-width: 800px;
             margin: 0 auto;
-            background: white;
-            padding: 30px 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
         }
+        
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 20px;
+        }
+
+        .header-section h1 {
+            color: var(--primary-dark);
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        /* Profile Header */
         .profile-header {
             display: flex;
             align-items: center;
             gap: 25px;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 40px;
         }
+
+        .avatar-container {
+            position: relative;
+        }
+
         .avatar {
             width: 120px;
             height: 120px;
             border-radius: 50%;
             object-fit: cover;
-            border: 4px solid #3b82f6;
-            box-shadow: 0 0 0 4px #e0f2fe;
+            border: 4px solid var(--primary);
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
+        
+        .edit-avatar-btn {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: var(--gradient);
+            color: white;
+            border: 3px solid var(--card-bg);
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .edit-avatar-btn:hover {
+            transform: scale(1.1);
+        }
+
         .profile-info h2 {
             font-size: 28px;
             margin-bottom: 5px;
-            color: #1f2937;
+            color: var(--dark);
         }
+
         .profile-info p {
-            color: #6b7280;
-            margin-bottom: 10px;
-            line-height: 1.5;
+            font-size: 16px;
+            color: var(--secondary);
         }
-        .edit-button {
-            background: #3b82f6;
-            color: white;
+        
+        /* Profile Details Section */
+        .details-section {
+            border-top: 1px solid #e2e8f0;
+            padding-top: 25px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #f0f0f0;
+            border-radius: 10px;
+            transition: box-shadow 0.2s;
+        }
+        
+        .detail-item:hover {
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+
+        .detail-item i {
+            font-size: 20px;
+            width: 30px;
+            color: var(--primary);
+            margin-right: 15px;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            width: 150px;
+            color: var(--dark);
+        }
+
+        .detail-value {
+            color: var(--secondary);
+            flex-grow: 1;
+        }
+
+        /* Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: flex-end;
+        }
+
+        .action-btn {
+            padding: 12px 25px;
             border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            margin-top: 10px;
-            transition: background 0.3s ease;
+            font-weight: 600;
+            transition: opacity 0.2s;
         }
-        .edit-button:hover {
-            background: #2563eb;
+
+        .edit-btn {
+            background: var(--gradient);
+            color: white;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
         }
+        .edit-btn:hover { opacity: 0.9; }
+
+        .home-btn {
+            background: #e2e8f0;
+            color: var(--dark);
+        }
+        .home-btn:hover { background: #cbd5e1; }
+
+        /* Modal */
         .modal {
-            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.6);
-            z-index: 1000;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: none; 
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
         }
         .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
+            background-color: var(--card-bg);
+            padding: 35px;
+            border-radius: 15px;
+            max-width: 500px;
             width: 90%;
-            max-width: 550px;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
         }
-        input:not([type="file"]), textarea {
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        .form-input {
             width: 100%;
             padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
             font-size: 16px;
         }
-        input:focus, textarea:focus {
-            border-color: #3b82f6;
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        .form-input:focus { border-color: var(--primary); outline: none; }
+        
+        .save-btn {
+            background: var(--gradient);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            width: 100%;
+            font-weight: 600;
+            margin-top: 20px;
         }
-        .avatar-preview {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin: 10px auto 20px;
-            display: block;
-            border: 2px solid #3b82f6;
-        }
-        .button-group {
-            margin-top: 25px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
+        .close-btn { position: absolute; top: 15px; right: 15px; font-size: 24px; cursor: pointer; color: var(--secondary); }
 
-        /* --- MOBILE RESPONNSIVENESS FOR PROFILE PAGE --- */
         @media (max-width: 600px) {
-            body {
-                padding: 20px 10px;
-            }
             .profile-header {
-                flex-direction: column; /* Stack avatar and info on mobile */
+                flex-direction: column;
                 text-align: center;
-                gap: 15px;
             }
-            .profile-info h2 {
-                font-size: 24px;
+            .detail-item {
+                flex-direction: column;
+                align-items: flex-start;
             }
-            .avatar {
-                width: 100px;
-                height: 100px;
-            }
-            .button-group {
-                flex-direction: column; /* Stack buttons in modal on small screens */
-            }
-            .button-group button {
+            .detail-label {
                 width: 100%;
+                margin-bottom: 5px;
             }
         }
-        /* --- END MOBILE RESPONNSIVENESS --- */
     </style>
 </head>
 <body>
+
     <div class="container">
+        <div class="header-section">
+            <h1><i class="fas fa-user-circle"></i> My Profile</h1>
+            <a href="index.html" class="action-btn home-btn"><i class="fas fa-home"></i> Go Home</a>
+        </div>
+        
         <div class="profile-header">
-            <img src="https://ui-avatars.com/api/?name=User&background=3b82f6&color=fff" alt="Avatar" class="avatar" id="avatar">
+            <div class="avatar-container">
+                <img src="" alt="Profile Avatar" class="avatar" id="profileAvatar">
+                <span class="edit-avatar-btn" id="editAvatarBtn" onclick="openModal()"><i class="fas fa-camera"></i></span>
+            </div>
             <div class="profile-info">
-                <h2 id="userName">User Name</h2>
-                <p id="userBio">Bio will appear here</p>
-                <p id="userEmail">Email will appear here</p>
-                <button class="edit-button" onclick="openEditModal()">Edit Profile</button>
+                <h2 id="profileName">Loading Name...</h2>
+                <p id="profileBio">Loading Bio...</p>
             </div>
+        </div>
+        
+        <div class="details-section">
+            <div class="detail-item">
+                <i class="fas fa-envelope"></i>
+                <span class="detail-label">Email:</span>
+                <span class="detail-value" id="profileEmail">Loading...</span>
+            </div>
+            <div class="detail-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span class="detail-label">Member Since:</span>
+                <span class="detail-value" id="profileJoined">Loading...</span>
+            </div>
+            <div class="detail-item">
+                <i class="fas fa-trophy"></i>
+                <span class="detail-label">Prompts Uploaded:</span>
+                <span class="detail-value" id="profilePrompts">0</span>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="action-btn edit-btn" onclick="openModal()"><i class="fas fa-edit"></i> Edit Profile</button>
         </div>
     </div>
 
-    <div class="modal" id="editModal">
-        <div class="modal-content">
-            <h3>Edit Profile</h3>
-            <img src="https://ui-avatars.com/api/?name=User&background=3b82f6&color=fff" alt="Preview" class="avatar-preview" id="avatarPreview">
-            <p style="font-size: 12px; color: #ef4444; margin-bottom: 10px;">Warning: Max image size 200KB (to avoid database limits).</p>
-            <input type="file" id="imageInput" accept="image/*">
-            <input type="text" id="nameInput" placeholder="Your Name">
-            <textarea id="bioInput" placeholder="Your Bio" rows="3"></textarea>
-            <input type="email" id="emailInput" placeholder="Your Email" disabled title="Email change not supported in this demo">
-            <div class="button-group">
-                <button class="edit-button" onclick="saveProfile()">Save Changes</button>
-                <button onclick="closeModal()" class="edit-button" style="background: #6b7280;">Cancel</button>
-            </div>
+    <div id="editModal" class="modal" onclick="closeModal(this)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-btn" onclick="closeModal(document.getElementById('editModal'))">&times;</span>
+            <h2 style="color: var(--primary-dark); margin-bottom: 25px;"><i class="fas fa-edit"></i> Edit Details</h2>
+            
+            <form id="editForm">
+                <div class="form-group">
+                    <label for="nameInput"><i class="fas fa-user"></i> Name</label>
+                    <input type="text" id="nameInput" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="bioInput"><i class="fas fa-feather-alt"></i> Bio</label>
+                    <textarea id="bioInput" class="form-input" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="imageUpload"><i class="fas fa-image"></i> Change Avatar</label>
+                    <input type="file" id="imageUpload" accept="image/*" class="form-input">
+                </div>
+                <button type="submit" class="save-btn"><i class="fas fa-save"></i> Save Changes</button>
+            </form>
         </div>
     </div>
-
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
-        // Firebase Configuration
+        // --- FIREBASE CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyDovL4QBUZfueYzMJpkCjWu_4NLMoQWyiA",
             authDomain: "gagsta-paradise.firebaseapp.com",
@@ -183,147 +327,146 @@
             messagingSenderId: "78516691257",
             appId: "1:78516691257:web:466954e941fc6a7eb388e8"
         };
-
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-
+        const storage = firebase.storage();
         let currentUser = null;
-        let currentImageBase64 = null; 
+        let currentImageFile = null;
 
-        // Demo user setup
-        function initDemoUser() {
-            currentUser = {
-                uid: 'demo-user-' + Date.now(),
-                email: 'user@example.com',
-                displayName: 'Demo User'
-            };
-            loadUserData();
-        }
-
-        // Load user data
-        async function loadUserData() {
-            try {
-                const userDoc = await db.collection('users').doc(currentUser.uid).get();
-                
-                if (userDoc.exists) {
-                    const userData = userDoc.data();
-                    updateUI(userData);
-                } else {
-                    await createUserDocument();
-                }
-            } catch (error) {
-                console.error('Error loading user data, using demo fallback:', error);
-                updateUI({
-                    name: 'Demo User',
-                    bio: 'This is my bio',
-                    email: 'user@example.com',
-                    avatar: 'https://ui-avatars.com/api/?name=Demo+User&background=3b82f6&color=fff' 
-                });
-            }
-        }
-
-        // Create user document
-        async function createUserDocument() {
-            const userData = {
-                name: 'Demo User',
-                email: 'user@example.com',
-                bio: 'This is my bio',
-                avatar: 'https://ui-avatars.com/api/?name=Demo+User&background=3b82f6&color=fff',
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            
-            await db.collection('users').doc(currentUser.uid).set(userData);
-            updateUI(userData);
-        }
-
-        // Update UI
-        function updateUI(userData) {
-            document.getElementById('userName').textContent = userData.name || 'User Name';
-            document.getElementById('userBio').textContent = userData.bio || 'No bio yet';
-            document.getElementById('userEmail').textContent = userData.email || 'No email';
-            
-            if (userData.avatarBase64) {
-                document.getElementById('avatar').src = userData.avatarBase64;
+        // --- AUTHENTICATION & REDIRECTION ---
+        auth.onAuthStateChanged(async (user) => {
+            if (user && user.emailVerified) {
+                currentUser = user;
+                await loadProfileData(user.uid);
             } else {
-                const defaultAvatar = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(userData.name || 'User') + '&background=3b82f6&color=fff';
-                document.getElementById('avatar').src = userData.avatar || defaultAvatar;
+                window.location.href = 'login.html';
+            }
+        });
+        
+        // --- DATA LOADERS ---
+        async function loadProfileData(uid) {
+            try {
+                const userDoc = await db.collection('users').doc(uid).get();
+                if (!userDoc.exists) {
+                    // Create basic doc if it doesn't exist (should be created during signup)
+                    await db.collection('users').doc(uid).set({
+                        name: currentUser.displayName || 'Creator',
+                        email: currentUser.email,
+                        bio: 'New AI Art Creator!',
+                        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'Creator')}&background=667eea&color=fff`,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    return loadProfileData(uid); // Re-run to load new data
+                }
+
+                const data = userDoc.data();
+                
+                // Load Prompts Count
+                const promptsSnapshot = await db.collection('prompts').where('userId', '==', uid).get();
+                const promptsCount = promptsSnapshot.size;
+
+                updateUI(data, promptsCount);
+
+            } catch (error) {
+                console.error("Error loading profile:", error);
+                alert("Error loading profile: " + error.message);
             }
         }
 
-        // Open edit modal
-        function openEditModal() {
-            document.getElementById('nameInput').value = document.getElementById('userName').textContent;
-            document.getElementById('bioInput').value = document.getElementById('userBio').textContent;
-            document.getElementById('emailInput').value = document.getElementById('userEmail').textContent;
-            document.getElementById('avatarPreview').src = document.getElementById('avatar').src;
-            document.getElementById('imageInput').value = ''; 
-            currentImageBase64 = null; 
-            document.getElementById('editModal').style.display = 'block';
+        // --- UI UPDATERS ---
+        function updateUI(data, promptsCount = 0) {
+            const avatarUrl = data.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name || 'User')}&background=667eea&color=fff`;
+
+            document.getElementById('profileAvatar').src = avatarUrl;
+            document.getElementById('profileName').textContent = data.name || 'Creator';
+            document.getElementById('profileBio').textContent = data.bio || 'No bio yet.';
+            document.getElementById('profileEmail').textContent = data.email || 'N/A';
+            document.getElementById('profilePrompts').textContent = promptsCount;
+            
+            if (data.createdAt) {
+                document.getElementById('profileJoined').textContent = data.createdAt.toDate().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            } else {
+                document.getElementById('profileJoined').textContent = 'Unknown';
+            }
+            
+            // Populate modal inputs
+            document.getElementById('nameInput').value = data.name || '';
+            document.getElementById('bioInput').value = data.bio || '';
         }
 
-        // Close modal
+        // --- MODAL & FORM HANDLERS ---
+        function openModal() {
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
         function closeModal() {
             document.getElementById('editModal').style.display = 'none';
         }
-
-        // Handle image input with SIZE CHECK
-        document.getElementById('imageInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            const MAX_SIZE_BYTES = 200 * 1024; // 200 KB
-
-            if (file) {
-                if (file.size > MAX_SIZE_BYTES) {
-                    alert('Error: File is too large! Please select an image smaller than 200KB.');
-                    document.getElementById('imageInput').value = ''; 
-                    currentImageBase64 = null;
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    currentImageBase64 = e.target.result;
-                    document.getElementById('avatarPreview').src = currentImageBase64;
-                };
-                reader.readAsDataURL(file);
-            }
+        
+        document.getElementById('imageUpload').addEventListener('change', (e) => {
+            currentImageFile = e.target.files[0];
         });
 
-        // Save profile
-        async function saveProfile() {
+        document.getElementById('editForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
             const name = document.getElementById('nameInput').value;
             const bio = document.getElementById('bioInput').value;
-            const email = document.getElementById('userEmail').textContent; 
+            const saveBtn = e.target.querySelector('.save-btn');
+            
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
             try {
+                let avatarUrl = document.getElementById('profileAvatar').src;
+                
+                // 1. Handle image upload if a new file is selected
+                if (currentImageFile) {
+                    const storageRef = storage.ref(`avatars/${currentUser.uid}/${currentImageFile.name}`);
+                    const uploadTask = await storageRef.put(currentImageFile);
+                    avatarUrl = await uploadTask.ref.getDownloadURL();
+                    currentImageFile = null; // Reset file input
+                }
+
+                // 2. Update Firestore document
                 const updateData = {
                     name: name,
                     bio: bio,
-                    email: email,
+                    avatar: avatarUrl,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
-                if (currentImageBase64) {
-                    updateData.avatarBase64 = currentImageBase64;
-                }
-
                 await db.collection('users').doc(currentUser.uid).update(updateData);
                 
-                updateUI(updateData);
-                closeModal();
+                // 3. Update Auth Profile (only name can be updated here)
+                await currentUser.updateProfile({ displayName: name });
                 
+                // 4. Reload data and update UI
+                await loadProfileData(currentUser.uid);
+
+                closeModal();
                 alert('Profile updated successfully!');
                 
             } catch (error) {
                 console.error('Error saving profile:', error);
-                alert('Error: Profile update failed. This is likely due to the image being too large for Firestore (max 1MB per document).');
+                alert('Error saving profile: ' + error.message);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
             }
-        }
+        });
 
-        // Initialize
+        // --- UTILITIES ---
+        // Close modal when clicking outside
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Initialize App
         document.addEventListener('DOMContentLoaded', function() {
-            initDemoUser();
+            // Nothing needed here, auth.onAuthStateChanged handles initiation
         });
     </script>
 </body>
