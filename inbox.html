@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Prompt Gallery | Real Chat</title>
+    <title>AI Prompt Gallery | Messages</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -699,7 +699,7 @@
     <div class="container">
         <div class="header">
             <h1>AI Prompt Gallery</h1>
-            <p>Your creative community for AI art prompts</p>
+            <p>Connect with the creative community</p>
             
             <!-- Auth Buttons -->
             <div class="auth-buttons" id="authButtons">
@@ -885,7 +885,7 @@
 
         // Initialize App
         function initApp() {
-            console.log('🚀 Initializing AI Prompt Gallery...');
+            console.log('🚀 Initializing AI Prompt Gallery Messages...');
             setupEventListeners();
             initAuth();
         }
@@ -912,7 +912,7 @@
                     // Load conversations
                     await loadConversations();
                     
-                    showNotification(`Welcome back, ${user.displayName || 'User'}!`, 'success');
+                    showNotification(`Welcome to messages, ${user.displayName || 'User'}!`, 'success');
                     
                 } else {
                     currentUser = null;
@@ -958,97 +958,60 @@
             }
         }
 
-        // Send welcome message
+        // Send welcome message - SIMPLE VERSION
         async function sendWelcomeSystem(user) {
             if (user.email === OWNER_EMAIL) return;
             
             try {
-                console.log('🎉 Sending welcome system for new user:', user.uid);
+                console.log('🎉 Setting up welcome system for new user:', user.uid);
                 
-                // Get or create owner
-                let ownerId = await getOrCreateOwner();
-                
-                // Check if conversation exists
-                const conversationExists = await checkConversationExists(user.uid, ownerId);
-                
-                if (!conversationExists) {
-                    await createWelcomeConversation(user.uid, ownerId);
-                }
+                // Directly create welcome conversation
+                await createWelcomeConversation(user.uid);
                 
             } catch (error) {
                 console.error('❌ Error in welcome system:', error);
             }
         }
 
-        // Get or create owner user
-        async function getOrCreateOwner() {
-            const ownerQuery = await db.collection('users').where('email', '==', OWNER_EMAIL).get();
-            
-            if (!ownerQuery.empty) {
-                const ownerDoc = ownerQuery.docs[0];
-                users[ownerDoc.id] = ownerDoc.data();
-                return ownerDoc.id;
-            } else {
-                const ownerRef = db.collection('users').doc();
-                const ownerId = ownerRef.id;
-                const ownerData = {
-                    name: "AI Prompt Gallery",
-                    email: OWNER_EMAIL,
-                    avatar: "https://ui-avatars.com/api/?name=AI+Prompt+Gallery&background=667eea&color=fff",
-                    bio: "Official AI Prompt Gallery Account",
-                    isOwner: true,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        // Create welcome conversation - SIMPLE VERSION
+        async function createWelcomeConversation(userId) {
+            try {
+                console.log('💬 Creating welcome conversation for:', userId);
+                
+                // Create conversation data
+                const conversationData = {
+                    participants: [userId, "system"],
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastMessage: "Welcome to AI Prompt Gallery! 🎨",
+                    lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    unreadCount: {
+                        [userId]: 1
+                    },
+                    isWelcome: true
                 };
-                await ownerRef.set(ownerData);
-                users[ownerId] = ownerData;
-                console.log('✅ Owner account created');
-                return ownerId;
+                
+                // Add conversation to Firestore
+                const conversationRef = await db.collection('conversations').add(conversationData);
+                console.log('✅ Conversation created with ID:', conversationRef.id);
+                
+                // Add welcome message
+                await db.collection('conversations').doc(conversationRef.id)
+                    .collection('messages').add({
+                        text: `Welcome to AI Prompt Gallery, ${currentUser.displayName || 'friend'}! 🎨\n\nWe're thrilled to have you in our creative community! Start sharing your AI art prompts and connect with other creators.`,
+                        senderId: "system",
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        read: false,
+                        isOfficial: true
+                    });
+                
+                console.log('✅ Welcome message added');
+                
+            } catch (error) {
+                console.error('❌ Error creating welcome conversation:', error);
             }
         }
 
-        // Check if conversation exists
-        async function checkConversationExists(userId, ownerId) {
-            const existingConv = await db.collection('conversations')
-                .where('participants', 'array-contains', userId)
-                .get();
-            
-            let conversationExists = false;
-            existingConv.forEach(doc => {
-                const data = doc.data();
-                if (data.participants.includes(ownerId)) {
-                    conversationExists = true;
-                }
-            });
-            return conversationExists;
-        }
-
-        // Create welcome conversation
-        async function createWelcomeConversation(userId, ownerId) {
-            const conversationData = {
-                participants: [ownerId, userId],
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                lastMessage: "Welcome to AI Prompt Gallery! 🎨",
-                lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
-                unreadCount: {
-                    [userId]: 1
-                }
-            };
-            
-            const conversationRef = await db.collection('conversations').add(conversationData);
-            
-            await db.collection('conversations').doc(conversationRef.id)
-                .collection('messages').add({
-                    text: `Welcome to AI Prompt Gallery, ${currentUser.displayName || 'friend'}! 🎨\n\nWe're thrilled to have you in our creative community!`,
-                    senderId: ownerId,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    read: false,
-                    isOfficial: true
-                });
-            
-            console.log('✅ Welcome conversation created');
-        }
-
-        // Load conversations
+        // Load conversations - SIMPLE VERSION
         async function loadConversations() {
             if (!currentUser) return;
             
@@ -1062,13 +1025,25 @@
                 
                 conversations = [];
                 snapshot.forEach(doc => {
-                    conversations.push({ id: doc.id, ...doc.data() });
+                    const data = doc.data();
+                    conversations.push({ 
+                        id: doc.id, 
+                        ...data,
+                        // Ensure lastMessage exists
+                        lastMessage: data.lastMessage || "No messages yet"
+                    });
                 });
                 
                 console.log('✅ Loaded conversations:', conversations.length);
-                updateConversationsList();
                 
-                await loadParticipantsData();
+                // If no conversations, create welcome one
+                if (conversations.length === 0) {
+                    await createWelcomeConversation(currentUser.uid);
+                    await loadConversations(); // Reload
+                } else {
+                    updateConversationsList();
+                    await loadParticipantsData();
+                }
                 
             } catch (error) {
                 console.error('❌ Error loading conversations:', error);
@@ -1076,31 +1051,59 @@
             }
         }
 
-        // Load participants data
+        // Load participants data - SIMPLE VERSION
         async function loadParticipantsData() {
-            const allUserIds = new Set();
-            
-            conversations.forEach(conversation => {
-                conversation.participants.forEach(uid => {
-                    if (uid !== currentUser.uid && !users[uid]) {
-                        allUserIds.add(uid);
-                    }
+            try {
+                const allUserIds = new Set(['system']); // Add system user
+                
+                conversations.forEach(conversation => {
+                    conversation.participants.forEach(uid => {
+                        if (uid !== currentUser.uid && !users[uid]) {
+                            allUserIds.add(uid);
+                        }
+                    });
                 });
-            });
-            
-            const userPromises = Array.from(allUserIds).map(async (uid) => {
-                try {
-                    const userDoc = await db.collection('users').doc(uid).get();
-                    if (userDoc.exists) {
-                        users[uid] = userDoc.data();
-                    }
-                } catch (error) {
-                    console.error('❌ Error loading user data:', error);
-                }
-            });
-            
-            await Promise.all(userPromises);
-            updateConversationsList();
+                
+                // Add system user data
+                users['system'] = {
+                    name: "AI Prompt Gallery",
+                    avatar: "https://ui-avatars.com/api/?name=AI+Prompt+Gallery&background=667eea&color=fff",
+                    bio: "Official Account",
+                    isOwner: true
+                };
+                
+                // Load other users from Firestore
+                const userPromises = Array.from(allUserIds)
+                    .filter(uid => uid !== 'system')
+                    .map(async (uid) => {
+                        try {
+                            const userDoc = await db.collection('users').doc(uid).get();
+                            if (userDoc.exists) {
+                                users[uid] = userDoc.data();
+                            } else {
+                                // Fallback for unknown users
+                                users[uid] = {
+                                    name: "Unknown User",
+                                    avatar: "https://ui-avatars.com/api/?name=User&background=random",
+                                    bio: "User"
+                                };
+                            }
+                        } catch (error) {
+                            console.error('❌ Error loading user data:', error);
+                            users[uid] = {
+                                name: "Unknown User",
+                                avatar: "https://ui-avatars.com/api/?name=User&background=random",
+                                bio: "User"
+                            };
+                        }
+                    });
+                
+                await Promise.all(userPromises);
+                updateConversationsList();
+                
+            } catch (error) {
+                console.error('❌ Error in loadParticipantsData:', error);
+            }
         }
 
         // Update conversations list UI
@@ -1136,7 +1139,7 @@
                 const lastMessage = conversation.lastMessage || 'No messages yet';
                 const lastMessageTime = conversation.lastMessageAt ? formatTime(conversation.lastMessageAt.toDate()) : '';
                 const unreadCount = conversation.unreadCount && conversation.unreadCount[currentUser.uid] || 0;
-                const isOwner = otherUser.email === OWNER_EMAIL;
+                const isOwner = otherUser.email === OWNER_EMAIL || otherParticipantId === 'system';
                 
                 return `
                     <div class="conversation-item ${currentConversation && currentConversation.id === conversation.id ? 'active' : ''}" 
@@ -1195,7 +1198,7 @@
             elements.chatUserAvatar.src = otherUser.avatar;
             elements.chatUserName.innerHTML = `
                 ${otherUser.name}
-                ${otherUser.email === OWNER_EMAIL ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
+                ${otherUser.email === OWNER_EMAIL || otherParticipantId === 'system' ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
             `;
             elements.chatUserStatus.textContent = 'Online';
             
@@ -1400,7 +1403,7 @@
                 
                 const allUsers = [];
                 snapshot.forEach(doc => {
-                    if (doc.id !== currentUser.uid) {
+                    if (doc.id !== currentUser.uid && doc.id !== 'system') {
                         allUsers.push({ id: doc.id, ...doc.data() });
                     }
                 });
