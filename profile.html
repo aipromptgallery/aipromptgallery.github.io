@@ -181,6 +181,7 @@
 
         .avatar-container {
             position: relative;
+            text-align: center;
         }
 
         .profile-avatar {
@@ -224,39 +225,24 @@
             transform: scale(1.1);
         }
 
-        .profile-info {
-            flex: 1;
-        }
-
-        .profile-name {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-            background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* User Tag - Chota aur Better Styling */
+        /* User Tag - DP के नीचे */
         .user-tag {
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-size: 0.7rem;
+            margin-top: 15px;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
+            max-width: 150px;
         }
 
         .owner-tag {
-            background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); /* Dark Blue */
             color: white;
             animation: glow 2s ease-in-out infinite alternate;
         }
@@ -273,13 +259,30 @@
 
         @keyframes glow {
             from { 
-                box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+                box-shadow: 0 2px 8px rgba(30, 58, 138, 0.4);
                 transform: scale(1);
             }
             to { 
-                box-shadow: 0 4px 15px rgba(239, 68, 68, 0.6), 0 0 20px rgba(249, 115, 22, 0.4);
+                box-shadow: 0 4px 15px rgba(30, 58, 138, 0.6), 0 0 20px rgba(37, 99, 235, 0.4);
                 transform: scale(1.02);
             }
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .profile-bio {
@@ -765,14 +768,15 @@
                         <button class="edit-avatar-btn" id="editAvatarBtn">
                             <i class="fas fa-camera"></i>
                         </button>
+                        <!-- Badge DP के नीचे -->
+                        <div class="user-tag member-tag" id="userTag">
+                            <i class="fas fa-user"></i> Member
+                        </div>
                     </div>
                     
                     <div class="profile-info">
                         <div class="profile-name">
                             <span id="profileName">User Name</span>
-                            <div class="user-tag member-tag" id="userTag">
-                                <i class="fas fa-user"></i> Member
-                            </div>
                             <i class="fas fa-check-circle verified-badge hidden" id="verifiedBadge"></i>
                         </div>
                         
