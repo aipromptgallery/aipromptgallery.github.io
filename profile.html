@@ -421,11 +421,49 @@
             font-weight: 600;
             width: 100%;
             transition: var(--transition);
+            position: relative;
         }
 
-        .submit-btn:hover {
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .submit-btn:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--light);
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--success);
+            width: 0%;
+            transition: width 0.3s ease;
         }
 
         /* Notification */
@@ -451,6 +489,10 @@
 
         .notification.info {
             background: var(--primary);
+        }
+
+        .notification.warning {
+            background: #f59e0b;
         }
 
         @keyframes slideInRight {
@@ -598,6 +640,9 @@
                             <label for="editProfileImage" class="file-input-label">
                                 <i class="fas fa-camera"></i> Change Profile Photo
                             </label>
+                            <div class="progress-bar" id="uploadProgressBar">
+                                <div class="progress-fill" id="uploadProgressFill"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -612,8 +657,10 @@
                     <textarea id="editProfileBio" class="form-input form-textarea" placeholder="Tell us about yourself..."></textarea>
                 </div>
                 
-                <button type="submit" class="submit-btn">
-                    <i class="fas fa-save"></i> Save Changes
+                <button type="submit" class="submit-btn" id="saveProfileBtn">
+                    <div class="loading-spinner" id="saveSpinner"></div>
+                    <i class="fas fa-save" id="saveIcon"></i> 
+                    <span id="saveText">Save Changes</span>
                 </button>
             </form>
         </div>
@@ -621,7 +668,6 @@
 
     <script>
         // === FIREBASE CONFIGURATION ===
-        // YEH TUMHARA REAL FIREBASE CONFIGURATION HAI
         const firebaseConfig = {
             apiKey: "AIzaSyDovL4QBUZfueYzMJpkCjWu_4NLMoQWyiA",
             authDomain: "gagsta-paradise.firebaseapp.com",
@@ -640,6 +686,7 @@
         // === GLOBAL VARIABLES ===
         const OWNER_EMAIL = "alizybaby381@gmail.com";
         let currentUser = null;
+        let isUploading = false;
 
         // === DOM ELEMENTS ===
         const elements = {
@@ -664,7 +711,13 @@
             editProfileAvatar: document.getElementById('editProfileAvatar'),
             editProfileName: document.getElementById('editProfileName'),
             editProfileBio: document.getElementById('editProfileBio'),
-            editProfileImage: document.getElementById('editProfileImage')
+            editProfileImage: document.getElementById('editProfileImage'),
+            saveProfileBtn: document.getElementById('saveProfileBtn'),
+            saveSpinner: document.getElementById('saveSpinner'),
+            saveIcon: document.getElementById('saveIcon'),
+            saveText: document.getElementById('saveText'),
+            uploadProgressBar: document.getElementById('uploadProgressBar'),
+            uploadProgressFill: document.getElementById('uploadProgressFill')
         };
 
         // === THEME MANAGEMENT ===
@@ -709,9 +762,8 @@
                 
                 if (!userDoc.exists) {
                     console.log('Creating new user document');
-                    // Create user document if it doesn't exist
                     await createUserDocument(uid);
-                    await loadUserData(uid); // Reload data
+                    await loadUserData(uid);
                     return;
                 }
                 
@@ -721,7 +773,7 @@
                 
             } catch (error) {
                 console.error('Error loading user data:', error);
-                showNotification('Error loading profile data', 'error');
+                showNotification('Error loading profile data: ' + error.message, 'error');
             }
         }
 
@@ -746,7 +798,6 @@
         }
 
         function updateProfileUI(userData) {
-            // Update basic info
             elements.profileName.textContent = userData.name;
             elements.profileBio.textContent = userData.bio;
             elements.profileAvatar.src = userData.avatar;
@@ -754,13 +805,11 @@
             elements.userEmail.textContent = currentUser.email;
             elements.userId.textContent = currentUser.uid.substring(0, 8) + '...';
             
-            // Update stats
             elements.promptsCount.textContent = userData.prompts || 0;
             elements.followersCount.textContent = userData.followers || 0;
             elements.followingCount.textContent = userData.following || 0;
             elements.likesCount.textContent = userData.likes || 0;
             
-            // Update join date
             if (userData.createdAt) {
                 const joinDate = userData.createdAt.toDate();
                 elements.joinDate.textContent = joinDate.toLocaleDateString('en-US', { 
@@ -776,7 +825,6 @@
                 });
             }
             
-            // Update user tag
             if (currentUser.email === OWNER_EMAIL) {
                 elements.userTag.textContent = 'Site Owner';
                 elements.userTag.className = 'user-tag owner-tag';
@@ -798,17 +846,19 @@
         });
 
         function openEditProfileModal() {
-            // Fill form with current data
             elements.editProfileName.value = elements.profileName.textContent;
             elements.editProfileBio.value = elements.profileBio.textContent;
             elements.editProfileAvatar.src = elements.profileAvatar.src;
-            
-            // Open modal
             elements.editProfileModal.style.display = 'block';
         }
 
         elements.editProfileForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            if (isUploading) {
+                showNotification('Please wait for current upload to complete', 'warning');
+                return;
+            }
             
             const name = elements.editProfileName.value.trim();
             const bio = elements.editProfileBio.value.trim();
@@ -818,6 +868,9 @@
                 showNotification('Please enter your name', 'error');
                 return;
             }
+            
+            // Show loading state
+            setSaveButtonLoading(true);
             
             try {
                 let avatarUrl = elements.profileAvatar.src;
@@ -853,27 +906,84 @@
                 // Close modal and reset form
                 elements.editProfileModal.style.display = 'none';
                 elements.editProfileImage.value = '';
+                elements.uploadProgressBar.style.display = 'none';
+                elements.uploadProgressFill.style.width = '0%';
                 
                 showNotification('Profile updated successfully!', 'success');
                 
             } catch (error) {
                 console.error('Error updating profile:', error);
                 showNotification('Error updating profile: ' + error.message, 'error');
+            } finally {
+                setSaveButtonLoading(false);
+                isUploading = false;
             }
         });
 
         async function uploadProfileImage(file) {
-            try {
-                console.log('Uploading image:', file.name);
-                const storageRef = storage.ref();
-                const imageRef = storageRef.child(`profiles/${currentUser.uid}_${Date.now()}_${file.name}`);
-                const snapshot = await imageRef.put(file);
-                const downloadURL = await snapshot.ref.getDownloadURL();
-                console.log('Image uploaded successfully:', downloadURL);
-                return downloadURL;
-            } catch (error) {
-                console.error('Error uploading image:', error);
-                throw error;
+            return new Promise(async (resolve, reject) => {
+                try {
+                    isUploading = true;
+                    console.log('Starting image upload:', file.name, file.size);
+                    
+                    // Show progress bar
+                    elements.uploadProgressBar.style.display = 'block';
+                    elements.uploadProgressFill.style.width = '0%';
+                    
+                    const storageRef = storage.ref();
+                    const fileExtension = file.name.split('.').pop();
+                    const imageRef = storageRef.child(`profiles/${currentUser.uid}_${Date.now()}.${fileExtension}`);
+                    
+                    // Upload file with progress tracking
+                    const uploadTask = imageRef.put(file);
+                    
+                    uploadTask.on('state_changed',
+                        (snapshot) => {
+                            // Progress tracking
+                            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                            elements.uploadProgressFill.style.width = progress + '%';
+                            console.log('Upload progress:', progress + '%');
+                        },
+                        (error) => {
+                            // Upload failed
+                            console.error('Upload error:', error);
+                            elements.uploadProgressBar.style.display = 'none';
+                            reject(error);
+                        },
+                        async () => {
+                            // Upload completed
+                            try {
+                                const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                                console.log('Image uploaded successfully:', downloadURL);
+                                elements.uploadProgressFill.style.width = '100%';
+                                setTimeout(() => {
+                                    elements.uploadProgressBar.style.display = 'none';
+                                }, 1000);
+                                resolve(downloadURL);
+                            } catch (error) {
+                                reject(error);
+                            }
+                        }
+                    );
+                    
+                } catch (error) {
+                    console.error('Error in upload function:', error);
+                    reject(error);
+                }
+            });
+        }
+
+        function setSaveButtonLoading(loading) {
+            if (loading) {
+                elements.saveProfileBtn.disabled = true;
+                elements.saveSpinner.style.display = 'inline-block';
+                elements.saveIcon.style.display = 'none';
+                elements.saveText.textContent = 'Saving...';
+            } else {
+                elements.saveProfileBtn.disabled = false;
+                elements.saveSpinner.style.display = 'none';
+                elements.saveIcon.style.display = 'inline-block';
+                elements.saveText.textContent = 'Save Changes';
             }
         }
 
@@ -881,6 +991,20 @@
         elements.editProfileImage.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
+                // Validate file size (max 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    showNotification('Image size should be less than 5MB', 'error');
+                    this.value = '';
+                    return;
+                }
+                
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    showNotification('Please select an image file', 'error');
+                    this.value = '';
+                    return;
+                }
+                
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     elements.editProfileAvatar.src = e.target.result;
@@ -905,19 +1029,17 @@
 
         // === NOTIFICATION SYSTEM ===
         function showNotification(message, type = 'info') {
-            // Remove existing notifications
             document.querySelectorAll('.notification').forEach(notif => notif.remove());
             
             const notification = document.createElement('div');
             notification.className = `notification ${type}`;
             notification.innerHTML = `
-                <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'}"></i>
+                <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : type === 'warning' ? 'exclamation-circle' : 'info'}"></i>
                 <span>${message}</span>
             `;
             
             document.body.appendChild(notification);
             
-            // Auto remove after 4 seconds
             setTimeout(() => {
                 if (notification.parentNode) {
                     notification.remove();
@@ -927,7 +1049,6 @@
 
         // === MODAL MANAGEMENT ===
         function setupModalHandlers() {
-            // Close modal when clicking close button
             document.querySelectorAll('.close-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const modal = e.target.closest('.modal');
@@ -935,14 +1056,12 @@
                 });
             });
             
-            // Close modal when clicking outside
             window.addEventListener('click', (e) => {
                 if (e.target.classList.contains('modal')) {
                     closeModal(e.target);
                 }
             });
             
-            // Close modal with Escape key
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
                     document.querySelectorAll('.modal').forEach(modal => {
@@ -954,13 +1073,15 @@
 
         function closeModal(modal) {
             modal.style.display = 'none';
-            // Reset form
             elements.editProfileImage.value = '';
+            elements.uploadProgressBar.style.display = 'none';
+            elements.uploadProgressFill.style.width = '0%';
+            setSaveButtonLoading(false);
+            isUploading = false;
         }
 
         // === DEMO FUNCTIONALITY ===
         function simulateLoggedInUser() {
-            // For demo purposes, create a mock user
             currentUser = {
                 uid: 'demo-user-12345',
                 email: 'demo@example.com',
@@ -968,7 +1089,6 @@
                 photoURL: 'https://ui-avatars.com/api/?name=Demo+User&background=667eea&color=fff'
             };
             
-            // Update UI with demo data
             updateProfileUI({
                 name: 'Demo User',
                 email: 'demo@example.com',
@@ -988,8 +1108,8 @@
             initAuth();
             setupModalHandlers();
             
-            // Add debug info
             console.log('Firebase initialized with config:', firebaseConfig);
+            console.log('Storage bucket:', storage.ref().bucket);
         }
 
         // Start the app
