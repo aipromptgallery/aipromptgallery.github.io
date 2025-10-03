@@ -1368,7 +1368,7 @@
                         <div class="file-upload-section" id="fileUploadSection">
                             <i class="fas fa-cloud-upload-alt upload-icon"></i>
                             <div class="upload-text">Click to upload or drag & drop</div>
-                            <div class="upload-subtext">PNG, JPG, WEBP up to 5MB</div>
+                            <div class="upload-subtext">PNG, JPG, WEBP up to 1MB</div>
                         </div>
                         <div class="image-preview-container">
                             <img id="imagePreview" class="image-preview" alt="Image preview">
@@ -1412,6 +1412,7 @@
         let currentCategory = 'all';
         let searchQuery = '';
         const OWNER_EMAIL = "alizybaby381@gmail.com";
+        const LEGENDARY_EMAIL = "ul8763325@gmail.com";
 
         // === DOM ELEMENTS ===
         const elements = {
@@ -1509,7 +1510,8 @@
                     prompts: 0,
                     likes: 0,
                     followersList: [],
-                    followingList: []
+                    followingList: [],
+                    isVerified: currentUser.email === OWNER_EMAIL || currentUser.email === LEGENDARY_EMAIL
                 });
             }
         }
@@ -1599,6 +1601,9 @@
                 const commentCount = prompt.comments || 0;
                 const timeAgo = getTimeAgo(prompt.createdAt?.toDate());
                 
+                // ✅ VERIFIED TICK - ONLY FOR OWNER & LEGENDARY
+                const isAuthorVerified = prompt.authorEmail === OWNER_EMAIL || prompt.authorEmail === LEGENDARY_EMAIL;
+                
                 return `
                     <div class="prompt-card" data-prompt-id="${prompt.id}">
                         <div class="prompt-image-container">
@@ -1624,7 +1629,10 @@
                                          alt="${prompt.authorName}" class="author-avatar"
                                          onerror="this.src='https://ui-avatars.com/api/?name=User&background=random'">
                                     <div>
-                                        <div class="author-name">${prompt.authorName}</div>
+                                        <div class="author-name">
+                                            ${prompt.authorName}
+                                            ${isAuthorVerified ? '<i class="fas fa-check-circle verified-badge" style="color: #3b82f6; font-size: 0.9rem;"></i>' : ''}
+                                        </div>
                                         <small style="color: var(--secondary);">${timeAgo}</small>
                                     </div>
                                 </div>
@@ -1776,9 +1784,9 @@
         elements.promptImage.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                // Validate file size (5MB)
-                if (file.size > 5 * 1024 * 1024) {
-                    showNotification('Image size should be less than 5MB', 'error');
+                // ✅ FIXED: 1MB limit for Firestore
+                if (file.size > 1 * 1024 * 1024) {
+                    showNotification('Image size should be less than 1MB', 'error');
                     this.value = '';
                     return;
                 }
@@ -1896,6 +1904,7 @@
                     imageData: imageData,
                     authorId: currentUser.uid,
                     authorName: userData.name || currentUser.displayName || 'User',
+                    authorEmail: currentUser.email, // ✅ Store email for verification check
                     authorAvatar: userData.avatar || currentUser.photoURL || 'https://ui-avatars.com/api/?name=User&background=random',
                     likes: 0,
                     comments: 0,
