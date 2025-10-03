@@ -11,6 +11,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
     <style>
+        /* BASE & THEME STYLES (MATCHING index.html) */
         * {
             margin: 0;
             padding: 0;
@@ -18,8 +19,20 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
+        :root {
+            --primary: #667eea; /* Soft Blue */
+            --primary-dark: #764ba2; /* Soft Purple */
+            --secondary: #64748b;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --card-bg: #ffffff;
+            --gradient: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            --error: #ef4444;
+        }
+
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--gradient);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -27,9 +40,10 @@
             padding: 20px;
             position: relative;
             overflow: hidden;
+            color: var(--dark);
         }
 
-        /* Existing CSS for background animation */
+        /* Subtle Background Animation */
         body::before {
             content: '';
             position: absolute;
@@ -37,146 +51,125 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.05);
-            pointer-events: none;
+            background: rgba(255, 255, 255, 0.05); /* Light overlay for depth */
             z-index: 1;
         }
 
-        .login-container {
-            background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        /* Login Card */
+        .auth-container {
+            position: relative;
+            z-index: 2;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
             width: 100%;
             max-width: 400px;
-            padding: 0; /* Padding moved inside form-box */
-            z-index: 10;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .tab-buttons {
-            display: flex;
-            width: 100%;
-            border-bottom: 2px solid #e0e0e0;
-        }
-
-        .tab-button {
-            flex: 1;
-            padding: 15px 0;
             text-align: center;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            color: #764ba2;
-            background: #f8f8f8;
-            border: none;
-            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .tab-button.active {
-            background: #ffffff;
-            color: #667eea;
-            border-bottom: 3px solid #667eea;
+        .auth-container h2 {
+            font-size: 28px;
+            margin-bottom: 30px;
+            color: var(--primary-dark);
+            font-weight: 700;
         }
 
-        .form-box {
-            padding: 30px;
-        }
-
-        .form-box h2 {
-            text-align: center;
-            margin-bottom: 25px;
-            color: #333;
-            font-size: 24px;
-        }
-
-        .input-group {
+        .form-group {
+            text-align: left;
             margin-bottom: 20px;
-            position: relative;
         }
 
-        .input-group i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #999;
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--secondary);
         }
 
-        .input-group input {
+        .form-input {
             width: 100%;
-            padding: 15px 15px 15px 45px;
-            border: 1px solid #ccc;
+            padding: 12px;
+            border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 16px;
-            transition: border-color 0.3s;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
-        .input-group input:focus {
-            border-color: #667eea;
+        .form-input:focus {
+            border-color: var(--primary);
             outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
         }
 
-        .form-action {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-
-        .form-action a {
-            color: #667eea;
-            text-decoration: none;
-        }
-
-        .submit-button {
+        .submit-btn {
             width: 100%;
-            padding: 15px;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            padding: 14px 20px;
+            background: var(--gradient);
             color: white;
             border: none;
             border-radius: 8px;
-            font-size: 18px;
             cursor: pointer;
-            transition: opacity 0.3s;
+            font-size: 18px;
+            font-weight: 600;
+            transition: opacity 0.2s;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+            margin-top: 10px;
         }
 
-        .submit-button:hover {
+        .submit-btn:hover {
             opacity: 0.9;
         }
+        
+        .switch-link {
+            display: block;
+            margin-top: 25px;
+            font-size: 15px;
+            color: var(--secondary);
+        }
 
-        /* --- Notification Styles --- */
+        .switch-link a {
+            color: var(--primary-dark);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .switch-link a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+        
+        /* Notification Styling */
         .notification {
             position: fixed;
             top: 20px;
             right: 20px;
-            padding: 15px 25px;
-            border-radius: 8px;
+            background: #10b981;
             color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             z-index: 1000;
             display: flex;
             align-items: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             font-weight: 500;
-            transform: translateX(100%);
-            animation: slideIn 0.5s forwards, slideOut 0.5s 4.5s forwards;
+            animation: slideInRight 0.3s ease-out;
         }
-        .notification i {
-            margin-right: 10px;
-        }
-        .notification.error { background-color: #ef4444; }
-        .notification.success { background-color: #10b981; }
-        .notification.info { background-color: #3b82f6; }
-
-        @keyframes slideIn {
+        .notification.error { background: var(--error); }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(120%); }
             to { transform: translateX(0); }
         }
-        @keyframes slideOut {
-            to { transform: translateX(120%); }
-        }
-
-        /* --- Shake Animation --- */
+        
+        /* Shake for Error */
         .shake {
             animation: shake 0.5s;
         }
@@ -186,67 +179,53 @@
             75% { transform: translateX(5px); }
         }
 
-        /* --- Tab Content Visibility --- */
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
+        @media (max-width: 480px) {
+            .auth-container {
+                padding: 30px 20px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="login-container">
+    <div class="auth-container" id="authContainer">
+        <h2 id="formTitle">Login to AI Prompt Gallery</h2>
         
-        <div class="tab-buttons">
-            <button class="tab-button active" onclick="showLoginTab()">Login</button>
-            <button class="tab-button" onclick="showSignupTab()">Sign Up</button>
-        </div>
-
-        <div id="loginTab" class="tab-content active">
-            <div class="form-box">
-                <h2>Login to Your Account</h2>
-                <form id="login-form">
-                    <div class="input-group">
-                        <i class="fas fa-envelope"></i>
-                        <input type="email" id="login-email" placeholder="Email" required>
-                    </div>
-                    <div class="input-group">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="login-password" placeholder="Password" required>
-                    </div>
-                    <div class="form-action">
-                        <div>
-                            </div>
-                        <a href="#" onclick="handleForgotPassword()">Forgot Password?</a>
-                    </div>
-                    <button type="submit" class="submit-button" onclick="handleLogin(event)">Login</button>
-                </form>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="loginEmail"><i class="fas fa-envelope"></i> Email</label>
+                <input type="email" id="loginEmail" class="form-input" required>
             </div>
-        </div>
-
-        <div id="signupTab" class="tab-content">
-            <div class="form-box">
-                <h2>Create New Account</h2>
-                <form id="signup-form">
-                    <div class="input-group">
-                        <i class="fas fa-envelope"></i>
-                        <input type="email" id="signup-email" placeholder="Email" required>
-                    </div>
-                    <div class="input-group">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="signup-password" placeholder="Password (min 6 characters)" required>
-                    </div>
-                    <button type="submit" class="submit-button" onclick="handleSignUp(event)">Sign Up</button>
-                </form>
+            <div class="form-group">
+                <label for="loginPassword"><i class="fas fa-lock"></i> Password</label>
+                <input type="password" id="loginPassword" class="form-input" required>
             </div>
-        </div>
+            <button type="submit" class="submit-btn" id="submitBtn">Login</button>
+        </form>
+
+        <form id="signupForm" style="display: none;">
+            <div class="form-group">
+                <label for="signupName"><i class="fas fa-user"></i> Name</label>
+                <input type="text" id="signupName" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label for="signupEmail"><i class="fas fa-envelope"></i> Email</label>
+                <input type="email" id="signupEmail" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label for="signupPassword"><i class="fas fa-lock"></i> Password</label>
+                <input type="password" id="signupPassword" class="form-input" required minlength="6">
+            </div>
+            <button type="submit" class="submit-btn">Create Account</button>
+        </form>
         
+        <p class="switch-link" id="switchLink">
+            Don't have an account? <a href="#" onclick="showSignup(event)">Sign Up</a>
+        </p>
     </div>
 
     <script>
-        // Firebase Configuration
+        // --- FIREBASE CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyDovL4QBUZfueYzMJpkCjWu_4NLMoQWyiA",
             authDomain: "gagsta-paradise.firebaseapp.com",
@@ -255,19 +234,137 @@
             messagingSenderId: "78516691257",
             appId: "1:78516691257:web:466954e941fc6a7eb388e8"
         };
-
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Utility function to display notifications
+        // --- DOM Elements ---
+        const loginForm = document.getElementById('loginForm');
+        const signupForm = document.getElementById('signupForm');
+        const formTitle = document.getElementById('formTitle');
+        const switchLink = document.getElementById('switchLink');
+        const authContainer = document.getElementById('authContainer');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // --- FORM SWITCHING ---
+        function showLogin(e) {
+            e.preventDefault();
+            loginForm.style.display = 'block';
+            signupForm.style.display = 'none';
+            formTitle.textContent = 'Login to AI Prompt Gallery';
+            switchLink.innerHTML = 'Don\'t have an account? <a href="#" onclick="showSignup(event)">Sign Up</a>';
+        }
+
+        function showSignup(e) {
+            e.preventDefault();
+            loginForm.style.display = 'none';
+            signupForm.style.display = 'block';
+            formTitle.textContent = 'Create Your Account';
+            switchLink.innerHTML = 'Already have an account? <a href="#" onclick="showLogin(event)">Login</a>';
+        }
+
+        // --- AUTHENTICATION HANDLERS ---
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Logging in...';
+
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                
+                if (!userCredential.user.emailVerified) {
+                    // If login succeeds but email is not verified
+                    await auth.signOut();
+                    showNotification('Please verify your email address. Verification link sent again.', 'error');
+                    await userCredential.user.sendEmailVerification();
+                    authContainer.classList.add('shake');
+                    setTimeout(() => authContainer.classList.remove('shake'), 500);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Login';
+                    return;
+                }
+                
+                showNotification('Login successful!', 'success');
+                window.location.href = 'index.html'; // Redirect to main page
+
+            } catch (error) {
+                const errorMessage = getFriendlyErrorMessage(error);
+                showNotification(`Login Failed: ${errorMessage}`, 'error');
+                authContainer.classList.add('shake');
+                setTimeout(() => authContainer.classList.remove('shake'), 500);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Login';
+            }
+        });
+
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            
+            e.target.querySelector('.submit-btn').disabled = true;
+            e.target.querySelector('.submit-btn').textContent = 'Creating...';
+
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                
+                // Update profile with Display Name
+                await userCredential.user.updateProfile({
+                    displayName: name
+                });
+                
+                // Send verification email
+                await userCredential.user.sendEmailVerification();
+                
+                // Create user document in Firestore (for profile data)
+                await db.collection('users').doc(userCredential.user.uid).set({
+                    name: name,
+                    email: email,
+                    bio: 'New AI Art Creator!',
+                    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=667eea&color=fff`,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showNotification('Account created! Please check your email to **verify** before logging in.', 'success');
+                showLogin(e); // Switch back to login form
+                e.target.querySelector('.submit-btn').disabled = false;
+                e.target.querySelector('.submit-btn').textContent = 'Create Account';
+
+            } catch (error) {
+                const errorMessage = getFriendlyErrorMessage(error);
+                showNotification(`Signup Failed: ${errorMessage}`, 'error');
+                authContainer.classList.add('shake');
+                setTimeout(() => authContainer.classList.remove('shake'), 500);
+                e.target.querySelector('.submit-btn').disabled = false;
+                e.target.querySelector('.submit-btn').textContent = 'Create Account';
+            }
+        });
+
+        // --- UTILITIES ---
+        function getFriendlyErrorMessage(error) {
+            switch (error.code) {
+                case 'auth/user-not-found':
+                case 'auth/wrong-password':
+                    return 'Invalid email or password.';
+                case 'auth/email-already-in-use':
+                    return 'This email is already in use.';
+                case 'auth/weak-password':
+                    return 'Password is too weak. Please choose a stronger password.';
+                default:
+                    return error.message;
+            }
+        }
+
         function showNotification(message, type = 'info') {
             document.querySelectorAll('.notification').forEach(notif => notif.remove());
             
             const notification = document.createElement('div');
             notification.className = `notification ${type}`;
-            notification.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'}"></i><span>${message}</span>`;
+            notification.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'}" style="margin-right: 10px;"></i><span>${message}</span>`;
             
             document.body.appendChild(notification);
             
@@ -278,165 +375,12 @@
             }, 5000);
         }
 
-        // Utility function to shake form on error
-        function shakeForm(formId) {
-            const form = document.getElementById(formId);
-            form.classList.add('shake');
-            setTimeout(() => {
-                form.classList.remove('shake');
-            }, 500);
-        }
-
-        // Utility function to translate Firebase errors
-        function getErrorMessage(errorCode) {
-            switch (errorCode) {
-                case 'auth/user-not-found':
-                    return 'User not found. Check your email or sign up.';
-                case 'auth/wrong-password':
-                    return 'Invalid password.';
-                case 'auth/invalid-email':
-                    return 'Invalid email address format.';
-                case 'auth/email-already-in-use':
-                    return 'This email is already registered. Try logging in.';
-                case 'auth/weak-password':
-                    return 'Password is too weak. Please choose a stronger password.';
-                case 'auth/network-request-failed':
-                    return 'Network error. Please check your connection.';
-                default:
-                    return error.message || 'An unknown error occurred.';
-            }
-        }
-
-        // --- TAB SWITCHING LOGIC ---
-        function showLoginTab() {
-            document.getElementById('loginTab').classList.add('active');
-            document.getElementById('signupTab').classList.remove('active');
-            document.querySelector('.tab-buttons button:nth-child(1)').classList.add('active');
-            document.querySelector('.tab-buttons button:nth-child(2)').classList.remove('active');
-        }
-
-        function showSignupTab() {
-            document.getElementById('loginTab').classList.remove('active');
-            document.getElementById('signupTab').classList.add('active');
-            document.querySelector('.tab-buttons button:nth-child(1)').classList.remove('active');
-            document.querySelector('.tab-buttons button:nth-child(2)').classList.add('active');
-        }
-        
-        // --- SIGN UP LOGIC (NEW) ---
-        async function handleSignUp(event) {
-            event.preventDefault(); // Prevent form submission
-            
-            const email = document.getElementById('signup-email').value;
-            const password = document.getElementById('signup-password').value;
-            const formId = 'signup-form';
-
-            if (!email || !password) {
-                shakeForm(formId);
-                showNotification('Please fill in both email and password.', 'error');
-                return;
-            }
-
-            try {
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-
-                // 1. Send the standard Firebase verification email (sends a link)
-                await user.sendEmailVerification();
-                
-                // 2. Create the user document in Firestore (optional but recommended)
-                await db.collection('users').doc(user.uid).set({
-                    email: user.email,
-                    name: email.split('@')[0], // Use part of the email as a temporary name
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    isVerified: false // Mark as unverified in DB
-                });
-
-                // 3. Update UI and switch to Login tab
-                showNotification('Success! Please check your email inbox to verify your account. (Verification Link Sent)', 'success');
-                
-                // Clear the sign-up form
-                document.getElementById('signup-email').value = '';
-                document.getElementById('signup-password').value = '';
-
-                // Switch back to the login tab to wait for the user to verify
-                showLoginTab();
-
-            } catch (error) {
-                console.error("Sign Up Error:", error);
-                showNotification(getErrorMessage(error.code), 'error');
-                shakeForm(formId);
-            }
-        }
-
-        // --- LOGIN LOGIC (MODIFIED FOR VERIFICATION CHECK) ---
-        async function handleLogin(event) {
-            event.preventDefault(); // Prevent form submission
-            
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            const formId = 'login-form';
-
-            if (!email || !password) {
-                shakeForm(formId);
-                showNotification('Please fill in both email and password.', 'error');
-                return;
-            }
-
-            try {
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-
-                // **NEW: CHECK EMAIL VERIFICATION**
-                if (!user.emailVerified) {
-                    // Sign out the user immediately if email is not verified
-                    await auth.signOut(); 
-                    
-                    showNotification('Your email is not verified. Please check your inbox for the verification link.', 'error');
-                    shakeForm(formId);
-                    return;
-                }
-
-                showNotification('Login successful!', 'success');
-                window.location.href = 'index.html';
-
-            } catch (error) {
-                console.error("Login Error:", error);
-                showNotification(getErrorMessage(error.code), 'error');
-                shakeForm(formId);
-            }
-        }
-        
-        // --- FORGOT PASSWORD (Simple Link) ---
-        async function handleForgotPassword() {
-            const email = prompt("Please enter your email address to receive a password reset link:");
-            if (email) {
-                try {
-                    await auth.sendPasswordResetEmail(email);
-                    showNotification(`Password reset link sent to ${email}`, 'info');
-                } catch (error) {
-                    showNotification('Error sending reset email. Email may not be registered.', 'error');
-                }
-            }
-        }
-
         // Check if user is already logged in
         auth.onAuthStateChanged((user) => {
             if (user && user.emailVerified) {
-                // User is signed in AND email is verified, redirect to main app
+                // User is signed in and verified, redirect to main app
                 window.location.href = 'index.html';
             }
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add floating animation to background (for visual effect)
-            const bgAnimation = document.createElement('style');
-            bgAnimation.textContent = `
-                @keyframes float {
-                    0%, 100% { transform: translateY(0px) rotate(0deg); }
-                    50% { transform: translateY(-20px) rotate(1deg); }
-                }
-            `;
-            document.head.appendChild(bgAnimation);
         });
     </script>
 </body>
