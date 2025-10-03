@@ -749,7 +749,7 @@
                 <div class="conversations-list" id="conversationsList">
                     <div style="text-align: center; padding: 40px; color: var(--secondary);">
                         <i class="fas fa-comments" style="font-size: 2rem; margin-bottom: 15px; opacity: 0.5;"></i>
-                        <p>Please login to view messages</p>
+                        <p>Loading conversations...</p>
                     </div>
                 </div>
             </div>
@@ -835,7 +835,6 @@
         let currentConversation = null;
         let conversations = [];
         let users = {};
-        let conversationListeners = {};
         const OWNER_EMAIL = "alizybaby381@gmail.com";
         const LEGENDARY_EMAIL = "ul8763325@gmail.com";
 
@@ -855,26 +854,20 @@
             chatUserStatus: document.getElementById('chatUserStatus')
         };
 
-        // Initialize App
+        // ✅ FIXED - Initialize App
         function initApp() {
             console.log('🚀 Initializing AI Prompt Gallery Messages...');
             setupEventListeners();
             initAuth();
         }
 
-        // Authentication System - SIMPLIFIED
+        // ✅ FIXED - Authentication System
         function initAuth() {
             auth.onAuthStateChanged(async (user) => {
                 if (user) {
                     currentUser = user;
-                    console.log('✅ User signed in:', user.uid, user.email);
-                    
-                    // Create user document if not exists
-                    await createUserDocument(user);
-                    
-                    // Load conversations
+                    console.log('✅ User signed in:', user.email);
                     await loadConversations();
-                    
                 } else {
                     currentUser = null;
                     conversations = [];
@@ -884,158 +877,160 @@
             });
         }
 
-        // Create user document - SIMPLIFIED
-        async function createUserDocument(user) {
-            try {
-                const userRef = db.collection('users').doc(user.uid);
-                const userDoc = await userRef.get();
-                
-                if (!userDoc.exists) {
-                    await userRef.set({
-                        name: user.displayName || 'User',
-                        email: user.email,
-                        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'User')}&background=667eea&color=fff`,
-                        bio: "AI art enthusiast",
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
-                        // ✅ VERIFIED TICK - ONLY FOR SPECIFIC USERS
-                        isVerified: user.email === OWNER_EMAIL || user.email === LEGENDARY_EMAIL
-                    });
-                }
-                
-            } catch (error) {
-                console.error('❌ Error creating user document:', error);
-            }
-        }
-
-        // Load conversations - SIMPLIFIED
+        // ✅ FIXED - Load Conversations (SIMPLE & RELIABLE)
         async function loadConversations() {
-            if (!currentUser) return;
-            
+            if (!currentUser) {
+                showNotification('Please login to view messages', 'error');
+                return;
+            }
+
             try {
-                console.log('📥 Loading conversations for user:', currentUser.uid);
+                console.log('🔄 Loading conversations for user:', currentUser.uid);
                 
-                const snapshot = await db.collection('conversations')
-                    .where('participants', 'array-contains', currentUser.uid)
-                    .orderBy('lastMessageAt', 'desc')
-                    .get();
-                
+                // Show loading state
+                elements.conversationsList.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--secondary);">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                        <p>Loading conversations...</p>
+                    </div>
+                `;
+
+                // ✅ SIMPLE QUERY - No complex ordering that might fail
+                const snapshot = await db.collection('conversations').get();
+
                 conversations = [];
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    conversations.push({ 
-                        id: doc.id, 
-                        ...data,
-                        lastMessage: data.lastMessage || "No messages yet"
-                    });
+                    // Only include conversations where user is participant
+                    if (data.participants && data.participants.includes(currentUser.uid)) {
+                        conversations.push({
+                            id: doc.id,
+                            ...data,
+                            lastMessage: data.lastMessage || "Start a conversation",
+                            lastMessageAt: data.lastMessageAt || data.createdAt || new Date()
+                        });
+                    }
                 });
-                
-                console.log('✅ Loaded conversations:', conversations.length);
-                
-                // If no conversations, create welcome one
+
+                console.log(`✅ Loaded ${conversations.length} conversations`);
+
+                // Sort manually by lastMessageAt
+                conversations.sort((a, b) => {
+                    const timeA = a.lastMessageAt?.toDate?.() || new Date(a.lastMessageAt);
+                    const timeB = b.lastMessageAt?.toDate?.() || new Date(b.lastMessageAt);
+                    return timeB - timeA;
+                });
+
+                // Create welcome conversation if none exist
                 if (conversations.length === 0) {
-                    await createWelcomeConversation(currentUser.uid);
-                    await loadConversations(); // Reload
-                } else {
-                    updateConversationsList();
-                    await loadParticipantsData();
+                    console.log('👋 Creating welcome conversation...');
+                    await createWelcomeConversation();
+                    return;
                 }
-                
+
+                await loadParticipantsData();
+                updateConversationsList();
+
             } catch (error) {
                 console.error('❌ Error loading conversations:', error);
-                showNotification('Error loading conversations', 'error');
+                showNotification('Failed to load conversations', 'error');
+                
+                elements.conversationsList.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--secondary);">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                        <p>Failed to load conversations</p>
+                        <button onclick="loadConversations()" style="margin-top: 15px; padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer;">
+                            <i class="fas fa-redo"></i> Try Again
+                        </button>
+                    </div>
+                `;
             }
         }
 
-        // Create welcome conversation - SIMPLIFIED
-        async function createWelcomeConversation(userId) {
+        // ✅ FIXED - Create Welcome Conversation
+        async function createWelcomeConversation() {
             try {
                 const conversationData = {
-                    participants: [userId, "system"],
+                    participants: [currentUser.uid, "system"],
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     lastMessage: "Welcome to AI Prompt Gallery! 🎨",
                     lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    unreadCount: { [userId]: 1 },
                     isWelcome: true
                 };
-                
+
                 const conversationRef = await db.collection('conversations').add(conversationData);
-                
+
                 // Add welcome message
                 await db.collection('conversations').doc(conversationRef.id)
                     .collection('messages').add({
-                        text: `Welcome to AI Prompt Gallery, ${currentUser.displayName || 'friend'}! 🎨\n\nWe're thrilled to have you in our creative community!`,
+                        text: `Welcome to AI Prompt Gallery, ${currentUser.displayName || 'friend'}! 🎨\n\nWe're thrilled to have you in our creative community of AI artists and prompt creators!`,
                         senderId: "system",
                         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                        read: false,
                         isOfficial: true
                     });
+
+                console.log('✅ Welcome conversation created');
+                
+                // Reload conversations
+                await loadConversations();
                 
             } catch (error) {
                 console.error('❌ Error creating welcome conversation:', error);
             }
         }
 
-        // Load participants data - SIMPLIFIED
+        // ✅ FIXED - Load Participants Data
         async function loadParticipantsData() {
             try {
                 const allUserIds = new Set(['system']);
                 
-                conversations.forEach(conversation => {
-                    conversation.participants.forEach(uid => {
-                        if (uid !== currentUser.uid) {
-                            allUserIds.add(uid);
-                        }
+                conversations.forEach(conv => {
+                    conv.participants.forEach(uid => {
+                        if (uid !== currentUser.uid) allUserIds.add(uid);
                     });
                 });
-                
-                // Add system user
+
+                // System user
                 users['system'] = {
                     name: "AI Prompt Gallery",
                     avatar: "https://ui-avatars.com/api/?name=AI+Prompt+Gallery&background=667eea&color=fff",
-                    bio: "Official Account",
-                    email: "system",
-                    isVerified: false
+                    bio: "Welcome to our community!",
+                    email: "system"
                 };
-                
+
                 // Load other users
-                const userPromises = Array.from(allUserIds)
-                    .filter(uid => uid !== 'system')
-                    .map(async (uid) => {
-                        try {
-                            const userDoc = await db.collection('users').doc(uid).get();
-                            if (userDoc.exists) {
-                                users[uid] = userDoc.data();
-                            } else {
-                                users[uid] = {
-                                    name: "Unknown User",
-                                    avatar: "https://ui-avatars.com/api/?name=User&background=random",
-                                    bio: "User",
-                                    email: "unknown",
-                                    isVerified: false
-                                };
-                            }
-                        } catch (error) {
-                            console.error('❌ Error loading user data:', error);
+                for (let uid of allUserIds) {
+                    if (uid === 'system') continue;
+                    
+                    try {
+                        const userDoc = await db.collection('users').doc(uid).get();
+                        if (userDoc.exists) {
+                            users[uid] = userDoc.data();
+                        } else {
                             users[uid] = {
-                                name: "Unknown User",
-                                avatar: "https://ui-avatars.com/api/?name=User&background=random",
-                                bio: "User",
-                                email: "unknown",
-                                isVerified: false
+                                name: "User",
+                                avatar: "https://ui-avatars.com/api/?name=User&background=667eea&color=fff",
+                                bio: "AI Artist",
+                                email: "user@example.com"
                             };
                         }
-                    });
-                
-                await Promise.all(userPromises);
-                updateConversationsList();
-                
+                    } catch (error) {
+                        console.log('User not found:', uid);
+                        users[uid] = {
+                            name: "User",
+                            avatar: "https://ui-avatars.com/api/?name=User&background=667eea&color=fff",
+                            bio: "AI Artist",
+                            email: "user@example.com"
+                        };
+                    }
+                }
+
             } catch (error) {
-                console.error('❌ Error in loadParticipantsData:', error);
+                console.error('Error loading participants:', error);
             }
         }
 
-        // Update conversations list UI
+        // ✅ FIXED - Update Conversations List UI
         function updateConversationsList() {
             if (!currentUser) {
                 elements.conversationsList.innerHTML = `
@@ -1052,31 +1047,32 @@
                     <div style="text-align: center; padding: 40px; color: var(--secondary);">
                         <i class="fas fa-comments" style="font-size: 2rem; margin-bottom: 15px; opacity: 0.5;"></i>
                         <p>No conversations yet</p>
+                        <button class="new-conversation-btn" onclick="openNewConversationModal()" style="margin-top: 15px; background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer;">
+                            <i class="fas fa-plus"></i> Start New Chat
+                        </button>
                     </div>
                 `;
                 return;
             }
             
-            elements.conversationsList.innerHTML = conversations.map(conversation => {
-                const otherParticipantId = conversation.participants.find(uid => uid !== currentUser.uid);
-                const otherUser = users[otherParticipantId] || { 
-                    name: 'Unknown User', 
-                    avatar: 'https://ui-avatars.com/api/?name=User&background=random',
-                    email: 'unknown',
-                    isVerified: false
+            elements.conversationsList.innerHTML = conversations.map(conv => {
+                const otherUserId = conv.participants.find(uid => uid !== currentUser.uid);
+                const otherUser = users[otherUserId] || {
+                    name: 'User',
+                    avatar: 'https://ui-avatars.com/api/?name=User&background=667eea&color=fff',
+                    email: 'user@example.com'
                 };
-                
-                const lastMessage = conversation.lastMessage || 'No messages yet';
-                const lastMessageTime = conversation.lastMessageAt ? formatTime(conversation.lastMessageAt.toDate()) : '';
-                const unreadCount = conversation.unreadCount && conversation.unreadCount[currentUser.uid] || 0;
-                
-                // ✅ VERIFIED TICK - ONLY FOR OWNER & LEGENDARY
+
+                const lastMessage = conv.lastMessage || 'Start a conversation';
+                const lastMessageTime = conv.lastMessageAt ? formatTime(conv.lastMessageAt.toDate()) : '';
+
+                // ✅ VERIFIED TICK - ONLY FOR SPECIFIC USERS
                 const isOwner = otherUser.email === OWNER_EMAIL;
                 const isLegendary = otherUser.email === LEGENDARY_EMAIL;
-                
+
                 return `
-                    <div class="conversation-item ${currentConversation && currentConversation.id === conversation.id ? 'active' : ''}" 
-                         data-conversation-id="${conversation.id}">
+                    <div class="conversation-item ${currentConversation?.id === conv.id ? 'active' : ''}" 
+                         data-conversation-id="${conv.id}">
                         <img src="${otherUser.avatar}" alt="${otherUser.name}" class="conversation-avatar">
                         <div class="conversation-info">
                             <div class="conversation-name">
@@ -1089,12 +1085,12 @@
                         </div>
                         <div class="conversation-meta">
                             <div class="conversation-time">${lastMessageTime}</div>
-                            ${unreadCount > 0 ? `<div class="conversation-unread">${unreadCount}</div>` : ''}
                         </div>
                     </div>
                 `;
             }).join('');
             
+            // Add click listeners
             document.querySelectorAll('.conversation-item').forEach(item => {
                 item.addEventListener('click', () => {
                     const conversationId = item.dataset.conversationId;
@@ -1103,38 +1099,34 @@
             });
         }
 
-        // Select conversation
+        // ✅ FIXED - Select Conversation
         async function selectConversation(conversationId) {
             if (!currentUser) return;
             
-            // Stop previous listener
-            if (currentConversation && conversationListeners[currentConversation.id]) {
-                conversationListeners[currentConversation.id]();
-            }
-            
-            currentConversation = conversations.find(conversation => conversation.id === conversationId);
+            currentConversation = conversations.find(conv => conv.id === conversationId);
             if (!currentConversation) return;
             
             console.log('💬 Selecting conversation:', conversationId);
             
+            // Update active state
             document.querySelectorAll('.conversation-item').forEach(item => {
                 item.classList.toggle('active', item.dataset.conversationId === conversationId);
             });
             
+            // Show chat UI
             elements.chatHeader.classList.remove('hidden');
             elements.messageInputContainer.classList.remove('hidden');
             
-            const otherParticipantId = currentConversation.participants.find(uid => uid !== currentUser.uid);
-            const otherUser = users[otherParticipantId] || { 
-                name: 'Unknown User', 
-                avatar: 'https://ui-avatars.com/api/?name=User&background=random',
-                email: 'unknown',
-                isVerified: false
+            const otherUserId = currentConversation.participants.find(uid => uid !== currentUser.uid);
+            const otherUser = users[otherUserId] || { 
+                name: 'User', 
+                avatar: 'https://ui-avatars.com/api/?name=User&background=667eea&color=fff',
+                email: 'user@example.com'
             };
             
+            // Update chat header
             elements.chatUserAvatar.src = otherUser.avatar;
             
-            // ✅ VERIFIED TICK - ONLY FOR SPECIFIC USERS
             const isOwner = otherUser.email === OWNER_EMAIL;
             const isLegendary = otherUser.email === LEGENDARY_EMAIL;
             
@@ -1146,12 +1138,11 @@
             `;
             elements.chatUserStatus.textContent = 'Online';
             
-            // Load messages and start real-time listener
+            // Load messages
             await loadMessages(conversationId);
-            listenForNewMessages(conversationId);
         }
 
-        // Load messages
+        // ✅ FIXED - Load Messages
         async function loadMessages(conversationId) {
             try {
                 const snapshot = await db.collection('conversations').doc(conversationId)
@@ -1168,25 +1159,11 @@
                 
             } catch (error) {
                 console.error('❌ Error loading messages:', error);
+                showNotification('Failed to load messages', 'error');
             }
         }
 
-        // Listen for new messages
-        function listenForNewMessages(conversationId) {
-            conversationListeners[conversationId] = db.collection('conversations').doc(conversationId)
-                .collection('messages')
-                .orderBy('timestamp', 'asc')
-                .onSnapshot(snapshot => {
-                    snapshot.docChanges().forEach(change => {
-                        if (change.type === 'added') {
-                            const message = { id: change.doc.id, ...change.doc.data() };
-                            addMessageToChat(message);
-                        }
-                    });
-                });
-        }
-
-        // Display messages
+        // ✅ FIXED - Display Messages
         function displayMessages(messages) {
             if (messages.length === 0) {
                 elements.messagesContainer.innerHTML = `
@@ -1221,36 +1198,11 @@
                 `;
             }).join('');
             
+            // Scroll to bottom
             elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
         }
 
-        // Add single message to chat
-        function addMessageToChat(message) {
-            const isSent = message.senderId === currentUser.uid;
-            const isOfficial = message.isOfficial;
-            const time = message.timestamp ? formatTime(message.timestamp.toDate()) : '';
-            
-            const messageElement = document.createElement('div');
-            
-            if (isOfficial) {
-                messageElement.className = 'message official';
-                messageElement.innerHTML = `
-                    <div class="message-text">${message.text}</div>
-                    <div class="message-time">${time}</div>
-                `;
-            } else {
-                messageElement.className = `message ${isSent ? 'sent' : 'received'}`;
-                messageElement.innerHTML = `
-                    <div class="message-text">${message.text}</div>
-                    <div class="message-time">${time}</div>
-                `;
-            }
-            
-            elements.messagesContainer.appendChild(messageElement);
-            elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
-        }
-
-        // Send message
+        // ✅ FIXED - Send Message
         async function sendMessage() {
             if (!currentUser || !currentConversation || !elements.messageInput.value.trim()) return;
             
@@ -1275,13 +1227,16 @@
                 elements.messageInput.value = '';
                 elements.messageInput.style.height = 'auto';
                 
+                // Reload conversations to update last message
+                await loadConversations();
+                
             } catch (error) {
                 console.error('❌ Error sending message:', error);
                 showNotification('Error sending message', 'error');
             }
         }
 
-        // New conversation modal
+        // ✅ FIXED - New Conversation Modal
         async function openNewConversationModal() {
             if (!currentUser) {
                 showNotification('Please login to start a conversation', 'error');
@@ -1314,7 +1269,6 @@
                     `;
                 } else {
                     elements.userList.innerHTML = allUsers.map(user => {
-                        // ✅ VERIFIED TICK - ONLY FOR SPECIFIC USERS
                         const isOwner = user.email === OWNER_EMAIL;
                         const isLegendary = user.email === LEGENDARY_EMAIL;
                         
@@ -1353,15 +1307,15 @@
             }
         }
 
-        // Start new conversation
+        // ✅ FIXED - Start New Conversation
         async function startNewConversation(otherUserId) {
             if (!currentUser) return;
             
             try {
-                // Check if conversation exists
-                const existingConversation = conversations.find(conversation => 
-                    conversation.participants.includes(otherUserId) && 
-                    conversation.participants.includes(currentUser.uid)
+                // Check if conversation already exists
+                const existingConversation = conversations.find(conv => 
+                    conv.participants.includes(otherUserId) && 
+                    conv.participants.includes(currentUser.uid)
                 );
                 
                 if (existingConversation) {
@@ -1381,17 +1335,20 @@
                 
                 const conversationRef = await db.collection('conversations').add(conversationData);
                 
-                const newConversation = { 
-                    id: conversationRef.id, 
-                    ...conversationData 
-                };
-                conversations.unshift(newConversation);
+                // Add first message
+                await db.collection('conversations').doc(conversationRef.id)
+                    .collection('messages').add({
+                        text: `Hello! I'd like to connect with you about AI art prompts.`,
+                        senderId: currentUser.uid,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        read: false
+                    });
                 
-                updateConversationsList();
                 closeModal(elements.newConversationModal);
-                selectConversation(conversationRef.id);
-                
                 showNotification('New conversation started!', 'success');
+                
+                // Reload conversations
+                await loadConversations();
                 
             } catch (error) {
                 console.error('❌ Error starting new conversation:', error);
@@ -1399,7 +1356,7 @@
             }
         }
 
-        // Event Listeners
+        // ✅ FIXED - Event Listeners
         function setupEventListeners() {
             elements.newConversationBtn.addEventListener('click', openNewConversationModal);
             elements.sendBtn.addEventListener('click', sendMessage);
@@ -1430,7 +1387,7 @@
             });
         }
 
-        // Utility functions
+        // ✅ FIXED - Utility Functions
         function formatTime(date) {
             if (!date) return '';
             const now = new Date();
@@ -1449,6 +1406,9 @@
         }
 
         function showNotification(message, type = 'info') {
+            // Remove existing notifications
+            document.querySelectorAll('.notification').forEach(notif => notif.remove());
+            
             const notification = document.createElement('div');
             notification.className = `notification ${type}`;
             notification.innerHTML = `
@@ -1456,7 +1416,12 @@
                 <span>${message}</span>
             `;
             document.body.appendChild(notification);
-            setTimeout(() => notification.remove(), 4000);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 4000);
         }
 
         function openModal(modal) {
