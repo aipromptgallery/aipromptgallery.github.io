@@ -692,8 +692,10 @@
                     currentUser = user;
                     await loadUserData(user.uid);
                 } else {
-                    // Redirect to login if not authenticated
-                    window.location.href = 'login.html';
+                    // For demo purposes, we'll simulate a logged-in user
+                    // In a real app, redirect to login if not authenticated
+                    // window.location.href = 'login.html';
+                    simulateLoggedInUser();
                 }
             });
         }
@@ -933,6 +935,32 @@
             modal.style.display = 'none';
             // Reset form
             elements.editProfileImage.value = '';
+        }
+
+        // === DEMO FUNCTIONALITY ===
+        function simulateLoggedInUser() {
+            // For demo purposes, create a mock user
+            currentUser = {
+                uid: 'demo-user-12345',
+                email: 'demo@example.com',
+                displayName: 'Demo User',
+                photoURL: 'https://ui-avatars.com/api/?name=Demo+User&background=667eea&color=fff'
+            };
+            
+            // Update UI with demo data
+            updateProfileUI({
+                name: 'Demo User',
+                email: 'demo@example.com',
+                avatar: 'https://ui-avatars.com/api/?name=Demo+User&background=667eea&color=fff',
+                bio: 'This is a demo profile. In a real app, you would be logged in.',
+                prompts: 12,
+                followers: 45,
+                following: 23,
+                likes: 128,
+                createdAt: { toDate: () => new Date('2024-01-15') }
+            });
+            
+            showNotification('Demo mode: Using sample data', 'info');
         }
 
         // === INITIALIZATION ===
