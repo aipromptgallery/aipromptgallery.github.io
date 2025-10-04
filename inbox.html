@@ -833,6 +833,7 @@
         let currentConversation = null;
         let conversations = [];
         let users = {};
+        let messageListener = null;
         const OWNER_EMAIL = "alizybaby381@gmail.com";
         const LEGENDARY_EMAIL = "ul8763325@gmail.com";
         const OFFICIAL_AI_USER_ID = "official_ai_prompt_gallery";
@@ -1137,9 +1138,14 @@
             });
         }
 
-        // ✅ FIXED - Select Conversation
+        // ✅ FIXED - Select Conversation with Real-time Updates
         async function selectConversation(conversationId) {
             if (!currentUser) return;
+            
+            // Stop previous listener
+            if (messageListener) {
+                messageListener();
+            }
             
             currentConversation = conversations.find(conv => conv.id === conversationId);
             if (!currentConversation) return;
@@ -1178,8 +1184,44 @@
             `;
             elements.chatUserStatus.textContent = isOfficial ? 'Always Online' : 'Online';
             
-            // Load messages
+            // Load messages with real-time listener
             await loadMessages(conversationId);
+            
+            // Set up real-time listener for new messages
+            setupMessageListener(conversationId);
+        }
+
+        // ✅ FIXED - Set up Real-time Message Listener
+        function setupMessageListener(conversationId) {
+            messageListener = db.collection('conversations').doc(conversationId)
+                .collection('messages')
+                .orderBy('timestamp', 'asc')
+                .onSnapshot(snapshot => {
+                    const messages = [];
+                    snapshot.forEach(doc => {
+                        messages.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    displayMessages(messages);
+                    
+                    // Update conversation in sidebar if this is the active conversation
+                    if (currentConversation && currentConversation.id === conversationId && messages.length > 0) {
+                        const lastMessage = messages[messages.length - 1];
+                        updateConversationLastMessage(conversationId, lastMessage.text, lastMessage.timestamp);
+                    }
+                }, error => {
+                    console.error('Error in message listener:', error);
+                });
+        }
+
+        // ✅ FIXED - Update Conversation Last Message
+        function updateConversationLastMessage(conversationId, message, timestamp) {
+            const conversation = conversations.find(conv => conv.id === conversationId);
+            if (conversation) {
+                conversation.lastMessage = message.length > 50 ? message.substring(0, 50) + '...' : message;
+                conversation.lastMessageAt = timestamp;
+                updateConversationsList();
+            }
         }
 
         // ✅ FIXED - Load Messages
@@ -1242,9 +1284,15 @@
             elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
         }
 
-        // ✅ FIXED - Send Message
+        // ✅ FIXED - Send Message with Security Check
         async function sendMessage() {
             if (!currentUser || !currentConversation || !elements.messageInput.value.trim()) return;
+            
+            // Security check - verify user is participant in conversation
+            if (!currentConversation.participants.includes(currentUser.uid)) {
+                showNotification('You are not authorized to send messages in this conversation', 'error');
+                return;
+            }
             
             const messageText = elements.messageInput.value.trim();
             
@@ -1267,8 +1315,7 @@
                 elements.messageInput.value = '';
                 elements.messageInput.style.height = 'auto';
                 
-                // Reload conversations to update last message
-                await loadConversations();
+                // No need to reload conversations - real-time listener will handle it
                 
             } catch (error) {
                 console.error('❌ Error sending message:', error);
