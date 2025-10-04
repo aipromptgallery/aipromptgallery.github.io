@@ -172,6 +172,7 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
         .verified-badge {
@@ -191,6 +192,16 @@
 
         .legendary-badge {
             background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .king-badge {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
             color: white;
             padding: 5px 12px;
             border-radius: 20px;
@@ -712,6 +723,7 @@
                     <i class="fas fa-check-circle verified-badge hidden" id="verifiedBadge"></i>
                     <span class="owner-badge hidden" id="ownerBadge">Owner</span>
                     <span class="legendary-badge hidden" id="legendaryBadge">Legendary</span>
+                    <span class="king-badge hidden" id="kingBadge">King</span>
                 </div>
                 
                 <div class="profile-bio" id="profileBio">
@@ -853,6 +865,7 @@
         let selectedAvatarFile = null;
         const OWNER_EMAIL = "alizybaby381@gmail.com";
         const LEGENDARY_EMAIL = "ul8763325@gmail.com";
+        const KING_EMAIL = "Umehani77777@gmail.com";
 
         // DOM Elements
         const elements = {
@@ -865,6 +878,7 @@
             verifiedBadge: document.getElementById('verifiedBadge'),
             ownerBadge: document.getElementById('ownerBadge'),
             legendaryBadge: document.getElementById('legendaryBadge'),
+            kingBadge: document.getElementById('kingBadge'),
             editProfileBtn: document.getElementById('editProfileBtn'),
             logoutBtn: document.getElementById('logoutBtn'),
             editProfileModal: document.getElementById('editProfileModal'),
@@ -940,7 +954,7 @@
             }
         }
 
-        // ✅ FIXED - Update Profile UI
+        // ✅ FIXED - Update Profile UI with Badges
         function updateProfileUI() {
             if (!userProfile) return;
 
@@ -959,13 +973,18 @@
             }
             elements.profileName.innerHTML = displayName;
 
-            // Update badges
+            // ✅ FIXED - Update badges based on email
             const isOwner = userProfile.email === OWNER_EMAIL;
             const isLegendary = userProfile.email === LEGENDARY_EMAIL;
+            const isKing = userProfile.email === KING_EMAIL;
             
-            elements.verifiedBadge.classList.toggle('hidden', !(isOwner || isLegendary));
+            // Show verified badge for all special users
+            elements.verifiedBadge.classList.toggle('hidden', !(isOwner || isLegendary || isKing));
+            
+            // Show specific badges
             elements.ownerBadge.classList.toggle('hidden', !isOwner);
             elements.legendaryBadge.classList.toggle('hidden', !isLegendary);
+            elements.kingBadge.classList.toggle('hidden', !isKing);
 
             // Update bio
             elements.profileBio.textContent = userProfile.bio || "Welcome to my AI art profile! 🎨";
@@ -1102,7 +1121,7 @@
             });
         }
 
-        // ✅ FIXED - Save Profile
+        // ✅ FIXED - Save Profile with Custom Avatar Upload
         async function saveProfile() {
             if (!currentUser) return;
 
@@ -1125,20 +1144,36 @@
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
-                // Handle file upload first (has priority)
+                console.log('🔄 Starting profile update...');
+
+                // ✅ FIXED - Handle file upload first (has priority)
                 if (selectedAvatarFile) {
+                    console.log('📁 Uploading custom avatar...');
                     const file = selectedAvatarFile;
-                    const storageRef = storage.ref().child(`avatars/${currentUser.uid}/${Date.now()}_${file.name}`);
+                    const fileName = `avatar_${Date.now()}_${file.name}`;
+                    const storageRef = storage.ref().child(`avatars/${currentUser.uid}/${fileName}`);
+                    
+                    // Upload file to Firebase Storage
                     const snapshot = await storageRef.put(file);
+                    console.log('✅ Avatar uploaded to storage');
+                    
+                    // Get download URL
                     const downloadURL = await snapshot.ref.getDownloadURL();
+                    console.log('📸 Avatar URL:', downloadURL);
+                    
                     updates.avatar = downloadURL;
                 }
                 // Handle preset avatar selection
                 else if (selectedAvatar) {
+                    console.log('🎨 Using preset avatar');
                     updates.avatar = selectedAvatar.dataset.avatar;
                 }
 
+                console.log('📝 Updating Firestore with:', updates);
+                
+                // Update Firestore
                 await db.collection('users').doc(currentUser.uid).update(updates);
+                console.log('✅ Profile updated in Firestore');
                 
                 // Reload profile
                 await loadUserProfile();
@@ -1153,7 +1188,7 @@
                 
             } catch (error) {
                 console.error('❌ Error saving profile:', error);
-                showNotification('Error updating profile', 'error');
+                showNotification('Error updating profile: ' + error.message, 'error');
             } finally {
                 elements.saveProfileBtn.disabled = false;
                 elements.saveProfileBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
