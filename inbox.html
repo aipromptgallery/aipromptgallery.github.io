@@ -834,6 +834,7 @@
         let users = {};
         const OWNER_EMAIL = "alizybaby381@gmail.com";
         const LEGENDARY_EMAIL = "ul8763325@gmail.com";
+        const OFFICIAL_AI_USER_ID = "official_ai_prompt_gallery"; // ✅ Fixed Official User ID
 
         // DOM Elements
         const elements = {
@@ -864,15 +865,45 @@
                 if (user) {
                     currentUser = user;
                     console.log('✅ User signed in:', user.email);
+                    await createOfficialAIUser(); // ✅ Create official user first
                     await loadConversations();
                 } else {
                     currentUser = null;
                     conversations = [];
                     updateConversationsList();
-                    // FIXED: Use window.open instead of location.href
                     window.open('login.html', '_self');
                 }
             });
+        }
+
+        // ✅ FIXED - Create Official AI Prompt Gallery User
+        async function createOfficialAIUser() {
+            try {
+                const officialUserRef = db.collection('users').doc(OFFICIAL_AI_USER_ID);
+                const officialUserDoc = await officialUserRef.get();
+                
+                if (!officialUserDoc.exists) {
+                    // Create official AI user
+                    await officialUserRef.set({
+                        name: "AI Prompt Gallery",
+                        email: "official@aipromptgallery.com",
+                        avatar: "https://ui-avatars.com/api/?name=AI+Prompt+Gallery&background=667eea&color=fff&size=256",
+                        bio: "Welcome to our creative community! I'm here to help you get started with AI art and connect with other creators.",
+                        isOfficial: true,
+                        isVerified: true,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        followers: 0,
+                        following: 0,
+                        prompts: 0,
+                        likes: 0
+                    });
+                    console.log('✅ Official AI User created');
+                } else {
+                    console.log('✅ Official AI User already exists');
+                }
+            } catch (error) {
+                console.error('❌ Error creating official AI user:', error);
+            }
         }
 
         // ✅ FIXED - Load Conversations
@@ -893,26 +924,24 @@
                     </div>
                 `;
 
-                // ✅ SIMPLE QUERY - No complex ordering
-                const snapshot = await db.collection('conversations').get();
+                // ✅ Load conversations where user is participant
+                const snapshot = await db.collection('conversations')
+                    .where('participants', 'array-contains', currentUser.uid)
+                    .get();
 
                 conversations = [];
                 snapshot.forEach(doc => {
-                    const data = doc.data();
-                    // Only include conversations where user is participant
-                    if (data.participants && data.participants.includes(currentUser.uid)) {
-                        conversations.push({
-                            id: doc.id,
-                            ...data,
-                            lastMessage: data.lastMessage || "Start a conversation",
-                            lastMessageAt: data.lastMessageAt || data.createdAt || new Date()
-                        });
-                    }
+                    conversations.push({
+                        id: doc.id,
+                        ...doc.data(),
+                        lastMessage: doc.data().lastMessage || "Start a conversation",
+                        lastMessageAt: doc.data().lastMessageAt || doc.data().createdAt || new Date()
+                    });
                 });
 
                 console.log(`✅ Loaded ${conversations.length} conversations`);
 
-                // Sort manually by lastMessageAt
+                // Sort by lastMessageAt
                 conversations.sort((a, b) => {
                     const timeA = a.lastMessageAt?.toDate?.() || new Date(a.lastMessageAt);
                     const timeB = b.lastMessageAt?.toDate?.() || new Date(b.lastMessageAt);
@@ -945,11 +974,11 @@
             }
         }
 
-        // ✅ FIXED - Create Welcome Conversation
+        // ✅ FIXED - Create Welcome Conversation with Official AI
         async function createWelcomeConversation() {
             try {
                 const conversationData = {
-                    participants: [currentUser.uid, "system"],
+                    participants: [currentUser.uid, OFFICIAL_AI_USER_ID],
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     lastMessage: "Welcome to AI Prompt Gallery! 🎨",
                     lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -958,16 +987,16 @@
 
                 const conversationRef = await db.collection('conversations').add(conversationData);
 
-                // Add welcome message
+                // Add welcome message from Official AI
                 await db.collection('conversations').doc(conversationRef.id)
                     .collection('messages').add({
-                        text: `Welcome to AI Prompt Gallery, ${currentUser.displayName || 'friend'}! 🎨\n\nWe're thrilled to have you in our creative community of AI artists and prompt creators!`,
-                        senderId: "system",
+                        text: `🎨 Welcome to AI Prompt Gallery, ${currentUser.displayName || 'friend'}!\n\nI'm your official AI assistant here to help you:\n\n• Discover amazing AI art prompts\n• Connect with creative artists\n• Share your own creations\n• Learn prompt engineering\n\nStart by exploring prompts or upload your first creation! What would you like to create today? ✨`,
+                        senderId: OFFICIAL_AI_USER_ID,
                         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                         isOfficial: true
                     });
 
-                console.log('✅ Welcome conversation created');
+                console.log('✅ Welcome conversation created with Official AI');
                 
                 // Reload conversations
                 await loadConversations();
@@ -980,7 +1009,7 @@
         // ✅ FIXED - Load Participants Data
         async function loadParticipantsData() {
             try {
-                const allUserIds = new Set(['system']);
+                const allUserIds = new Set([OFFICIAL_AI_USER_ID]);
                 
                 conversations.forEach(conv => {
                     conv.participants.forEach(uid => {
@@ -988,17 +1017,15 @@
                     });
                 });
 
-                // System user
-                users['system'] = {
-                    name: "AI Prompt Gallery",
-                    avatar: "https://ui-avatars.com/api/?name=AI+Prompt+Gallery&background=667eea&color=fff",
-                    bio: "Welcome to our community!",
-                    email: "system"
-                };
+                // Load official AI user first
+                const officialUserDoc = await db.collection('users').doc(OFFICIAL_AI_USER_ID).get();
+                if (officialUserDoc.exists) {
+                    users[OFFICIAL_AI_USER_ID] = officialUserDoc.data();
+                }
 
                 // Load other users
                 for (let uid of allUserIds) {
-                    if (uid === 'system') continue;
+                    if (uid === OFFICIAL_AI_USER_ID) continue;
                     
                     try {
                         const userDoc = await db.collection('users').doc(uid).get();
@@ -1067,6 +1094,7 @@
                 // ✅ VERIFIED TICK - ONLY FOR SPECIFIC USERS
                 const isOwner = otherUser.email === OWNER_EMAIL;
                 const isLegendary = otherUser.email === LEGENDARY_EMAIL;
+                const isOfficial = otherUser.isOfficial;
 
                 return `
                     <div class="conversation-item ${currentConversation?.id === conv.id ? 'active' : ''}" 
@@ -1075,9 +1103,10 @@
                         <div class="conversation-info">
                             <div class="conversation-name">
                                 ${otherUser.name}
-                                ${(isOwner || isLegendary) ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
+                                ${(isOwner || isLegendary || isOfficial) ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
                                 ${isOwner ? '<span class="owner-badge">Owner</span>' : ''}
                                 ${isLegendary ? '<span class="legendary-badge">Legendary</span>' : ''}
+                                ${isOfficial ? '<span class="owner-badge">Official</span>' : ''}
                             </div>
                             <div class="conversation-last-message">${lastMessage}</div>
                         </div>
@@ -1127,14 +1156,16 @@
             
             const isOwner = otherUser.email === OWNER_EMAIL;
             const isLegendary = otherUser.email === LEGENDARY_EMAIL;
+            const isOfficial = otherUser.isOfficial;
             
             elements.chatUserName.innerHTML = `
                 ${otherUser.name}
-                ${(isOwner || isLegendary) ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
+                ${(isOwner || isLegendary || isOfficial) ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
                 ${isOwner ? '<span class="owner-badge">Owner</span>' : ''}
                 ${isLegendary ? '<span class="legendary-badge">Legendary</span>' : ''}
+                ${isOfficial ? '<span class="owner-badge">Official</span>' : ''}
             `;
-            elements.chatUserStatus.textContent = 'Online';
+            elements.chatUserStatus.textContent = isOfficial ? 'Always Online' : 'Online';
             
             // Load messages
             await loadMessages(conversationId);
@@ -1234,7 +1265,7 @@
             }
         }
 
-        // ✅ FIXED - New Conversation Modal (USERS LOADING FIXED)
+        // ✅ FIXED - New Conversation Modal
         async function openNewConversationModal() {
             if (!currentUser) {
                 showNotification('Please login to start a conversation', 'error');
@@ -1252,12 +1283,12 @@
                     </div>
                 `;
 
-                // ✅ FIXED - Load all users except current user
+                // ✅ Load all users except current user
                 const snapshot = await db.collection('users').get();
                 
                 const allUsers = [];
                 snapshot.forEach(doc => {
-                    if (doc.id !== currentUser.uid) { // Exclude current user
+                    if (doc.id !== currentUser.uid && doc.id !== OFFICIAL_AI_USER_ID) { // Exclude current user and official AI
                         const userData = doc.data();
                         allUsers.push({ 
                             id: doc.id, 
@@ -1272,8 +1303,8 @@
                     elements.userList.innerHTML = `
                         <div style="text-align: center; padding: 30px; color: var(--secondary);">
                             <i class="fas fa-users" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i>
-                            <p>No other users found</p>
-                            <small>Other users need to sign up to appear here</small>
+                            <p>No other users found yet</p>
+                            <small>Tell your friends to join AI Prompt Gallery!</small>
                         </div>
                     `;
                 } else {
