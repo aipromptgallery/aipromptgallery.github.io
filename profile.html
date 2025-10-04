@@ -4,10 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Prompt Gallery | Profile</title>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+
     <style>
         * {
             margin: 0;
@@ -27,14 +30,10 @@
             --success: #10b981;
             --error: #ef4444;
             --warning: #f59e0b;
-            --like: #ec4899;
             --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --gradient-hover: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
             --shadow: 0 8px 30px rgba(0,0,0,0.08);
-            --shadow-hover: 0 15px 40px rgba(0,0,0,0.15);
-            --radius: 20px;
-            --radius-sm: 12px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --radius: 16px;
+            --transition: all 0.3s ease;
         }
 
         [data-theme="dark"] {
@@ -42,8 +41,6 @@
             --dark: #f8fafc;
             --card-bg: #1e293b;
             --secondary: #94a3b8;
-            --shadow: 0 8px 30px rgba(0,0,0,0.3);
-            --shadow-hover: 0 15px 40px rgba(0,0,0,0.4);
         }
 
         body {
@@ -51,7 +48,6 @@
             color: var(--dark);
             transition: var(--transition);
             min-height: 100vh;
-            line-height: 1.6;
         }
 
         .container {
@@ -60,32 +56,14 @@
             padding: 20px;
         }
 
-        /* Header Styles */
         .header {
             background: var(--gradient);
             color: white;
             padding: 60px 40px;
             border-radius: var(--radius);
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             text-align: center;
             position: relative;
-            overflow: hidden;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            animation: float 6s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(1deg); }
         }
 
         .back-btn {
@@ -113,31 +91,6 @@
             transform: translateY(-2px);
         }
 
-        .theme-toggle {
-            position: absolute;
-            top: 25px;
-            right: 25px;
-            background: rgba(255,255,255,0.2);
-            border: 2px solid rgba(255,255,255,0.3);
-            padding: 12px;
-            border-radius: 50%;
-            cursor: pointer;
-            color: white;
-            transition: var(--transition);
-            backdrop-filter: blur(10px);
-            z-index: 2;
-        }
-
-        .theme-toggle:hover {
-            background: rgba(255,255,255,0.3);
-            transform: rotate(180deg) scale(1.1);
-        }
-
-        .header-content {
-            position: relative;
-            z-index: 2;
-        }
-
         .header h1 {
             font-size: 3.5rem;
             margin-bottom: 15px;
@@ -156,275 +109,294 @@
             font-weight: 500;
         }
 
-        /* Profile Container */
         .profile-container {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+        }
+
+        .profile-sidebar {
             background: var(--card-bg);
             border-radius: var(--radius);
+            padding: 30px;
             box-shadow: var(--shadow);
-            overflow: hidden;
-            margin-bottom: 30px;
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .profile-header {
-            background: var(--gradient);
-            padding: 50px 40px;
-            color: white;
-            position: relative;
-        }
-
-        .profile-content {
-            display: flex;
-            align-items: center;
-            gap: 40px;
-        }
-
-        .avatar-container {
-            position: relative;
             text-align: center;
+            height: fit-content;
+        }
+
+        .profile-avatar-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 25px;
         }
 
         .profile-avatar {
-            width: 150px;
-            height: 150px;
+            width: 180px;
+            height: 180px;
             border-radius: 50%;
             object-fit: cover;
-            border: 5px solid rgba(255,255,255,0.3);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            transition: var(--transition);
-            position: relative;
+            border: 5px solid var(--primary);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
         }
 
-        .profile-avatar:hover {
-            transform: scale(1.05);
-            border-color: rgba(255,255,255,0.5);
-        }
-
-        /* Badge DP के अंदर थोड़ा बाहर */
-        .avatar-badge {
+        .avatar-edit-btn {
             position: absolute;
-            bottom: 5px;
-            right: 5px;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.6rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.3);
-            z-index: 3;
-            display: flex;
-            align-items: center;
-            gap: 3px;
-            max-width: 80px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .owner-badge {
-            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-
-        .legendary-badge {
-            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-
-        .member-badge {
-            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
-        }
-
-        @keyframes glow {
-            from { 
-                box-shadow: 0 2px 8px rgba(30, 58, 138, 0.4);
-                transform: scale(1);
-            }
-            to { 
-                box-shadow: 0 4px 15px rgba(30, 58, 138, 0.6), 0 0 20px rgba(37, 99, 235, 0.4);
-                transform: scale(1.05);
-            }
-        }
-
-        .edit-avatar-btn {
-            position: absolute;
-            bottom: 8px;
-            left: 8px;
+            bottom: 10px;
+            right: 10px;
             background: var(--primary);
             color: white;
             border: none;
-            width: 32px;
-            height: 32px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             cursor: pointer;
             transition: var(--transition);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8rem;
-            border: 2px solid white;
-            z-index: 4;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
-        .edit-avatar-btn:hover {
+        .avatar-edit-btn:hover {
             background: var(--primary-dark);
             transform: scale(1.1);
         }
 
-        .profile-info {
-            flex: 1;
-        }
-
         .profile-name {
-            font-size: 2.5rem;
+            font-size: 1.8rem;
             font-weight: 800;
-            margin: 0;
+            margin-bottom: 10px;
+            color: var(--dark);
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-            background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            justify-content: center;
+            gap: 10px;
         }
 
         .verified-badge {
-            color: #3b82f6;
+            color: var(--primary);
             font-size: 1.2rem;
         }
 
+        .owner-badge {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .legendary-badge {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
         .profile-bio {
-            font-size: 1.3rem;
-            opacity: 0.9;
-            margin-bottom: 25px;
+            color: var(--secondary);
+            font-size: 1.1rem;
             line-height: 1.6;
-            max-width: 600px;
+            margin-bottom: 25px;
+            max-width: 100%;
+            word-wrap: break-word;
         }
 
         .profile-stats {
-            display: flex;
-            gap: 40px;
-            margin-bottom: 25px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
         }
 
-        .stat {
+        .stat-item {
+            background: var(--light);
+            padding: 20px;
+            border-radius: var(--radius);
             text-align: center;
-            cursor: pointer;
             transition: var(--transition);
-            padding: 15px 20px;
-            border-radius: var(--radius-sm);
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
         }
 
-        .stat:hover {
-            background: rgba(255,255,255,0.2);
-            transform: translateY(-3px);
+        .stat-item:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
         }
 
-        .stat-value {
-            font-size: 2.2rem;
+        .stat-number {
+            font-size: 1.8rem;
             font-weight: 800;
-            color: white;
-            display: block;
-            background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--primary);
+            margin-bottom: 5px;
         }
 
         .stat-label {
             font-size: 0.9rem;
-            opacity: 0.8;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            color: var(--secondary);
+            font-weight: 600;
         }
 
         .profile-actions {
             display: flex;
+            flex-direction: column;
             gap: 15px;
-            flex-wrap: wrap;
         }
 
-        .profile-btn {
-            padding: 14px 28px;
-            border: 2px solid rgba(255,255,255,0.4);
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
+        .action-btn {
+            padding: 15px 20px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1rem;
             font-weight: 600;
+            cursor: pointer;
             transition: var(--transition);
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 10px;
-            backdrop-filter: blur(10px);
-            font-size: 1rem;
         }
 
-        .profile-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(255,255,255,0.2);
+        .action-btn.primary {
+            background: var(--primary);
+            color: white;
         }
 
-        .profile-btn.primary {
-            background: rgba(255,255,255,0.9);
-            color: var(--primary);
-            border-color: transparent;
+        .action-btn.primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
         }
 
-        .profile-btn.primary:hover {
-            background: white;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(255,255,255,0.3);
-        }
-
-        .profile-details {
-            padding: 40px;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-
-        .info-item {
+        .action-btn.secondary {
             background: var(--light);
-            padding: 25px;
-            border-radius: var(--radius-sm);
-            transition: var(--transition);
-            border: 1px solid rgba(0,0,0,0.05);
+            color: var(--dark);
+            border: 2px solid var(--light);
         }
 
-        .info-item:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-hover);
+        .action-btn.secondary:hover {
+            background: transparent;
+            border-color: var(--primary);
+            color: var(--primary);
         }
 
-        .info-label {
-            font-size: 0.9rem;
-            color: var(--secondary);
-            margin-bottom: 8px;
-            display: block;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        .profile-content {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
         }
 
-        .info-value {
-            font-size: 1.2rem;
-            font-weight: 600;
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--light);
+            padding-bottom: 20px;
+        }
+
+        .content-title {
+            font-size: 1.8rem;
+            font-weight: 700;
             color: var(--dark);
         }
 
-        /* Modal Styles */
+        .content-tabs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: var(--light);
+            border: none;
+            border-radius: var(--radius);
+            color: var(--secondary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: var(--primary-light);
+            color: white;
+        }
+
+        .prompts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .prompt-card {
+            background: var(--light);
+            border-radius: var(--radius);
+            padding: 25px;
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+
+        .prompt-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+            border-color: var(--primary-light);
+        }
+
+        .prompt-text {
+            color: var(--dark);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            word-wrap: break-word;
+        }
+
+        .prompt-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--secondary);
+        }
+
+        .prompt-likes {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--secondary);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -434,7 +406,7 @@
             height: 100%;
             background: rgba(0,0,0,0.8);
             z-index: 2000;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(5px);
         }
 
         .modal-content {
@@ -443,99 +415,64 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: var(--card-bg);
-            padding: 0;
+            padding: 30px;
             border-radius: var(--radius);
             width: 90%;
             max-width: 500px;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
-            animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            max-height: 90vh;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease;
         }
 
         @keyframes modalSlideIn {
             from {
                 opacity: 0;
-                transform: translate(-50%, -60%) scale(0.9);
+                transform: translate(-50%, -60%);
             }
             to {
                 opacity: 1;
-                transform: translate(-50%, -50%) scale(1);
+                transform: translate(-50%, -50%);
             }
-        }
-
-        .modal-header {
-            background: var(--gradient);
-            color: white;
-            padding: 30px 40px;
-            text-align: center;
-            position: relative;
-        }
-
-        .modal-header h2 {
-            font-size: 2rem;
-            font-weight: 700;
-            margin: 0;
         }
 
         .close-btn {
             position: absolute;
-            top: 25px;
-            right: 25px;
-            background: rgba(255,255,255,0.2);
-            border: 2px solid rgba(255,255,255,0.3);
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            font-size: 1.3rem;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
             cursor: pointer;
-            color: white;
+            color: var(--secondary);
             transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(10px);
+            padding: 5px;
+            border-radius: 50%;
         }
 
         .close-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: rotate(90deg) scale(1.1);
-        }
-
-        .modal-body {
-            padding: 40px;
-            max-height: 60vh;
-            overflow-y: auto;
+            color: var(--error);
+            background: var(--light);
+            transform: rotate(90deg);
         }
 
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .form-label {
-            font-weight: 600;
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            font-weight: 600;
             color: var(--dark);
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .form-label i {
-            color: var(--primary);
         }
 
         .form-input {
             width: 100%;
-            padding: 16px 20px;
+            padding: 15px;
             border: 2px solid var(--light);
-            border-radius: var(--radius-sm);
-            font-size: 1rem;
+            border-radius: var(--radius);
             background: var(--light);
             color: var(--dark);
+            font-size: 1rem;
             transition: var(--transition);
             font-family: inherit;
         }
@@ -549,105 +486,82 @@
 
         .form-textarea {
             resize: vertical;
-            min-height: 120px;
-            line-height: 1.6;
+            min-height: 100px;
         }
 
-        .file-input-label {
-            display: block;
-            padding: 20px;
-            border: 3px dashed var(--light);
-            border-radius: var(--radius-sm);
-            background: var(--light);
-            color: var(--secondary);
-            text-align: center;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .file-input-label:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .submit-btn {
-            background: var(--gradient);
+        .save-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary);
             color: white;
             border: none;
-            padding: 16px 32px;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
+            border-radius: var(--radius);
+            font-size: 1rem;
             font-weight: 600;
-            transition: var(--transition);
-            font-size: 1.1rem;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            width: 100%;
-            justify-content: center;
-        }
-
-        .submit-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            cursor: pointer;
             transition: var(--transition);
         }
 
-        .submit-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-            background: var(--gradient-hover);
+        .save-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
         }
 
-        .submit-btn:hover::before {
-            left: 100%;
-        }
-
-        .submit-btn:disabled {
+        .save-btn:disabled {
             background: var(--secondary);
             cursor: not-allowed;
             transform: none;
-            box-shadow: none;
         }
 
-        .submit-btn:disabled::before {
-            display: none;
+        .avatar-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
         }
 
-        .loading-spinner {
-            display: inline-block;
-            width: 22px;
-            height: 22px;
-            border: 3px solid transparent;
-            border-top: 3px solid white;
+        .avatar-option {
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            object-fit: cover;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: var(--transition);
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .avatar-option:hover, .avatar-option.selected {
+            border-color: var(--primary);
+            transform: scale(1.1);
         }
 
-        /* Notification */
+        .file-upload-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: var(--primary);
+            color: white;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .file-upload-btn:hover {
+            background: var(--primary-dark);
+        }
+
         .notification {
             position: fixed;
-            top: 25px;
-            right: 25px;
+            top: 20px;
+            right: 20px;
             background: var(--success);
             color: white;
             padding: 18px 24px;
             border-radius: var(--radius);
-            box-shadow: var(--shadow-hover);
+            box-shadow: var(--shadow);
             z-index: 3000;
-            animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideInRight 0.3s ease;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -673,177 +587,142 @@
             }
         }
 
-        /* Responsive */
+        .hidden {
+            display: none !important;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         @media (max-width: 768px) {
-            .container {
-                padding: 15px;
+            .profile-container {
+                grid-template-columns: 1fr;
             }
             
-            .header {
-                padding: 40px 25px;
+            .profile-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .content-header {
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+            }
+            
+            .content-tabs {
+                width: 100%;
+                overflow-x: auto;
             }
             
             .header h1 {
                 font-size: 2.5rem;
-            }
-            
-            .profile-content {
-                flex-direction: column;
-                text-align: center;
-                gap: 25px;
-            }
-            
-            .profile-name {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .profile-stats {
-                justify-content: center;
-                gap: 20px;
-            }
-            
-            .profile-actions {
-                justify-content: center;
-            }
-            
-            .profile-avatar {
-                width: 120px;
-                height: 120px;
-            }
-            
-            .avatar-badge {
-                font-size: 0.5rem;
-                padding: 3px 6px;
-                max-width: 70px;
-            }
-            
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .modal-content {
-                width: 95%;
-            }
-            
-            .modal-body {
-                padding: 25px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .profile-header {
-                padding: 30px 25px;
-            }
-            
-            .profile-name {
-                font-size: 2rem;
-            }
-            
-            .profile-stats {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .stat {
-                padding: 12px 15px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <div class="header">
             <a href="index.html" class="back-btn">
                 <i class="fas fa-arrow-left"></i> Back to Home
             </a>
 
-            <button class="theme-toggle" id="themeToggle">
-                <i class="fas fa-moon"></i>
-            </button>
-
-            <div class="header-content">
-                <h1>My Profile</h1>
-                <p>Manage your profile and showcase your AI art creations</p>
-            </div>
+            <h1>AI Prompt Gallery</h1>
+            <p>Your creative profile</p>
         </div>
 
-        <!-- Profile Container -->
         <div class="profile-container">
-            <div class="profile-header">
-                <div class="profile-content">
-                    <div class="avatar-container">
-                        <img src="https://ui-avatars.com/api/?name=User&background=667eea&color=fff" alt="Profile" class="profile-avatar" id="profileAvatar">
-                        <!-- Badge DP के अंदर थोड़ा बाहर -->
-                        <div class="avatar-badge member-badge" id="avatarBadge">
-                            <i class="fas fa-user"></i> Member
-                        </div>
-                        <button class="edit-avatar-btn" id="editAvatarBtn">
-                            <i class="fas fa-camera"></i>
-                        </button>
+            <div class="profile-sidebar">
+                <div class="profile-avatar-container">
+                    <img src="" alt="Profile Avatar" class="profile-avatar" id="profileAvatar">
+                    <button class="avatar-edit-btn" id="avatarEditBtn">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                </div>
+                
+                <div class="profile-name" id="profileName">
+                    Loading...
+                    <i class="fas fa-check-circle verified-badge hidden" id="verifiedBadge"></i>
+                    <span class="owner-badge hidden" id="ownerBadge">Owner</span>
+                    <span class="legendary-badge hidden" id="legendaryBadge">Legendary</span>
+                </div>
+                
+                <div class="profile-bio" id="profileBio">
+                    Loading bio...
+                </div>
+                
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="promptsCount">0</div>
+                        <div class="stat-label">Prompts</div>
                     </div>
-                    
-                    <div class="profile-info">
-                        <div class="profile-name">
-                            <span id="profileName">User Name</span>
-                            <i class="fas fa-check-circle verified-badge hidden" id="verifiedBadge"></i>
-                        </div>
-                        
-                        <p class="profile-bio" id="profileBio">This is my bio. I love creating amazing AI art and sharing prompts with the community!</p>
-                        
-                        <div class="profile-stats">
-                            <div class="stat">
-                                <span class="stat-value" id="promptsCount">0</span>
-                                <span class="stat-label">Prompts</span>
-                            </div>
-                            <div class="stat">
-                                <span class="stat-value" id="followersCount">0</span>
-                                <span class="stat-label">Followers</span>
-                            </div>
-                            <div class="stat">
-                                <span class="stat-value" id="followingCount">0</span>
-                                <span class="stat-label">Following</span>
-                            </div>
-                            <div class="stat">
-                                <span class="stat-value" id="likesCount">0</span>
-                                <span class="stat-label">Likes</span>
-                            </div>
-                        </div>
-                        
-                        <div class="profile-actions">
-                            <button class="profile-btn primary" id="editProfileBtn">
-                                <i class="fas fa-edit"></i> Edit Profile
-                            </button>
-                            <button class="profile-btn" id="logoutBtn">
-                                <i class="fas fa-sign-out-alt"></i> Logout
-                            </button>
-                        </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="followersCount">0</div>
+                        <div class="stat-label">Followers</div>
                     </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="likesCount">0</div>
+                        <div class="stat-label">Likes</div>
+                    </div>
+                </div>
+                
+                <div class="profile-actions">
+                    <button class="action-btn primary" id="editProfileBtn">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </button>
+                    <button class="action-btn secondary" id="settingsBtn">
+                        <i class="fas fa-cog"></i> Settings
+                    </button>
                 </div>
             </div>
             
-            <div class="profile-details">
-                <div class="info-grid">
-                    <div class="info-item">
-                        <span class="info-label">Email Address</span>
-                        <div class="info-value" id="userEmail">user@example.com</div>
+            <div class="profile-content">
+                <div class="content-header">
+                    <h2 class="content-title" id="contentTitle">My Prompts</h2>
+                    <div class="content-tabs">
+                        <button class="tab-btn active" data-tab="prompts">Prompts</button>
+                        <button class="tab-btn" data-tab="likes">Liked</button>
+                        <button class="tab-btn" data-tab="collections">Collections</button>
                     </div>
-                    <div class="info-item">
-                        <span class="info-label">Member Since</span>
-                        <div class="info-value" id="joinDate">January 2024</div>
+                </div>
+                
+                <div class="tab-content" id="promptsTab">
+                    <div class="prompts-grid" id="promptsGrid">
+                        <div class="empty-state">
+                            <i class="fas fa-lightbulb"></i>
+                            <h3>No prompts yet</h3>
+                            <p>Create your first AI art prompt to get started!</p>
+                        </div>
                     </div>
-                    <div class="info-item">
-                        <span class="info-label">Account Status</span>
-                        <div class="info-value" id="accountStatus">Active</div>
+                </div>
+                
+                <div class="tab-content hidden" id="likesTab">
+                    <div class="prompts-grid" id="likesGrid">
+                        <div class="empty-state">
+                            <i class="fas fa-heart"></i>
+                            <h3>No liked prompts</h3>
+                            <p>Like some prompts to see them here</p>
+                        </div>
                     </div>
-                    <div class="info-item">
-                        <span class="info-label">User ID</span>
-                        <div class="info-value" id="userId">Loading...</div>
+                </div>
+                
+                <div class="tab-content hidden" id="collectionsTab">
+                    <div class="empty-state">
+                        <i class="fas fa-folder"></i>
+                        <h3>No collections</h3>
+                        <p>Create collections to organize your favorite prompts</p>
                     </div>
                 </div>
             </div>
@@ -853,56 +732,40 @@
     <!-- Edit Profile Modal -->
     <div class="modal" id="editProfileModal">
         <div class="modal-content">
-            <div class="modal-header">
-                <button class="close-btn">&times;</button>
-                <h2>Edit Profile</h2>
+            <button class="close-btn">&times;</button>
+            <h2 style="margin-bottom: 20px; color: var(--dark); font-size: 1.8rem;">Edit Profile</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Display Name</label>
+                <input type="text" class="form-input" id="editName" placeholder="Enter your display name" maxlength="30">
+                <small style="color: var(--secondary);">Max 30 characters</small>
             </div>
             
-            <div class="modal-body">
-                <form id="editProfileForm">
-                    <div class="form-group">
-                        <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px;">
-                            <img src="https://ui-avatars.com/api/?name=User&background=667eea&color=fff" alt="Profile" class="profile-avatar" id="editProfileAvatar" style="width: 80px; height: 80px;">
-                            <div style="flex: 1;">
-                                <input type="file" id="editProfileImage" accept="image/*" style="display: none;">
-                                <label for="editProfileImage" class="file-input-label">
-                                    <i class="fas fa-camera"></i> Change Profile Photo
-                                </label>
-                                <div style="font-size: 0.8rem; color: var(--secondary); margin-top: 8px;">
-                                    Max 500KB - PNG, JPG, WEBP
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="fas fa-user"></i>
-                            Full Name
-                        </label>
-                        <input type="text" id="editProfileName" class="form-input" placeholder="Enter your full name" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="fas fa-align-left"></i>
-                            Bio
-                        </label>
-                        <textarea id="editProfileBio" class="form-input form-textarea" placeholder="Tell us about yourself and your AI art journey..."></textarea>
-                    </div>
-                    
-                    <button type="submit" class="submit-btn" id="saveProfileBtn">
-                        <div class="loading-spinner" id="saveSpinner" style="display: none;"></div>
-                        <i class="fas fa-save" id="saveIcon"></i> 
-                        <span id="saveText">Save Changes</span>
-                    </button>
-                </form>
+            <div class="form-group">
+                <label class="form-label">Bio</label>
+                <textarea class="form-input form-textarea" id="editBio" placeholder="Tell us about yourself and your AI art journey..." maxlength="200"></textarea>
+                <small style="color: var(--secondary);">Max 200 characters</small>
             </div>
+            
+            <div class="form-group">
+                <label class="form-label">Profile Avatar</label>
+                <div class="avatar-options" id="avatarOptions">
+                    <!-- Avatar options will be loaded here -->
+                </div>
+                <div class="file-upload-btn">
+                    <i class="fas fa-upload"></i> Upload Custom Avatar
+                    <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
+                </div>
+            </div>
+            
+            <button class="save-btn" id="saveProfileBtn">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
         </div>
     </div>
 
     <script>
-        // === FIREBASE CONFIGURATION ===
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDovL4QBUZfueYzMJpkCjWu_4NLMoQWyiA",
             authDomain: "gagsta-paradise.firebaseapp.com",
@@ -914,364 +777,326 @@
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
         const db = firebase.firestore();
+        const auth = firebase.auth();
+        const storage = firebase.storage();
 
-        // === GLOBAL VARIABLES ===
+        // Global Variables
+        let currentUser = null;
+        let userProfile = null;
         const OWNER_EMAIL = "alizybaby381@gmail.com";
         const LEGENDARY_EMAIL = "ul8763325@gmail.com";
-        // सिर्फ इन दो emails को verified tick मिलेगा
-        const VERIFIED_USERS = [OWNER_EMAIL, LEGENDARY_EMAIL];
-        let currentUser = null;
 
-        // === DOM ELEMENTS ===
+        // DOM Elements
         const elements = {
-            themeToggle: document.getElementById('themeToggle'),
             profileAvatar: document.getElementById('profileAvatar'),
             profileName: document.getElementById('profileName'),
             profileBio: document.getElementById('profileBio'),
-            avatarBadge: document.getElementById('avatarBadge'),
-            verifiedBadge: document.getElementById('verifiedBadge'),
-            userEmail: document.getElementById('userEmail'),
-            userId: document.getElementById('userId'),
-            joinDate: document.getElementById('joinDate'),
-            accountStatus: document.getElementById('accountStatus'),
             promptsCount: document.getElementById('promptsCount'),
             followersCount: document.getElementById('followersCount'),
-            followingCount: document.getElementById('followingCount'),
             likesCount: document.getElementById('likesCount'),
+            verifiedBadge: document.getElementById('verifiedBadge'),
+            ownerBadge: document.getElementById('ownerBadge'),
+            legendaryBadge: document.getElementById('legendaryBadge'),
             editProfileBtn: document.getElementById('editProfileBtn'),
-            editAvatarBtn: document.getElementById('editAvatarBtn'),
-            logoutBtn: document.getElementById('logoutBtn'),
             editProfileModal: document.getElementById('editProfileModal'),
-            editProfileForm: document.getElementById('editProfileForm'),
-            editProfileAvatar: document.getElementById('editProfileAvatar'),
-            editProfileName: document.getElementById('editProfileName'),
-            editProfileBio: document.getElementById('editProfileBio'),
-            editProfileImage: document.getElementById('editProfileImage'),
+            editName: document.getElementById('editName'),
+            editBio: document.getElementById('editBio'),
+            avatarOptions: document.getElementById('avatarOptions'),
+            avatarUpload: document.getElementById('avatarUpload'),
             saveProfileBtn: document.getElementById('saveProfileBtn'),
-            saveSpinner: document.getElementById('saveSpinner'),
-            saveIcon: document.getElementById('saveIcon'),
-            saveText: document.getElementById('saveText')
+            promptsGrid: document.getElementById('promptsGrid')
         };
 
-        // === THEME MANAGEMENT ===
-        function initTheme() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.body.setAttribute('data-theme', savedTheme);
-            
-            const icon = elements.themeToggle.querySelector('i');
-            icon.className = savedTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+        // ✅ FIXED - Initialize App
+        function initApp() {
+            console.log('🚀 Initializing AI Prompt Gallery Profile...');
+            setupEventListeners();
+            initAuth();
+            loadAvatarOptions();
         }
 
-        elements.themeToggle.addEventListener('click', () => {
-            const currentTheme = document.body.getAttribute('data-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            document.body.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            
-            const icon = elements.themeToggle.querySelector('i');
-            icon.className = newTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
-        });
-
-        // === AUTHENTICATION SYSTEM ===
+        // ✅ FIXED - Authentication System
         function initAuth() {
             auth.onAuthStateChanged(async (user) => {
                 if (user) {
                     currentUser = user;
-                    await loadUserData(user.uid);
-                    showNotification('Welcome to your profile!', 'success');
+                    console.log('✅ User signed in:', user.email);
+                    await loadUserProfile();
+                    await loadUserPrompts();
                 } else {
-                    // Redirect to login if not authenticated
-                    window.location.href = 'login.html';
+                    currentUser = null;
+                    window.open('login.html', '_self');
                 }
             });
         }
 
-        // === USER DATA MANAGEMENT ===
-        async function loadUserData(uid) {
+        // ✅ FIXED - Load User Profile
+        async function loadUserProfile() {
+            if (!currentUser) return;
+
             try {
-                const userDoc = await db.collection('users').doc(uid).get();
+                console.log('🔄 Loading user profile...');
                 
-                if (!userDoc.exists) {
-                    await createUserDocument(uid);
-                    await loadUserData(uid);
-                    return;
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                
+                if (userDoc.exists) {
+                    userProfile = userDoc.data();
+                    console.log('✅ User profile loaded:', userProfile);
+                } else {
+                    // Create user profile if it doesn't exist
+                    userProfile = {
+                        name: currentUser.displayName || "User",
+                        email: currentUser.email,
+                        avatar: currentUser.photoURL || "https://ui-avatars.com/api/?name=User&background=667eea&color=fff&size=256",
+                        bio: "Welcome to my AI art profile! 🎨",
+                        followers: 0,
+                        following: 0,
+                        prompts: 0,
+                        likes: 0,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    
+                    await db.collection('users').doc(currentUser.uid).set(userProfile);
+                    console.log('✅ New user profile created');
                 }
                 
-                const userData = userDoc.data();
-                updateProfileUI(userData);
+                updateProfileUI();
                 
             } catch (error) {
-                console.error('Error loading user data:', error);
-                showNotification('Error loading profile data', 'error');
+                console.error('❌ Error loading user profile:', error);
+                showNotification('Failed to load profile', 'error');
             }
         }
 
-        async function createUserDocument(uid) {
-            const userData = {
-                name: currentUser.displayName || 'User',
-                email: currentUser.email,
-                avatar: currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'User')}&background=667eea&color=fff`,
-                bio: "This is my bio. I love creating amazing AI art and sharing prompts with the community!",
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                prompts: 0,
-                followers: 0,
-                following: 0,
-                likes: 0,
-                followersList: [],
-                followingList: [],
-                // सिर्फ verified users के लिए true
-                isVerified: VERIFIED_USERS.includes(currentUser.email)
-            };
-            
-            await db.collection('users').doc(uid).set(userData);
-            return userData;
-        }
+        // ✅ FIXED - Update Profile UI
+        function updateProfileUI() {
+            if (!userProfile) return;
 
-        function updateProfileUI(userData) {
-            elements.profileName.textContent = userData.name || 'User';
-            elements.profileBio.textContent = userData.bio || 'This is my bio. I love creating amazing AI art and sharing prompts with the community!';
-            
-            // Avatar optimization
-            let avatarUrl = userData.avatar || 'https://ui-avatars.com/api/?name=User&background=667eea&color=fff';
-            if (avatarUrl.startsWith('data:image') && avatarUrl.length > 10000) {
-                avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name || 'User')}&background=667eea&color=fff`;
+            // Update avatar with proper URL handling
+            let avatarUrl = userProfile.avatar;
+            if (avatarUrl && avatarUrl.length > 500) {
+                // If URL is too long, use default avatar
+                avatarUrl = "https://ui-avatars.com/api/?name=" + encodeURIComponent(userProfile.name) + "&background=667eea&color=fff&size=256";
             }
-            
             elements.profileAvatar.src = avatarUrl;
-            elements.editProfileAvatar.src = avatarUrl;
-            elements.userEmail.textContent = currentUser.email;
-            elements.userId.textContent = currentUser.uid.substring(0, 8) + '...';
-            
-            elements.promptsCount.textContent = userData.prompts || 0;
-            elements.followersCount.textContent = userData.followers || 0;
-            elements.followingCount.textContent = userData.following || 0;
-            elements.likesCount.textContent = userData.likes || 0;
-            
-            if (userData.createdAt) {
-                const joinDate = userData.createdAt.toDate();
-                elements.joinDate.textContent = joinDate.toLocaleDateString('en-US', { 
-                    year: 'numeric', 
-                    month: 'long',
-                    day: 'numeric'
-                });
-            } else {
-                elements.joinDate.textContent = new Date().toLocaleDateString('en-US', { 
-                    year: 'numeric', 
-                    month: 'long',
-                    day: 'numeric'
-                });
+
+            // Update name - ensure it's not "User" if we have proper data
+            let displayName = userProfile.name;
+            if (!displayName || displayName === "User" || displayName === "undefined") {
+                displayName = currentUser.displayName || "AI Artist";
             }
+            elements.profileName.innerHTML = displayName;
+
+            // Update badges
+            const isOwner = userProfile.email === OWNER_EMAIL;
+            const isLegendary = userProfile.email === LEGENDARY_EMAIL;
             
-            // ✅ VERIFIED TICK - SIRF OWNER & LEGENDARY KE LIYE
-            if (currentUser.email === OWNER_EMAIL) {
-                // Site Owner - Dark Blue
-                elements.avatarBadge.innerHTML = '<i class="fas fa-crown"></i> Owner';
-                elements.avatarBadge.className = 'avatar-badge owner-badge';
-                elements.verifiedBadge.classList.remove('hidden');
-            } else if (currentUser.email === LEGENDARY_EMAIL) {
-                // Legendary - Red Color
-                elements.avatarBadge.innerHTML = '<i class="fas fa-fire"></i> Legendary';
-                elements.avatarBadge.className = 'avatar-badge legendary-badge';
-                elements.verifiedBadge.classList.remove('hidden');
-            } else {
-                // ALL OTHER USERS - Regular Member (NO VERIFIED TICK)
-                elements.avatarBadge.innerHTML = '<i class="fas fa-user"></i> Member';
-                elements.avatarBadge.className = 'avatar-badge member-badge';
-                elements.verifiedBadge.classList.add('hidden');
-            }
-            
-            elements.accountStatus.textContent = 'Active';
+            elements.verifiedBadge.classList.toggle('hidden', !(isOwner || isLegendary));
+            elements.ownerBadge.classList.toggle('hidden', !isOwner);
+            elements.legendaryBadge.classList.toggle('hidden', !isLegendary);
+
+            // Update bio
+            elements.profileBio.textContent = userProfile.bio || "Welcome to my AI art profile! 🎨";
+
+            // Update stats
+            elements.promptsCount.textContent = userProfile.prompts || 0;
+            elements.followersCount.textContent = userProfile.followers || 0;
+            elements.likesCount.textContent = userProfile.likes || 0;
+
+            // Update modal fields
+            elements.editName.value = displayName;
+            elements.editBio.value = userProfile.bio || "";
         }
 
-        // === PROFILE EDITING ===
-        elements.editProfileBtn.addEventListener('click', () => {
-            openEditProfileModal();
-        });
+        // ✅ FIXED - Load User Prompts
+        async function loadUserPrompts() {
+            if (!currentUser) return;
 
-        elements.editAvatarBtn.addEventListener('click', () => {
-            elements.editProfileImage.click();
-        });
+            try {
+                const snapshot = await db.collection('prompts')
+                    .where('userId', '==', currentUser.uid)
+                    .orderBy('createdAt', 'desc')
+                    .get();
 
-        function openEditProfileModal() {
-            elements.editProfileName.value = elements.profileName.textContent;
-            elements.editProfileBio.value = elements.profileBio.textContent;
-            elements.editProfileAvatar.src = elements.profileAvatar.src;
-            elements.editProfileModal.style.display = 'block';
+                if (snapshot.empty) {
+                    elements.promptsGrid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-lightbulb"></i>
+                            <h3>No prompts yet</h3>
+                            <p>Create your first AI art prompt to get started!</p>
+                            <button class="action-btn primary" onclick="window.open('create.html', '_self')" style="margin-top: 15px;">
+                                <i class="fas fa-plus"></i> Create Prompt
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                elements.promptsGrid.innerHTML = snapshot.docs.map(doc => {
+                    const prompt = doc.data();
+                    return `
+                        <div class="prompt-card">
+                            <div class="prompt-text">${prompt.text}</div>
+                            <div class="prompt-meta">
+                                <div class="prompt-date">${formatDate(prompt.createdAt?.toDate())}</div>
+                                <div class="prompt-likes">
+                                    <i class="fas fa-heart"></i>
+                                    ${prompt.likes || 0}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error('❌ Error loading prompts:', error);
+            }
         }
 
-        // Image to base64 conversion function with compression
-        function convertImageToBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        
-                        // Max dimensions
-                        const MAX_WIDTH = 400;
-                        const MAX_HEIGHT = 400;
-                        let width = img.width;
-                        let height = img.height;
-                        
-                        // Calculate new dimensions
-                        if (width > height) {
-                            if (width > MAX_WIDTH) {
-                                height *= MAX_WIDTH / width;
-                                width = MAX_WIDTH;
-                            }
-                        } else {
-                            if (height > MAX_HEIGHT) {
-                                width *= MAX_HEIGHT / height;
-                                height = MAX_HEIGHT;
-                            }
-                        }
-                        
-                        canvas.width = width;
-                        canvas.height = height;
-                        
-                        // Draw and compress image
-                        ctx.drawImage(img, 0, 0, width, height);
-                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7); // 70% quality
-                        resolve(compressedDataUrl);
-                    };
-                    img.src = e.target.result;
-                };
-                reader.onerror = error => reject(error);
-                reader.readAsDataURL(file);
+        // ✅ FIXED - Load Avatar Options
+        function loadAvatarOptions() {
+            const avatars = [
+                "https://ui-avatars.com/api/?name=AI+Artist&background=667eea&color=fff&size=256",
+                "https://ui-avatars.com/api/?name=Creative&background=764ba2&color=fff&size=256",
+                "https://ui-avatars.com/api/?name=Artist&background=f59e0b&color=fff&size=256",
+                "https://ui-avatars.com/api/?name=Creator&background=10b981&color=fff&size=256",
+                "https://ui-avatars.com/api/?name=Designer&background=ef4444&color=fff&size=256",
+                "https://ui-avatars.com/api/?name=Innovator&background=8b5cf6&color=fff&size=256"
+            ];
+
+            elements.avatarOptions.innerHTML = avatars.map((avatar, index) => `
+                <img src="${avatar}" class="avatar-option" data-avatar="${avatar}" alt="Avatar ${index + 1}">
+            `).join('');
+
+            // Add click listeners
+            document.querySelectorAll('.avatar-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
             });
         }
 
-        elements.editProfileForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const name = elements.editProfileName.value.trim();
-            const bio = elements.editProfileBio.value.trim();
-            
+        // ✅ FIXED - Save Profile
+        async function saveProfile() {
+            if (!currentUser) return;
+
+            const name = elements.editName.value.trim();
+            const bio = elements.editBio.value.trim();
+            const selectedAvatar = document.querySelector('.avatar-option.selected');
+
             if (!name) {
-                showNotification('Please enter your name', 'error');
+                showNotification('Please enter a display name', 'error');
                 return;
             }
-            
-            // Show loading state
-            setSaveButtonLoading(true);
-            
+
             try {
-                let avatarUrl = elements.profileAvatar.src;
-                
-                // Convert image to base64 if uploaded (with compression)
-                if (elements.editProfileImage.files[0]) {
-                    const file = elements.editProfileImage.files[0];
-                    
-                    // File size check (500KB max)
-                    if (file.size > 500 * 1024) {
-                        showNotification('Image should be less than 500KB', 'error');
-                        setSaveButtonLoading(false);
-                        return;
-                    }
-                    
-                    // Validate file type
-                    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-                    if (!validTypes.includes(file.type)) {
-                        showNotification('Please select a valid image file (JPEG, PNG, WEBP)', 'error');
-                        setSaveButtonLoading(false);
-                        return;
-                    }
-                    
-                    avatarUrl = await convertImageToBase64(file);
-                }
-                
-                // Update Firebase Auth profile
-                await currentUser.updateProfile({
-                    displayName: name,
-                    photoURL: avatarUrl
-                });
-                
-                // Update Firestore user document
-                await db.collection('users').doc(currentUser.uid).update({
+                elements.saveProfileBtn.disabled = true;
+                elements.saveProfileBtn.innerHTML = '<div class="loading-spinner"></div> Saving...';
+
+                const updates = {
                     name: name,
                     bio: bio,
-                    avatar: avatarUrl,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    // सिर्फ verified users के लिए true रहेगा
-                    isVerified: VERIFIED_USERS.includes(currentUser.email)
-                });
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                // Handle avatar selection
+                if (selectedAvatar) {
+                    updates.avatar = selectedAvatar.dataset.avatar;
+                }
+
+                // Handle file upload
+                if (elements.avatarUpload.files[0]) {
+                    const file = elements.avatarUpload.files[0];
+                    const storageRef = storage.ref().child(`avatars/${currentUser.uid}/${file.name}`);
+                    const snapshot = await storageRef.put(file);
+                    const downloadURL = await snapshot.ref.getDownloadURL();
+                    updates.avatar = downloadURL;
+                }
+
+                await db.collection('users').doc(currentUser.uid).update(updates);
                 
-                // Update UI
-                elements.profileName.textContent = name;
-                elements.profileBio.textContent = bio;
-                elements.profileAvatar.src = avatarUrl;
+                // Reload profile
+                await loadUserProfile();
                 
-                // Close modal and reset form
-                elements.editProfileModal.style.display = 'none';
-                elements.editProfileImage.value = '';
-                
+                closeModal(elements.editProfileModal);
                 showNotification('Profile updated successfully!', 'success');
                 
             } catch (error) {
-                console.error('Error updating profile:', error);
-                showNotification('Error updating profile: ' + error.message, 'error');
+                console.error('❌ Error saving profile:', error);
+                showNotification('Error updating profile', 'error');
             } finally {
-                setSaveButtonLoading(false);
-            }
-        });
-
-        // Handle image upload and convert to base64
-        elements.editProfileImage.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                // Validate file size (max 500KB)
-                if (file.size > 500 * 1024) {
-                    showNotification('Image size should be less than 500KB', 'error');
-                    this.value = '';
-                    return;
-                }
-                
-                // Validate file type
-                if (!file.type.startsWith('image/')) {
-                    showNotification('Please select an image file', 'error');
-                    this.value = '';
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    // Update preview
-                    elements.editProfileAvatar.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        function setSaveButtonLoading(loading) {
-            if (loading) {
-                elements.saveProfileBtn.disabled = true;
-                elements.saveSpinner.style.display = 'inline-block';
-                elements.saveIcon.style.display = 'none';
-                elements.saveText.textContent = 'Saving...';
-            } else {
                 elements.saveProfileBtn.disabled = false;
-                elements.saveSpinner.style.display = 'none';
-                elements.saveIcon.style.display = 'inline-block';
-                elements.saveText.textContent = 'Save Changes';
+                elements.saveProfileBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
             }
         }
 
-        // === LOGOUT ===
-        elements.logoutBtn.addEventListener('click', () => {
-            auth.signOut().then(() => {
-                window.location.href = 'index.html';
-            }).catch((error) => {
-                console.error('Error signing out:', error);
-                showNotification('Error signing out', 'error');
+        // ✅ FIXED - Event Listeners
+        function setupEventListeners() {
+            elements.editProfileBtn.addEventListener('click', () => {
+                openModal(elements.editProfileModal);
             });
-        });
 
-        // === NOTIFICATION SYSTEM ===
+            elements.saveProfileBtn.addEventListener('click', saveProfile);
+
+            elements.avatarUpload.addEventListener('change', function(e) {
+                if (e.target.files[0]) {
+                    document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        // You could show a preview here if needed
+                        console.log('File selected:', e.target.files[0].name);
+                    };
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+
+            // Tab switching
+            document.querySelectorAll('.tab-btn').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.dataset.tab;
+                    
+                    // Update active tab
+                    document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show correct content
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+                    document.getElementById(tabName + 'Tab').classList.remove('hidden');
+                    
+                    // Update content title
+                    elements.contentTitle.textContent = this.textContent;
+                });
+            });
+
+            // Modal close handlers
+            document.querySelectorAll('.close-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const modal = e.target.closest('.modal');
+                    closeModal(modal);
+                });
+            });
+
+            window.addEventListener('click', (e) => {
+                if (e.target.classList.contains('modal')) {
+                    closeModal(e.target);
+                }
+            });
+        }
+
+        // ✅ FIXED - Utility Functions
+        function formatDate(date) {
+            if (!date) return '';
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
         function showNotification(message, type = 'info') {
+            // Remove existing notifications
             document.querySelectorAll('.notification').forEach(notif => notif.remove());
             
             const notification = document.createElement('div');
@@ -1280,7 +1105,6 @@
                 <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'}"></i>
                 <span>${message}</span>
             `;
-            
             document.body.appendChild(notification);
             
             setTimeout(() => {
@@ -1290,41 +1114,12 @@
             }, 4000);
         }
 
-        // === MODAL MANAGEMENT ===
-        function setupModalHandlers() {
-            document.querySelectorAll('.close-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const modal = e.target.closest('.modal');
-                    closeModal(modal);
-                });
-            });
-            
-            window.addEventListener('click', (e) => {
-                if (e.target.classList.contains('modal')) {
-                    closeModal(e.target);
-                }
-            });
-            
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    document.querySelectorAll('.modal').forEach(modal => {
-                        closeModal(modal);
-                    });
-                }
-            });
+        function openModal(modal) {
+            modal.style.display = 'block';
         }
 
         function closeModal(modal) {
             modal.style.display = 'none';
-            elements.editProfileImage.value = '';
-            setSaveButtonLoading(false);
-        }
-
-        // === INITIALIZATION ===
-        function initApp() {
-            initTheme();
-            initAuth();
-            setupModalHandlers();
         }
 
         // Start the app
