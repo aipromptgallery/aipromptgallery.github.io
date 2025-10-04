@@ -284,6 +284,18 @@
             color: var(--primary);
         }
 
+        .action-btn.danger {
+            background: transparent;
+            color: var(--error);
+            border: 2px solid var(--error);
+        }
+
+        .action-btn.danger:hover {
+            background: var(--error);
+            color: white;
+            transform: translateY(-2px);
+        }
+
         .profile-content {
             background: var(--card-bg);
             border-radius: var(--radius);
@@ -421,6 +433,8 @@
             max-width: 500px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.3);
             animation: modalSlideIn 0.3s ease;
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
         @keyframes modalSlideIn {
@@ -535,6 +549,19 @@
             transform: scale(1.1);
         }
 
+        .file-upload-container {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px dashed var(--light);
+            border-radius: var(--radius);
+            transition: var(--transition);
+        }
+
+        .file-upload-container:hover {
+            border-color: var(--primary);
+        }
+
         .file-upload-btn {
             display: inline-block;
             padding: 12px 24px;
@@ -544,11 +571,35 @@
             cursor: pointer;
             transition: var(--transition);
             text-align: center;
-            margin-top: 10px;
+            font-weight: 600;
         }
 
         .file-upload-btn:hover {
             background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        #avatarUpload {
+            display: none;
+        }
+
+        .upload-preview {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .upload-preview img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary);
+        }
+
+        .upload-preview p {
+            margin-top: 10px;
+            color: var(--secondary);
+            font-size: 0.9rem;
         }
 
         .notification {
@@ -629,6 +680,10 @@
             .header h1 {
                 font-size: 2.5rem;
             }
+
+            .avatar-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
@@ -684,6 +739,9 @@
                     </button>
                     <button class="action-btn secondary" id="settingsBtn">
                         <i class="fas fa-cog"></i> Settings
+                    </button>
+                    <button class="action-btn danger" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
                 </div>
             </div>
@@ -749,12 +807,20 @@
             
             <div class="form-group">
                 <label class="form-label">Profile Avatar</label>
+                
                 <div class="avatar-options" id="avatarOptions">
                     <!-- Avatar options will be loaded here -->
                 </div>
-                <div class="file-upload-btn">
-                    <i class="fas fa-upload"></i> Upload Custom Avatar
-                    <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
+                
+                <div class="file-upload-container">
+                    <label class="file-upload-btn">
+                        <i class="fas fa-upload"></i> Upload Custom Avatar
+                        <input type="file" id="avatarUpload" accept="image/*">
+                    </label>
+                    <div class="upload-preview hidden" id="uploadPreview">
+                        <img id="previewImage" src="" alt="Preview">
+                        <p id="fileName">custom_avatar.jpg</p>
+                    </div>
                 </div>
             </div>
             
@@ -784,6 +850,7 @@
         // Global Variables
         let currentUser = null;
         let userProfile = null;
+        let selectedAvatarFile = null;
         const OWNER_EMAIL = "alizybaby381@gmail.com";
         const LEGENDARY_EMAIL = "ul8763325@gmail.com";
 
@@ -799,11 +866,15 @@
             ownerBadge: document.getElementById('ownerBadge'),
             legendaryBadge: document.getElementById('legendaryBadge'),
             editProfileBtn: document.getElementById('editProfileBtn'),
+            logoutBtn: document.getElementById('logoutBtn'),
             editProfileModal: document.getElementById('editProfileModal'),
             editName: document.getElementById('editName'),
             editBio: document.getElementById('editBio'),
             avatarOptions: document.getElementById('avatarOptions'),
             avatarUpload: document.getElementById('avatarUpload'),
+            uploadPreview: document.getElementById('uploadPreview'),
+            previewImage: document.getElementById('previewImage'),
+            fileName: document.getElementById('fileName'),
             saveProfileBtn: document.getElementById('saveProfileBtn'),
             promptsGrid: document.getElementById('promptsGrid')
         };
@@ -846,9 +917,9 @@
                 } else {
                     // Create user profile if it doesn't exist
                     userProfile = {
-                        name: currentUser.displayName || "User",
+                        name: currentUser.displayName || currentUser.email.split('@')[0] || "AI Artist",
                         email: currentUser.email,
-                        avatar: currentUser.photoURL || "https://ui-avatars.com/api/?name=User&background=667eea&color=fff&size=256",
+                        avatar: currentUser.photoURL || "https://api.dicebear.com/7.x/avataaars/svg?seed=" + currentUser.uid,
                         bio: "Welcome to my AI art profile! 🎨",
                         followers: 0,
                         following: 0,
@@ -877,14 +948,14 @@
             let avatarUrl = userProfile.avatar;
             if (avatarUrl && avatarUrl.length > 500) {
                 // If URL is too long, use default avatar
-                avatarUrl = "https://ui-avatars.com/api/?name=" + encodeURIComponent(userProfile.name) + "&background=667eea&color=fff&size=256";
+                avatarUrl = "https://api.dicebear.com/7.x/avataaars/svg?seed=" + currentUser.uid;
             }
             elements.profileAvatar.src = avatarUrl;
 
             // Update name - ensure it's not "User" if we have proper data
             let displayName = userProfile.name;
             if (!displayName || displayName === "User" || displayName === "undefined") {
-                displayName = currentUser.displayName || "AI Artist";
+                displayName = currentUser.displayName || currentUser.email.split('@')[0] || "AI Artist";
             }
             elements.profileName.innerHTML = displayName;
 
@@ -954,16 +1025,31 @@
             }
         }
 
-        // ✅ FIXED - Load Avatar Options
+        // ✅ FIXED - Load Cool Cartoon Avatar Options
         function loadAvatarOptions() {
-            const avatars = [
-                "https://ui-avatars.com/api/?name=AI+Artist&background=667eea&color=fff&size=256",
-                "https://ui-avatars.com/api/?name=Creative&background=764ba2&color=fff&size=256",
-                "https://ui-avatars.com/api/?name=Artist&background=f59e0b&color=fff&size=256",
-                "https://ui-avatars.com/api/?name=Creator&background=10b981&color=fff&size=256",
-                "https://ui-avatars.com/api/?name=Designer&background=ef4444&color=fff&size=256",
-                "https://ui-avatars.com/api/?name=Innovator&background=8b5cf6&color=fff&size=256"
+            const avatarStyles = [
+                "avataaars", "micah", "miniavs", "personas", "bottts", "jdenticon", "gridy", "identicon"
             ];
+
+            const colors = ["ffadad", "ffd6a5", "fdffb6", "caffbf", "9bf6ff", "a0c4ff", "bdb2ff", "ffc6ff"];
+            
+            let avatars = [];
+            
+            // Generate unique avatars based on different seeds and styles
+            for (let i = 0; i < 6; i++) {
+                const style = avatarStyles[i % avatarStyles.length];
+                const color = colors[i % colors.length];
+                const seed = `avatar${i + 1}_${Date.now()}`;
+                
+                let avatarUrl = `https://api.dicebear.com/7.x/${style}/svg?seed=${seed}`;
+                
+                // Add color for some styles
+                if (style === "avataaars" || style === "personas" || style === "bottts") {
+                    avatarUrl += `&backgroundColor=${color}`;
+                }
+                
+                avatars.push(avatarUrl);
+            }
 
             elements.avatarOptions.innerHTML = avatars.map((avatar, index) => `
                 <img src="${avatar}" class="avatar-option" data-avatar="${avatar}" alt="Avatar ${index + 1}">
@@ -974,7 +1060,45 @@
                 option.addEventListener('click', function() {
                     document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
                     this.classList.add('selected');
+                    // Clear file upload when preset avatar is selected
+                    selectedAvatarFile = null;
+                    elements.uploadPreview.classList.add('hidden');
                 });
+            });
+        }
+
+        // ✅ FIXED - Handle File Upload
+        function setupFileUpload() {
+            elements.avatarUpload.addEventListener('change', function(e) {
+                if (e.target.files[0]) {
+                    const file = e.target.files[0];
+                    
+                    // Validate file type
+                    if (!file.type.startsWith('image/')) {
+                        showNotification('Please select an image file', 'error');
+                        return;
+                    }
+                    
+                    // Validate file size (max 5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        showNotification('Image size should be less than 5MB', 'error');
+                        return;
+                    }
+                    
+                    selectedAvatarFile = file;
+                    
+                    // Show preview
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        elements.previewImage.src = event.target.result;
+                        elements.fileName.textContent = file.name;
+                        elements.uploadPreview.classList.remove('hidden');
+                        
+                        // Clear preset avatar selection
+                        document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
+                    };
+                    reader.readAsDataURL(file);
+                }
             });
         }
 
@@ -1001,18 +1125,17 @@
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
-                // Handle avatar selection
-                if (selectedAvatar) {
-                    updates.avatar = selectedAvatar.dataset.avatar;
-                }
-
-                // Handle file upload
-                if (elements.avatarUpload.files[0]) {
-                    const file = elements.avatarUpload.files[0];
-                    const storageRef = storage.ref().child(`avatars/${currentUser.uid}/${file.name}`);
+                // Handle file upload first (has priority)
+                if (selectedAvatarFile) {
+                    const file = selectedAvatarFile;
+                    const storageRef = storage.ref().child(`avatars/${currentUser.uid}/${Date.now()}_${file.name}`);
                     const snapshot = await storageRef.put(file);
                     const downloadURL = await snapshot.ref.getDownloadURL();
                     updates.avatar = downloadURL;
+                }
+                // Handle preset avatar selection
+                else if (selectedAvatar) {
+                    updates.avatar = selectedAvatar.dataset.avatar;
                 }
 
                 await db.collection('users').doc(currentUser.uid).update(updates);
@@ -1023,6 +1146,11 @@
                 closeModal(elements.editProfileModal);
                 showNotification('Profile updated successfully!', 'success');
                 
+                // Reset file selection
+                selectedAvatarFile = null;
+                elements.avatarUpload.value = '';
+                elements.uploadPreview.classList.add('hidden');
+                
             } catch (error) {
                 console.error('❌ Error saving profile:', error);
                 showNotification('Error updating profile', 'error');
@@ -1032,25 +1160,32 @@
             }
         }
 
+        // ✅ FIXED - Logout Function
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                auth.signOut().then(() => {
+                    showNotification('Logged out successfully', 'info');
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 1000);
+                }).catch((error) => {
+                    console.error('❌ Logout error:', error);
+                    showNotification('Error during logout', 'error');
+                });
+            }
+        }
+
         // ✅ FIXED - Event Listeners
         function setupEventListeners() {
             elements.editProfileBtn.addEventListener('click', () => {
                 openModal(elements.editProfileModal);
             });
 
+            elements.logoutBtn.addEventListener('click', logout);
+
             elements.saveProfileBtn.addEventListener('click', saveProfile);
 
-            elements.avatarUpload.addEventListener('change', function(e) {
-                if (e.target.files[0]) {
-                    document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        // You could show a preview here if needed
-                        console.log('File selected:', e.target.files[0].name);
-                    };
-                    reader.readAsDataURL(e.target.files[0]);
-                }
-            });
+            setupFileUpload();
 
             // Tab switching
             document.querySelectorAll('.tab-btn').forEach(tab => {
