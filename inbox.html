@@ -11,6 +11,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
     <style>
+        /* Your existing CSS remains the same */
         * {
             margin: 0;
             padding: 0;
@@ -834,7 +835,7 @@
         let users = {};
         const OWNER_EMAIL = "alizybaby381@gmail.com";
         const LEGENDARY_EMAIL = "ul8763325@gmail.com";
-        const OFFICIAL_AI_USER_ID = "official_ai_prompt_gallery"; // ✅ Fixed Official User ID
+        const OFFICIAL_AI_USER_ID = "official_ai_prompt_gallery";
 
         // DOM Elements
         const elements = {
@@ -865,7 +866,7 @@
                 if (user) {
                     currentUser = user;
                     console.log('✅ User signed in:', user.email);
-                    await createOfficialAIUser(); // ✅ Create official user first
+                    await createOfficialAIUser();
                     await loadConversations();
                 } else {
                     currentUser = null;
@@ -883,7 +884,6 @@
                 const officialUserDoc = await officialUserRef.get();
                 
                 if (!officialUserDoc.exists) {
-                    // Create official AI user
                     await officialUserRef.set({
                         name: "AI Prompt Gallery",
                         email: "official@aipromptgallery.com",
@@ -1032,12 +1032,23 @@
                         if (userDoc.exists) {
                             users[uid] = userDoc.data();
                         } else {
-                            users[uid] = {
-                                name: "User",
-                                avatar: "https://ui-avatars.com/api/?name=User&background=667eea&color=fff",
-                                bio: "AI Artist",
-                                email: "user@example.com"
-                            };
+                            // If user document doesn't exist, try to get from auth
+                            try {
+                                const authUser = await auth.getUser(uid);
+                                users[uid] = {
+                                    name: authUser.displayName || "User",
+                                    avatar: authUser.photoURL || "https://ui-avatars.com/api/?name=User&background=667eea&color=fff",
+                                    bio: "AI Artist",
+                                    email: authUser.email || "user@example.com"
+                                };
+                            } catch (authError) {
+                                users[uid] = {
+                                    name: "User",
+                                    avatar: "https://ui-avatars.com/api/?name=User&background=667eea&color=fff",
+                                    bio: "AI Artist",
+                                    email: "user@example.com"
+                                };
+                            }
                         }
                     } catch (error) {
                         console.log('User not found:', uid);
