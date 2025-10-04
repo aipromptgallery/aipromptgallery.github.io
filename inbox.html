@@ -11,7 +11,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
     <style>
-        /* Your existing CSS remains the same */
         * {
             margin: 0;
             padding: 0;
@@ -888,7 +887,7 @@
                     await officialUserRef.set({
                         name: "AI Prompt Gallery",
                         email: "official@aipromptgallery.com",
-                        avatar: "https://ui-avatars.com/api/?name=AI+Prompt+Gallery&background=667eea&color=fff&size=256",
+                        avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=AI&backgroundColor=667eea",
                         bio: "Welcome to our creative community! I'm here to help you get started with AI art and connect with other creators.",
                         isOfficial: true,
                         isVerified: true,
@@ -928,6 +927,7 @@
                 // ✅ Load conversations where user is participant
                 const snapshot = await db.collection('conversations')
                     .where('participants', 'array-contains', currentUser.uid)
+                    .orderBy('lastMessageAt', 'desc')
                     .get();
 
                 conversations = [];
@@ -941,13 +941,6 @@
                 });
 
                 console.log(`✅ Loaded ${conversations.length} conversations`);
-
-                // Sort by lastMessageAt
-                conversations.sort((a, b) => {
-                    const timeA = a.lastMessageAt?.toDate?.() || new Date(a.lastMessageAt);
-                    const timeB = b.lastMessageAt?.toDate?.() || new Date(b.lastMessageAt);
-                    return timeB - timeA;
-                });
 
                 // Create welcome conversation if none exist
                 if (conversations.length === 0) {
@@ -975,7 +968,7 @@
             }
         }
 
-        // ✅ FIXED - Create Welcome Conversation with Official AI
+        // ✅ FIXED - Create Welcome Conversation with Official AI (FROM OFFICIAL ACCOUNT)
         async function createWelcomeConversation() {
             try {
                 const conversationData = {
@@ -988,11 +981,11 @@
 
                 const conversationRef = await db.collection('conversations').add(conversationData);
 
-                // Add welcome message from Official AI
+                // Add welcome message from Official AI (NOT from user)
                 await db.collection('conversations').doc(conversationRef.id)
                     .collection('messages').add({
                         text: `🎨 Welcome to AI Prompt Gallery, ${currentUser.displayName || 'friend'}!\n\nI'm your official AI assistant here to help you:\n\n• Discover amazing AI art prompts\n• Connect with creative artists\n• Share your own creations\n• Learn prompt engineering\n\nStart by exploring prompts or upload your first creation! What would you like to create today? ✨`,
-                        senderId: OFFICIAL_AI_USER_ID,
+                        senderId: OFFICIAL_AI_USER_ID, // This should be OFFICIAL AI ID, not user ID
                         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                         isOfficial: true
                     });
@@ -1033,29 +1026,19 @@
                         if (userDoc.exists) {
                             users[uid] = userDoc.data();
                         } else {
-                            // If user document doesn't exist, try to get from auth
-                            try {
-                                const authUser = await auth.getUser(uid);
-                                users[uid] = {
-                                    name: authUser.displayName || "User",
-                                    avatar: authUser.photoURL || "https://ui-avatars.com/api/?name=User&background=667eea&color=fff",
-                                    bio: "AI Artist",
-                                    email: authUser.email || "user@example.com"
-                                };
-                            } catch (authError) {
-                                users[uid] = {
-                                    name: "User",
-                                    avatar: "https://ui-avatars.com/api/?name=User&background=667eea&color=fff",
-                                    bio: "AI Artist",
-                                    email: "user@example.com"
-                                };
-                            }
+                            // If user document doesn't exist, create a basic one
+                            users[uid] = {
+                                name: "User",
+                                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${uid}`,
+                                bio: "AI Artist",
+                                email: "user@example.com"
+                            };
                         }
                     } catch (error) {
                         console.log('User not found:', uid);
                         users[uid] = {
                             name: "User",
-                            avatar: "https://ui-avatars.com/api/?name=User&background=667eea&color=fff",
+                            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${uid}`,
                             bio: "AI Artist",
                             email: "user@example.com"
                         };
@@ -1096,7 +1079,7 @@
                 const otherUserId = conv.participants.find(uid => uid !== currentUser.uid);
                 const otherUser = users[otherUserId] || {
                     name: 'User',
-                    avatar: 'https://ui-avatars.com/api/?name=User&background=667eea&color=fff',
+                    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${otherUserId}`,
                     email: 'user@example.com'
                 };
 
@@ -1164,7 +1147,7 @@
             const otherUserId = currentConversation.participants.find(uid => uid !== currentUser.uid);
             const otherUser = users[otherUserId] || { 
                 name: 'User', 
-                avatar: 'https://ui-avatars.com/api/?name=User&background=667eea&color=fff',
+                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${otherUserId}`,
                 email: 'user@example.com'
             };
             
@@ -1300,7 +1283,7 @@
                 // Add message to Firestore
                 await db.collection('conversations').doc(currentConversation.id).collection('messages').add({
                     text: messageText,
-                    senderId: currentUser.uid,
+                    senderId: currentUser.uid, // This should be current user's ID
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     read: false
                 });
@@ -1315,15 +1298,13 @@
                 elements.messageInput.value = '';
                 elements.messageInput.style.height = 'auto';
                 
-                // No need to reload conversations - real-time listener will handle it
-                
             } catch (error) {
                 console.error('❌ Error sending message:', error);
                 showNotification('Error sending message', 'error');
             }
         }
 
-        // ✅ FIXED - New Conversation Modal
+        // ✅ FIXED - New Conversation Modal (FIXED USER LOADING)
         async function openNewConversationModal() {
             if (!currentUser) {
                 showNotification('Please login to start a conversation', 'error');
@@ -1341,12 +1322,16 @@
                     </div>
                 `;
 
-                // ✅ Load all users except current user
+                // ✅ FIXED - Load all users except current user and official AI
                 const snapshot = await db.collection('users').get();
                 
                 const allUsers = [];
                 snapshot.forEach(doc => {
-                    if (doc.id !== currentUser.uid && doc.id !== OFFICIAL_AI_USER_ID) { // Exclude current user and official AI
+                    // Exclude current user, official AI, and users without proper data
+                    if (doc.id !== currentUser.uid && 
+                        doc.id !== OFFICIAL_AI_USER_ID && 
+                        doc.data().email && 
+                        doc.data().name !== "User") {
                         const userData = doc.data();
                         allUsers.push({ 
                             id: doc.id, 
@@ -1355,7 +1340,7 @@
                     }
                 });
 
-                console.log(`✅ Loaded ${allUsers.length} users`);
+                console.log(`✅ Loaded ${allUsers.length} users for new conversation`);
 
                 if (allUsers.length === 0) {
                     elements.userList.innerHTML = `
@@ -1372,7 +1357,7 @@
                         
                         return `
                             <div class="user-item" data-user-id="${user.id}">
-                                <img src="${user.avatar || 'https://ui-avatars.com/api/?name=User&background=667eea&color=fff'}" 
+                                <img src="${user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`}" 
                                      alt="${user.name}" class="user-avatar-list">
                                 <div class="user-info">
                                     <div class="user-name">
@@ -1439,11 +1424,11 @@
                 
                 const conversationRef = await db.collection('conversations').add(conversationData);
                 
-                // Add first message
+                // Add first message FROM CURRENT USER (not from official account)
                 await db.collection('conversations').doc(conversationRef.id)
                     .collection('messages').add({
                         text: `Hello! I'd like to connect with you about AI art prompts. 👋`,
-                        senderId: currentUser.uid,
+                        senderId: currentUser.uid, // This should be current user's ID
                         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                         read: false
                     });
