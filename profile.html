@@ -181,23 +181,31 @@
         }
 
         .owner-badge {
-            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
             color: white;
             padding: 5px 12px;
             border-radius: 20px;
             font-size: 0.8rem;
             font-weight: 700;
             text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            border: 2px solid #3730a3;
         }
 
         .legendary-badge {
-            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
             color: white;
             padding: 5px 12px;
             border-radius: 20px;
             font-size: 0.8rem;
             font-weight: 700;
             text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            border: 2px solid #7f1d1d;
         }
 
         .king-badge {
@@ -208,6 +216,10 @@
             font-size: 0.8rem;
             font-weight: 700;
             text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            border: 2px solid #92400e;
         }
 
         .profile-bio {
@@ -695,9 +707,9 @@
                 <div class="profile-name" id="profileName">
                     Loading...
                     <i class="fas fa-check-circle verified-badge hidden" id="verifiedBadge"></i>
-                    <span class="owner-badge hidden" id="ownerBadge">Owner</span>
-                    <span class="legendary-badge hidden" id="legendaryBadge">Legendary</span>
-                    <span class="king-badge hidden" id="kingBadge">King</span>
+                    <span class="owner-badge hidden" id="ownerBadge"><i class="fas fa-crown"></i> Owner</span>
+                    <span class="legendary-badge hidden" id="legendaryBadge">Legendary <i class="fas fa-fire"></i></span>
+                    <span class="king-badge hidden" id="kingBadge"><i class="fas fa-crown"></i> King</span>
                 </div>
                 
                 <div class="profile-bio" id="profileBio">
@@ -922,7 +934,7 @@
             }
         }
 
-        // ✅ FIXED - Update Profile UI with PROPER BADGES
+        // ✅ FIXED - Update Profile UI with ENHANCED BADGES
         function updateProfileUI() {
             if (!userProfile) return;
 
@@ -940,9 +952,8 @@
             if (!displayName || displayName === "User" || displayName === "undefined") {
                 displayName = currentUser.displayName || currentUser.email.split('@')[0] || "AI Artist";
             }
-            elements.profileName.innerHTML = displayName;
 
-            // ✅ FIXED - Update badges based on email (CASE SENSITIVE CHECK)
+            // ✅ FIXED - Enhanced badges with symbols
             const userEmail = userProfile.email;
             console.log('📧 Checking badges for email:', userEmail);
             
@@ -952,24 +963,26 @@
             
             console.log('🏷️ Badges status:', { isOwner, isLegendary, isKing });
 
-            // Show verified badge (blue tick) for all special users
-            elements.verifiedBadge.classList.toggle('hidden', !(isOwner || isLegendary || isKing));
+            // Build profile name with badges
+            let profileNameHTML = displayName;
             
-            // Show specific badges
-            elements.ownerBadge.classList.toggle('hidden', !isOwner);
-            elements.legendaryBadge.classList.toggle('hidden', !isLegendary);
-            elements.kingBadge.classList.toggle('hidden', !isKing);
-
-            // Add badges to name display
+            // Add verified badge (blue tick) for all special users
             if (isOwner || isLegendary || isKing) {
-                elements.profileName.innerHTML = `
-                    ${displayName}
-                    <i class="fas fa-check-circle verified-badge"></i>
-                    ${isOwner ? '<span class="owner-badge">Owner</span>' : ''}
-                    ${isLegendary ? '<span class="legendary-badge">Legendary</span>' : ''}
-                    ${isKing ? '<span class="king-badge">King</span>' : ''}
-                `;
+                profileNameHTML += ' <i class="fas fa-check-circle verified-badge"></i>';
             }
+            
+            // Add specific badges with symbols
+            if (isOwner) {
+                profileNameHTML += ' <span class="owner-badge"><i class="fas fa-crown"></i> Owner</span>';
+            }
+            if (isLegendary) {
+                profileNameHTML += ' <span class="legendary-badge">Legendary <i class="fas fa-fire"></i></span>';
+            }
+            if (isKing) {
+                profileNameHTML += ' <span class="king-badge"><i class="fas fa-crown"></i> King</span>';
+            }
+
+            elements.profileName.innerHTML = profileNameHTML;
 
             // Update bio
             elements.profileBio.textContent = userProfile.bio || "Welcome to my AI art profile! 🎨";
@@ -1085,26 +1098,42 @@
 
                 console.log('🔄 Starting profile update...');
 
-                // ✅ FIXED - Handle file upload
+                // ✅ FIXED - Handle file upload with better error handling
                 if (selectedAvatarFile) {
                     console.log('📁 Uploading custom avatar...');
                     const file = selectedAvatarFile;
-                    const fileName = `avatar_${Date.now()}_${file.name}`;
-                    const storageRef = storage.ref().child(`avatars/${currentUser.uid}/${fileName}`);
                     
                     try {
-                        // Upload file to Firebase Storage
-                        const snapshot = await storageRef.put(file);
-                        console.log('✅ Avatar uploaded to storage');
+                        // Create unique filename
+                        const fileName = `avatar_${Date.now()}_${file.name}`;
+                        const storageRef = storage.ref().child(`avatars/${currentUser.uid}/${fileName}`);
                         
-                        // Get download URL
-                        const downloadURL = await snapshot.ref.getDownloadURL();
-                        console.log('📸 Avatar URL:', downloadURL);
+                        // Upload with progress tracking
+                        const uploadTask = storageRef.put(file);
                         
-                        updates.avatar = downloadURL;
+                        // Wait for upload to complete
+                        await new Promise((resolve, reject) => {
+                            uploadTask.on('state_changed',
+                                (snapshot) => {
+                                    // Progress tracking
+                                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                                    console.log('Upload progress: ' + progress + '%');
+                                },
+                                (error) => {
+                                    reject(error);
+                                },
+                                async () => {
+                                    // Upload completed
+                                    const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                                    updates.avatar = downloadURL;
+                                    console.log('✅ Avatar uploaded successfully:', downloadURL);
+                                    resolve();
+                                }
+                            );
+                        });
                     } catch (uploadError) {
                         console.error('❌ Error uploading avatar:', uploadError);
-                        showNotification('Error uploading avatar', 'error');
+                        showNotification('Error uploading avatar. Please try again.', 'error');
                         return;
                     }
                 }
@@ -1128,7 +1157,7 @@
                 
             } catch (error) {
                 console.error('❌ Error saving profile:', error);
-                showNotification('Error updating profile: ' + error.message, 'error');
+                showNotification('Error updating profile. Please try again.', 'error');
             } finally {
                 elements.saveProfileBtn.disabled = false;
                 elements.saveProfileBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
