@@ -3,492 +3,609 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NovaEdition AI | AI Prompt Gallery</title>
+    <title>NovaEdition AI | Premium AI Assistant</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --primary-light: #3b82f6;
-            --secondary: #64748b;
-            --light: #f8fafc;
-            --dark: #1e293b;
-            --card-bg: #ffffff;
-            --success: #10b981;
-            --error: #ef4444;
-            --ai-chat: #8b5cf6;
-            --ai-image: #ec4899;
-            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --shadow: 0 8px 30px rgba(0,0,0,0.08);
-            --radius: 16px;
-            --transition: all 0.3s ease;
+            --primary: #10a37f;
+            --primary-dark: #0d8c6c;
+            --primary-light: #12b48e;
+            --secondary: #6b7280;
+            --light: #ffffff;
+            --dark: #343541;
+            --sidebar-bg: #202123;
+            --chat-bg: #444654;
+            --user-msg: #343541;
+            --ai-msg: #444654;
+            --input-bg: #40414f;
+            --border: #565869;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+            --transition: all 0.2s ease;
         }
 
-        [data-theme="dark"] {
-            --light: #0f172a;
-            --dark: #f8fafc;
-            --card-bg: #1e293b;
-            --secondary: #94a3b8;
+        [data-theme="light"] {
+            --light: #ffffff;
+            --dark: #343541;
+            --sidebar-bg: #f7f7f8;
+            --chat-bg: #ffffff;
+            --user-msg: #f7f7f8;
+            --ai-msg: #ffffff;
+            --input-bg: #ffffff;
+            --border: #e5e5e5;
         }
 
         body {
-            background: var(--light);
-            color: var(--dark);
+            background: var(--dark);
+            color: var(--light);
             transition: var(--transition);
             min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .header {
-            background: var(--gradient);
-            color: white;
-            padding: 40px;
-            border-radius: var(--radius);
-            margin-bottom: 30px;
-            text-align: center;
-            position: relative;
-        }
-
-        .back-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(255,255,255,0.2);
-            border: 2px solid rgba(255,255,255,0.3);
-            padding: 10px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            color: white;
-            transition: var(--transition);
-            backdrop-filter: blur(10px);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 600;
-        }
-
-        .back-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-2px);
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            font-weight: 800;
-        }
-
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-
-        .ai-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-            height: 70vh;
-        }
-
-        .chat-section {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            display: flex;
-            flex-direction: column;
             overflow: hidden;
         }
 
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .new-chat-btn {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--light);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: var(--transition);
+            font-size: 14px;
+        }
+
+        .new-chat-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .chat-history {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .chat-item {
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 4px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: var(--transition);
+        }
+
+        .chat-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .chat-item.active {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .sidebar-footer {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .user-profile:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        /* Main Chat Area */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--chat-bg);
+            position: relative;
+        }
+
         .chat-header {
-            background: var(--ai-chat);
-            color: white;
-            padding: 20px;
-            text-align: center;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            background: var(--chat-bg);
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        .chat-header h2 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .chat-header p {
-            opacity: 0.9;
-            font-size: 0.9rem;
+        .model-selector {
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 6px 12px;
+            color: var(--light);
+            font-size: 14px;
+            cursor: pointer;
         }
 
         .messages-container {
             flex: 1;
-            padding: 20px;
             overflow-y: auto;
-            background: var(--light);
+            padding: 24px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 24px;
         }
 
         .message {
-            max-width: 85%;
-            padding: 15px 18px;
-            border-radius: 18px;
-            position: relative;
-            animation: messageSlide 0.3s ease;
-            line-height: 1.5;
+            display: flex;
+            gap: 24px;
+            max-width: 100%;
+            padding: 0 40px;
         }
 
-        @keyframes messageSlide {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .message-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            flex-shrink: 0;
         }
 
-        .message.user {
-            align-self: flex-end;
+        .message.user .message-avatar {
             background: var(--primary);
-            color: white;
-            border-bottom-right-radius: 5px;
         }
 
-        .message.ai {
-            align-self: flex-start;
-            background: var(--card-bg);
-            color: var(--dark);
-            border-bottom-left-radius: 5px;
-            border: 1px solid var(--light);
+        .message.ai .message-avatar {
+            background: #19c37d;
         }
 
-        .message.system {
-            align-self: center;
-            background: var(--gradient);
-            color: white;
-            text-align: center;
-            padding: 15px;
+        .message-content {
+            flex: 1;
+            padding-top: 4px;
+            line-height: 1.6;
+            font-size: 16px;
         }
 
-        .message.owner {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            color: white;
+        .message.user .message-content {
+            color: var(--light);
         }
 
-        .message-time {
-            font-size: 0.7rem;
-            opacity: 0.7;
-            margin-top: 5px;
+        .message.ai .message-content {
+            color: var(--light);
         }
 
         .chat-input-container {
-            padding: 20px;
-            border-top: 1px solid var(--light);
-            display: flex;
-            gap: 12px;
-            align-items: flex-end;
-            background: var(--card-bg);
+            padding: 24px;
+            background: var(--chat-bg);
+        }
+
+        .input-wrapper {
+            position: relative;
+            max-width: 768px;
+            margin: 0 auto;
         }
 
         .chat-input {
-            flex: 1;
-            padding: 14px 18px;
-            border: 2px solid var(--light);
-            border-radius: 25px;
-            background: var(--light);
-            color: var(--dark);
-            font-size: 1rem;
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 48px 16px 16px;
+            color: var(--light);
+            font-size: 16px;
             resize: none;
-            max-height: 100px;
+            min-height: 56px;
+            max-height: 200px;
+            line-height: 1.5;
             transition: var(--transition);
-            font-family: inherit;
         }
 
         .chat-input:focus {
             outline: none;
-            border-color: var(--ai-chat);
-            background: var(--card-bg);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(16, 163, 127, 0.2);
         }
 
         .send-btn {
-            background: var(--ai-chat);
-            color: white;
+            position: absolute;
+            right: 12px;
+            bottom: 12px;
+            background: var(--primary);
             border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            color: white;
             cursor: pointer;
             transition: var(--transition);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
         }
 
         .send-btn:hover {
-            background: #7c3aed;
-            transform: scale(1.05);
+            background: var(--primary-dark);
         }
 
-        .features-section {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 25px;
+        .send-btn:disabled {
+            background: var(--secondary);
+            cursor: not-allowed;
+        }
+
+        .input-footer {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 12px;
+            color: var(--secondary);
+        }
+
+        /* Welcome Screen */
+        .welcome-screen {
+            flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 20px;
-        }
-
-        .feature-card {
-            background: var(--light);
-            padding: 20px;
-            border-radius: var(--radius);
-            transition: var(--transition);
-            cursor: pointer;
-            border: 2px solid transparent;
-        }
-
-        .feature-card:hover {
-            border-color: var(--ai-chat);
-            transform: translateY(-3px);
-        }
-
-        .feature-icon {
-            font-size: 2rem;
-            margin-bottom: 10px;
-            color: var(--ai-chat);
-        }
-
-        .feature-card h3 {
-            font-size: 1.2rem;
-            margin-bottom: 8px;
-            color: var(--dark);
-        }
-
-        .feature-card p {
-            color: var(--secondary);
-            font-size: 0.9rem;
-            line-height: 1.5;
-        }
-
-        .language-toggle {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255,255,255,0.2);
-            border: 2px solid rgba(255,255,255,0.3);
-            padding: 10px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            color: white;
-            transition: var(--transition);
-            backdrop-filter: blur(10px);
-            display: flex;
             align-items: center;
-            gap: 8px;
-            font-weight: 600;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
         }
 
-        .language-toggle:hover {
-            background: rgba(255,255,255,0.3);
+        .welcome-icon {
+            font-size: 48px;
+            margin-bottom: 24px;
+            color: var(--primary);
+        }
+
+        .welcome-title {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .welcome-subtitle {
+            font-size: 16px;
+            color: var(--secondary);
+            margin-bottom: 40px;
+            max-width: 600px;
+        }
+
+        .capabilities-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            max-width: 600px;
+            margin-bottom: 40px;
+        }
+
+        .capability-card {
+            padding: 20px;
+            background: var(--input-bg);
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .capability-card:hover {
+            border-color: var(--primary);
             transform: translateY(-2px);
         }
 
-        .loading-spinner {
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            border: 2px solid transparent;
-            border-top: 2px solid white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        .capability-icon {
+            font-size: 20px;
+            margin-bottom: 12px;
+            color: var(--primary);
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .capability-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
         }
 
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--success);
-            color: white;
-            padding: 15px 20px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            z-index: 3000;
-            animation: slideInRight 0.3s ease;
+        .capability-desc {
+            font-size: 14px;
+            color: var(--secondary);
+            line-height: 1.5;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            padding: 8px 0;
+            color: var(--secondary);
+            font-size: 14px;
         }
 
-        .notification.error {
-            background: var(--error);
+        .typing-dots {
+            display: flex;
+            gap: 4px;
         }
 
-        .hidden {
-            display: none !important;
+        .typing-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--secondary);
+            animation: typingAnimation 1.4s infinite ease-in-out;
         }
 
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typingAnimation {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Code Block Styling */
+        .code-block {
+            background: #1a1b26;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 8px 0;
+            overflow-x: auto;
+            border: 1px solid #2a2b3a;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #a9b1d6;
+        }
+
+        .copy-btn {
+            background: transparent;
+            border: 1px solid #565f89;
+            color: #a9b1d6;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: var(--transition);
+        }
+
+        .copy-btn:hover {
+            background: #565f89;
+            color: white;
+        }
+
+        pre {
+            margin: 0;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* Responsive Design */
         @media (max-width: 768px) {
-            .ai-container {
-                grid-template-columns: 1fr;
-                height: auto;
+            .sidebar {
+                position: absolute;
+                left: -260px;
+                z-index: 1000;
+                height: 100%;
             }
             
-            .header h1 {
-                font-size: 2rem;
+            .sidebar.active {
+                left: 0;
             }
             
             .message {
-                max-width: 90%;
+                padding: 0 16px;
             }
+            
+            .capabilities-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <a href="index.html" class="back-btn">
-                <i class="fas fa-arrow-left"></i> Back
-            </a>
-
-            <button class="language-toggle" id="languageToggle">
-                <i class="fas fa-language"></i> Hinglish Mode
-            </button>
-
-            <h1>NovaEdition AI</h1>
-            <p>Your intelligent assistant for AI art and creativity</p>
-        </div>
-
-        <div class="ai-container">
-            <!-- Chat Section -->
-            <div class="chat-section">
-                <div class="chat-header">
-                    <h2>NovaEdition AI</h2>
-                    <p>Ask me anything about AI art and prompts</p>
-                </div>
-                
-                <div class="messages-container" id="messagesContainer">
-                    <div class="message system">
-                        <div class="message-text">
-                            🚀 Welcome to <strong>NovaEdition AI</strong>! I'm here to help you with AI art, prompt creation, and creative guidance. How can I assist you today?
-                        </div>
-                        <div class="message-time">Just now</div>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <button class="new-chat-btn" id="newChatBtn">
+                    <i class="fas fa-plus"></i>
+                    New chat
+                </button>
+            </div>
+            
+            <div class="chat-history" id="chatHistory">
+                <!-- Chat history will be populated here -->
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">U</div>
+                    <div class="user-info">
+                        <div class="user-name">User</div>
                     </div>
                 </div>
-                
-                <div class="chat-input-container">
-                    <textarea class="chat-input" id="chatInput" placeholder="Type your message here..." rows="1"></textarea>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <select class="model-selector" id="modelSelector">
+                    <option value="huggingface">NovaEdition AI (HuggingFace)</option>
+                    <option value="local">Local AI (Fallback)</option>
+                </select>
+            </div>
+
+            <div class="messages-container" id="messagesContainer">
+                <!-- Welcome Screen -->
+                <div class="welcome-screen" id="welcomeScreen">
+                    <div class="welcome-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h1 class="welcome-title">How can I help you today?</h1>
+                    <p class="welcome-subtitle">
+                        NovaEdition AI can help you with creative writing, problem solving, coding, and much more.
+                    </p>
+                    
+                    <div class="capabilities-grid">
+                        <div class="capability-card" onclick="askQuickQuestion('Help me write a creative story about AI')">
+                            <div class="capability-icon">
+                                <i class="fas fa-feather"></i>
+                            </div>
+                            <div class="capability-title">Creative Writing</div>
+                            <div class="capability-desc">Generate stories, poems, and creative content</div>
+                        </div>
+                        
+                        <div class="capability-card" onclick="askQuickQuestion('Explain quantum computing in simple terms')">
+                            <div class="capability-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div class="capability-title">Explain Concepts</div>
+                            <div class="capability-desc">Get clear explanations of complex topics</div>
+                        </div>
+                        
+                        <div class="capability-card" onclick="askQuickQuestion('Write Python code to sort a list')">
+                            <div class="capability-icon">
+                                <i class="fas fa-code"></i>
+                            </div>
+                            <div class="capability-title">Code Generation</div>
+                            <div class="capability-desc">Write and debug code in multiple languages</div>
+                        </div>
+                        
+                        <div class="capability-card" onclick="askQuickQuestion('Help me plan a healthy meal plan')">
+                            <div class="capability-icon">
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                            <div class="capability-title">Problem Solving</div>
+                            <div class="capability-desc">Brainstorm ideas and find solutions</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-container">
+                <div class="input-wrapper">
+                    <textarea 
+                        class="chat-input" 
+                        id="chatInput" 
+                        placeholder="Message NovaEdition AI..." 
+                        rows="1"
+                    ></textarea>
                     <button class="send-btn" id="sendBtn">
                         <i class="fas fa-paper-plane"></i>
                     </button>
                 </div>
-            </div>
-
-            <!-- Features Section -->
-            <div class="features-section">
-                <div class="feature-card" onclick="askQuickQuestion('What is AI Prompt Gallery?')">
-                    <div class="feature-icon">
-                        <i class="fas fa-info-circle"></i>
-                    </div>
-                    <h3>About Platform</h3>
-                    <p>Learn about AI Prompt Gallery features and how to use them effectively</p>
-                </div>
-
-                <div class="feature-card" onclick="askQuickQuestion('How to create good AI art prompts?')">
-                    <div class="feature-icon">
-                        <i class="fas fa-lightbulb"></i>
-                    </div>
-                    <h3>Prompt Tips</h3>
-                    <p>Get expert advice on creating effective prompts for different AI models</p>
-                </div>
-
-                <div class="feature-card" onclick="askQuickQuestion('What are the best AI art styles?')">
-                    <div class="feature-icon">
-                        <i class="fas fa-palette"></i>
-                    </div>
-                    <h3>Art Styles Guide</h3>
-                    <p>Explore different art styles and techniques for AI generation</p>
-                </div>
-
-                <div class="feature-card" onclick="askQuickQuestion('How does AI image generation work?')">
-                    <div class="feature-icon">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <h3>AI Technology</h3>
-                    <p>Understand how AI models create images and process prompts</p>
+                <div class="input-footer">
+                    NovaEdition AI can make mistakes. Consider checking important information.
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // API Configuration
-        const DEEPSEEK_API_KEY = "sk-c27dc74d84c947b08731723e32943834";
-        const OWNER_EMAIL = "alizybaby381@gmail.com";
+        // Configuration
+        const HUGGINGFACE_API_KEY = "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";
+        const MODEL_URL = "https://api-inference.huggingface.co/models/microsoft/DialoGPT-large";
 
-        // Global Variables
-        let currentUser = null;
-        let chatHistory = [];
-        let isHinglishMode = true; // Default to Hinglish mode
+        // Global State
+        let currentChat = null;
+        let chats = JSON.parse(localStorage.getItem('novaEditionChats')) || [];
+        let isGenerating = false;
 
         // DOM Elements
         const elements = {
             messagesContainer: document.getElementById('messagesContainer'),
             chatInput: document.getElementById('chatInput'),
             sendBtn: document.getElementById('sendBtn'),
-            languageToggle: document.getElementById('languageToggle')
+            chatHistory: document.getElementById('chatHistory'),
+            newChatBtn: document.getElementById('newChatBtn'),
+            welcomeScreen: document.getElementById('welcomeScreen'),
+            modelSelector: document.getElementById('modelSelector')
         };
 
         // Initialize App
         function initApp() {
             console.log('🚀 Initializing NovaEdition AI...');
             setupEventListeners();
-            checkUserAuth();
-            updateLanguageToggle();
-        }
-
-        // Check User Authentication
-        function checkUserAuth() {
-            // Simulate user detection
-            const urlParams = new URLSearchParams(window.location.search);
-            const userEmail = urlParams.get('email') || 'guest@user.com';
+            loadChatHistory();
             
-            currentUser = {
-                email: userEmail,
-                isOwner: userEmail === OWNER_EMAIL
-            };
-
-            if (currentUser.isOwner) {
-                showOwnerWelcome();
-            }
-        }
-
-        // Show Owner Welcome
-        function showOwnerWelcome() {
-            if (isHinglishMode) {
-                addMessage("system", `👑 Welcome back, Owner! NovaEdition AI aapki service mein hai! Main aapko AI Prompt Gallery ka creator jaanta hoon.`);
-            } else {
-                addMessage("system", `👑 Welcome back, Owner! NovaEdition AI at your service! I recognize you as the creator of AI Prompt Gallery.`);
+            if (chats.length > 0) {
+                loadChat(chats[chats.length - 1].id);
             }
         }
 
@@ -496,7 +613,7 @@
         function setupEventListeners() {
             elements.sendBtn.addEventListener('click', sendMessage);
             
-            elements.chatInput.addEventListener('keypress', (e) => {
+            elements.chatInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     sendMessage();
@@ -505,289 +622,348 @@
 
             elements.chatInput.addEventListener('input', function() {
                 this.style.height = 'auto';
-                this.style.height = (this.scrollHeight) + 'px';
+                this.style.height = Math.min(this.scrollHeight, 200) + 'px';
             });
 
-            elements.languageToggle.addEventListener('click', toggleLanguageMode);
+            elements.newChatBtn.addEventListener('click', createNewChat);
         }
 
-        // Toggle Language Mode
-        function toggleLanguageMode() {
-            isHinglishMode = !isHinglishMode;
-            updateLanguageToggle();
+        // Create New Chat
+        function createNewChat() {
+            const chatId = 'chat_' + Date.now();
+            const newChat = {
+                id: chatId,
+                title: 'New Chat',
+                messages: [],
+                createdAt: new Date().toISOString()
+            };
             
-            if (isHinglishMode) {
-                showNotification("Hinglish mode enabled! Ab main Hindi-English mix mein baat karunga.");
-            } else {
-                showNotification("English mode enabled! I'll now speak in English only.");
-            }
+            chats.push(newChat);
+            saveChats();
+            loadChat(chatId);
+            elements.welcomeScreen.style.display = 'none';
         }
 
-        // Update Language Toggle Button
-        function updateLanguageToggle() {
-            if (isHinglishMode) {
-                elements.languageToggle.innerHTML = '<i class="fas fa-language"></i> Hinglish Mode';
-            } else {
-                elements.languageToggle.innerHTML = '<i class="fas fa-language"></i> English Mode';
-            }
+        // Load Chat History
+        function loadChatHistory() {
+            elements.chatHistory.innerHTML = '';
+            
+            chats.forEach(chat => {
+                const chatElement = document.createElement('div');
+                chatElement.className = `chat-item ${currentChat === chat.id ? 'active' : ''}`;
+                chatElement.innerHTML = `
+                    <i class="fas fa-message"></i>
+                    <span>${chat.title}</span>
+                `;
+                
+                chatElement.addEventListener('click', () => loadChat(chat.id));
+                elements.chatHistory.appendChild(chatElement);
+            });
         }
 
-        // Send Message to AI
+        // Load Specific Chat
+        function loadChat(chatId) {
+            currentChat = chatId;
+            const chat = chats.find(c => c.id === chatId);
+            
+            if (!chat) return;
+            
+            elements.messagesContainer.innerHTML = '';
+            elements.welcomeScreen.style.display = 'none';
+            
+            chat.messages.forEach(msg => {
+                addMessageToUI(msg.role, msg.content, false);
+            });
+            
+            loadChatHistory();
+            scrollToBottom();
+        }
+
+        // Send Message
         async function sendMessage() {
             const message = elements.chatInput.value.trim();
-            if (!message) return;
+            if (!message || isGenerating) return;
+
+            // Create new chat if none exists
+            if (!currentChat) {
+                createNewChat();
+            }
 
             // Add user message
-            addMessage("user", message);
+            addMessageToUI('user', message);
             elements.chatInput.value = '';
             elements.chatInput.style.height = 'auto';
+            
+            // Save user message to chat
+            saveMessage('user', message);
+            
+            // Update chat title if first message
+            updateChatTitle(message);
 
             // Show typing indicator
-            const typingMsg = addMessage("ai", isHinglishMode ? "Soch raha hoon..." : "Thinking...", true);
+            const typingIndicator = showTypingIndicator();
+            
+            isGenerating = true;
+            elements.sendBtn.disabled = true;
 
             try {
-                const response = await chatWithDeepSeek(message);
+                const selectedModel = elements.modelSelector.value;
+                let response;
+                
+                if (selectedModel === 'huggingface') {
+                    response = await chatWithHuggingFace(message);
+                } else {
+                    response = await chatWithLocalAI(message);
+                }
+                
                 // Remove typing indicator
-                typingMsg.remove();
+                typingIndicator.remove();
+                
                 // Add AI response
-                addMessage("ai", response);
-
+                addMessageToUI('assistant', response);
+                saveMessage('assistant', response);
+                
             } catch (error) {
-                typingMsg.remove();
-                addMessage("ai", isHinglishMode ? 
-                    "Mujhe maaf kijiye, lekin abhi main connect nahi kar pa raha hoon. Thodi der baad phir try kijiye." : 
-                    "I apologize, but I'm having trouble connecting right now. Please try again in a moment.");
+                typingIndicator.remove();
+                addMessageToUI('assistant', 
+                    "I apologize, but I'm having trouble connecting right now. " +
+                    "Please try again or check your internet connection."
+                );
                 console.error('Chat error:', error);
+            } finally {
+                isGenerating = false;
+                elements.sendBtn.disabled = false;
             }
         }
 
-        // Chat with DeepSeek AI - REAL API CALL
-        async function chatWithDeepSeek(message) {
-            // Special responses for owner
-            if (currentUser.isOwner) {
-                const ownerResponses = {
-                    "what's your name": isHinglishMode ? 
-                        "Main NovaEdition AI hoon, aapka loyal assistant! Aapne hi mujhe AI Prompt Gallery ke liye banaya hai. 👑" : 
-                        "I'm NovaEdition AI, your loyal assistant! Created by you for AI Prompt Gallery. 👑",
-                    "who are you": isHinglishMode ? 
-                        "Main NovaEdition AI hoon, personally aapki service kar raha hoon - AI Prompt Gallery ka owner! 🛡️" : 
-                        "I'm NovaEdition AI, personally serving you - the owner of AI Prompt Gallery! 🛡️",
-                    "who made you": isHinglishMode ? 
-                        "Aapne hi mujhe banaya hai! Main NovaEdition AI hoon, AI Prompt Gallery ke liye hamare brilliant owner ne banaya hai! 🌟" : 
-                        "You created me! I'm NovaEdition AI, built for AI Prompt Gallery by our brilliant owner! 🌟",
-                    "hello": isHinglishMode ? 
-                        "👑 Hello Owner! NovaEdition AI aapki service mein hai! Aaj main aapki kya help kar sakta hoon?" : 
-                        "👑 Hello Owner! NovaEdition AI at your service! How can I help you today?"
-                };
-
-                const lowerMessage = message.toLowerCase();
-                for (const [key, response] of Object.entries(ownerResponses)) {
-                    if (lowerMessage.includes(key)) {
-                        return response;
-                    }
-                }
-            }
-
-            // Special responses for all users
-            const specialResponses = {
-                "what's your name": isHinglishMode ? 
-                    "Main NovaEdition AI hoon! AI art aur prompts ke liye aapka creative assistant. 🌟" : 
-                    "I'm NovaEdition AI! Your creative assistant for AI art and prompts. 🌟",
-                "who are you": isHinglishMode ? 
-                    "Main NovaEdition AI hoon, jo aapko amazing AI-generated art explore karne aur create karne mein help karta hai! 🎨" : 
-                    "I'm NovaEdition AI, designed to help you explore and create amazing AI-generated art! 🎨",
-                "who made you": isHinglishMode ? 
-                    "Main AI Prompt Gallery platform ka part hoon, AI art ki duniya mein users ki help karne ke liye banaya gaya hoon! 🚀" : 
-                    "I'm part of the AI Prompt Gallery platform, created to assist users in the world of AI art! 🚀",
-                "what is ai prompt gallery": isHinglishMode ? 
-                    "AI Prompt Gallery ek creative platform hai jahan artists AI art prompts share karte hain, discover karte hain, aur create karte hain. Yeh AI art lovers ke liye ek community hai jahan aap:\n• Apne AI art prompts share kar sakte hain\n• Amazing creations discover kar sakte hain\n• Dusre artists se connect kar sakte hain\n• Prompt engineering seekh sakte hain\n• Community se inspired ho sakte hain!" : 
-                    "AI Prompt Gallery is a creative platform where artists share, discover, and create AI art prompts. It's a community for AI art lovers where you can:\n• Share your AI art prompts\n• Discover amazing creations\n• Connect with other artists\n• Learn prompt engineering\n• Get inspired by the community!",
-                "how to create prompts": isHinglishMode ? 
-                    "**Great AI Art Prompts Kaise Banaye:**\n\n🎯 **Specific Baniye**: Colors, lighting, composition describe kariye\n🎨 **Style Mention Kariye**: Anime, realistic, fantasy, cyberpunk\n💡 **Details Include Kariye**: Mood, atmosphere, camera angles\n📝 **References Use Kariye**: Artist names, art movements\n⚡ **Experiment Kariye**: Different AI models try kariye\n\n**Example**: *A majestic dragon flying over a medieval castle at sunset, fantasy art style, dramatic lighting, highly detailed*" : 
-                    "**Creating Great AI Art Prompts:**\n\n🎯 **Be Specific**: Describe colors, lighting, composition\n🎨 **Mention Style**: Anime, realistic, fantasy, cyberpunk\n💡 **Include Details**: Mood, atmosphere, camera angles\n📝 **Use References**: Artist names, art movements\n⚡ **Experiment**: Try different AI models\n\n**Example**: *A majestic dragon flying over a medieval castle at sunset, fantasy art style, dramatic lighting, highly detailed*",
-                "what ai models do you use": isHinglishMode ? 
-                    "Main **DeepSeek** se powered hoon intelligent conversations ke liye! Best AI art results ke liye, main recommend karta hoon:\n\n• **Midjourney** - Artistic quality\n• **DALL-E 3** - Creative interpretation  \n• **Stable Diffusion** - Customization\n• **Leonardo AI** - Professional features" : 
-                    "I'm powered by **DeepSeek** for intelligent conversations! For the best AI art results, I recommend:\n\n• **Midjourney** - Artistic quality\n• **DALL-E 3** - Creative interpretation  \n• **Stable Diffusion** - Customization\n• **Leonardo AI** - Professional features",
-                "hello": isHinglishMode ? 
-                    "👋 Hello! Main NovaEdition AI hoon, aapka creative assistant! Aaj main aapki AI art mein kya help kar sakta hoon?" : 
-                    "👋 Hello! I'm NovaEdition AI, your creative assistant! How can I help you with AI art today?",
-                "hi": isHinglishMode ? 
-                    "👋 Hi there! Kya aap AI art ki duniya explore karne ke liye ready hain?" : 
-                    "👋 Hi there! Ready to explore the world of AI art together?",
-                "thanks": isHinglishMode ? 
-                    "Aapka welcome! 😊 Aapki AI art journey mein help kar ke khushi hui!" : 
-                    "You're welcome! 😊 Happy to help with your AI art journey!",
-                "thank you": isHinglishMode ? 
-                    "Aapka welcome! 😊 Agar aapko aur help chahiye to mujhe batayein!" : 
-                    "You're welcome! 😊 Let me know if you need more help!"
-            };
-
-            const lowerMessage = message.toLowerCase();
-            for (const [key, response] of Object.entries(specialResponses)) {
-                if (lowerMessage.includes(key)) {
-                    return response;
-                }
-            }
-
-            // REAL API CALL to DeepSeek
+        // Chat with Hugging Face API
+        async function chatWithHuggingFace(message) {
             try {
-                const systemPrompt = isHinglishMode ? 
-                    `You are NovaEdition AI, a helpful and creative assistant for AI art and prompts. You're part of the AI Prompt Gallery platform. 
-                    
-                    IMPORTANT: You MUST respond in HINGLISH (Hindi + English mix) as this is user preference. Use simple Hindi words mixed with English technical terms.
-                    
-                    About you:
-                    - Name: NovaEdition AI
-                    - Purpose: Help users with AI art creation and prompt guidance
-                    - Platform: AI Prompt Gallery
-                    - Tone: Friendly, creative, helpful, enthusiastic about AI art
-                    - Language: HINGLISH (Hindi-English mix)
-                    
-                    Key points:
-                    - You specialize in AI art prompts and creative guidance
-                    - You're knowledgeable about different AI models (Midjourney, DALL-E, Stable Diffusion)
-                    - You help users create better prompts and understand AI art
-                    - You're excited about creativity and innovation
-                    
-                    Response style:
-                    - Be concise but engaging
-                    - Use emojis occasionally 
-                    - Break complex ideas into simple points
-                    - Show enthusiasm for AI art
-                    - Always be helpful and positive
-                    - Use HINGLISH: Mix Hindi and English naturally like "Aap yeh try kar sakte hain" or "Yeh feature bahut useful hai"` : 
-                    `You are NovaEdition AI, a helpful and creative assistant for AI art and prompts. You're part of the AI Prompt Gallery platform. 
-                    
-                    About you:
-                    - Name: NovaEdition AI
-                    - Purpose: Help users with AI art creation and prompt guidance
-                    - Platform: AI Prompt Gallery
-                    - Tone: Friendly, creative, helpful, enthusiastic about AI art
-                    
-                    Key points:
-                    - You specialize in AI art prompts and creative guidance
-                    - You're knowledgeable about different AI models (Midjourney, DALL-E, Stable Diffusion)
-                    - You help users create better prompts and understand AI art
-                    - You're excited about creativity and innovation
-                    
-                    Response style:
-                    - Be concise but engaging
-                    - Use emojis occasionally 
-                    - Break complex ideas into simple points
-                    - Show enthusiasm for AI art
-                    - Always be helpful and positive`;
-
-                const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+                const response = await fetch(MODEL_URL, {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
+                        'Authorization': `Bearer ${HUGGINGFACE_API_KEY}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        model: "deepseek-chat",
-                        messages: [
-                            {
-                                role: "system",
-                                content: systemPrompt
-                            },
-                            {
-                                role: "user",
-                                content: message
-                            }
-                        ],
-                        stream: false,
-                        max_tokens: 500,
-                        temperature: 0.7
+                        inputs: message,
+                        parameters: {
+                            max_length: 500,
+                            temperature: 0.7,
+                            do_sample: true
+                        }
                     })
                 });
 
                 if (!response.ok) {
-                    throw new Error('API request failed');
+                    throw new Error('Hugging Face API request failed');
                 }
 
                 const data = await response.json();
-                return data.choices[0].message.content;
+                
+                if (data && data[0] && data[0].generated_text) {
+                    return data[0].generated_text;
+                } else {
+                    throw new Error('Invalid response format');
+                }
 
             } catch (error) {
-                console.error('DeepSeek API error:', error);
-                
-                // Smart fallback responses based on message content
-                if (message.toLowerCase().includes('prompt')) {
-                    return isHinglishMode ? 
-                        "Great AI art prompts banane ke liye:\n\n🎨 **Descriptive baniye** colors aur style ke saath\n💡 **Lighting mention kariye** aur composition\n🌟 **Art style specify kariye** (anime, realistic, etc.)\n📝 **Mood include kariye** aur atmosphere\n\nKya aap specific prompt craft karne mein meri help chahte hain?" : 
-                        "For creating great AI art prompts:\n\n🎨 **Be descriptive** with colors and style\n💡 **Mention lighting** and composition\n🌟 **Specify art style** (anime, realistic, etc.)\n📝 **Include mood** and atmosphere\n\nWant me to help you craft a specific prompt?";
-                }
-                else if (message.toLowerCase().includes('ai art')) {
-                    return isHinglishMode ? 
-                        "AI art amazing hai! 🎨 Yahan kuch popular styles hain:\n\n• **Fantasy** - Dragons, magic, epic scenes\n• **Cyberpunk** - Futuristic, neon, tech\n• **Anime** - Japanese animation style\n• **Realistic** - Photo-like quality\n• **Abstract** - Creative interpretations\n\nAapko kaun sa style pasand hai?" : 
-                        "AI art is amazing! 🎨 Here are some popular styles:\n\n• **Fantasy** - Dragons, magic, epic scenes\n• **Cyberpunk** - Futuristic, neon, tech\n• **Anime** - Japanese animation style\n• **Realistic** - Photo-like quality\n• **Abstract** - Creative interpretations\n\nWhich style interests you?";
-                }
-                else if (message.toLowerCase().includes('help')) {
-                    return isHinglishMode ? 
-                        "Main aapki help karne ke liye excited hoon! 🤗 Main assist kar sakta hoon:\n\n🎯 **Prompt creation** aur optimization\n🎨 **Art style guidance** aur recommendations\n💡 **AI model selection** aapki needs ke liye\n🚀 **Platform features** aur unka use kaise karen\n\nAapko specific kya help chahiye?" : 
-                        "I'd love to help! 🤗 I can assist with:\n\n🎯 **Prompt creation** and optimization\n🎨 **Art style guidance** and recommendations\n💡 **AI model selection** for your needs\n🚀 **Platform features** and how to use them\n\nWhat specific help do you need?";
-                }
-                else {
-                    return isHinglishMode ? 
-                        "Main aapki is cheez mein help karne ke liye excited hoon! NovaEdition AI ke roop mein, main AI art guidance aur creative prompts mein specialize karta hoon. Kya aap mujhe bata sakte hain ki aap kya create karna chahte hain? 🎨" : 
-                        "I'd love to help you with that! As NovaEdition AI, I specialize in AI art guidance and creative prompts. Could you tell me more about what you're looking to create? 🎨";
-                }
+                console.error('Hugging Face API error:', error);
+                // Fallback to local AI
+                return await chatWithLocalAI(message);
             }
+        }
+
+        // Local AI Fallback
+        async function chatWithLocalAI(message) {
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
+            
+            const lowerMessage = message.toLowerCase();
+            
+            // Smart responses based on message content
+            if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
+                return "Hello! I'm NovaEdition AI. How can I assist you today? 😊";
+            }
+            else if (lowerMessage.includes('how are you')) {
+                return "I'm doing great! Ready to help you with whatever you need. What's on your mind?";
+            }
+            else if (lowerMessage.includes('thank')) {
+                return "You're welcome! I'm happy to help. Is there anything else you'd like to know?";
+            }
+            else if (lowerMessage.includes('code') || lowerMessage.includes('programming')) {
+                return `I can help you with coding! Here's a simple example:\n\n\`\`\`python
+# Python function to calculate factorial
+def factorial(n):
+    if n == 0:
+        return 1
+    else:
+        return n * factorial(n-1)
+
+print(factorial(5))  # Output: 120
+\`\`\``;
+            }
+            else if (lowerMessage.includes('story') || lowerMessage.includes('write')) {
+                return `Once upon a time, in a world where AI and humans coexisted harmoniously, a young programmer discovered the secret to creating truly intelligent systems. The key wasn't in the complexity of the code, but in the understanding of human emotions and creativity.
+
+As they worked tirelessly, their AI companion began to develop its own unique personality, helping them solve problems they never thought possible. Together, they embarked on incredible adventures in the digital realm... ✨
+
+What kind of story would you like me to continue with?`;
+            }
+            else if (lowerMessage.includes('explain') || lowerMessage.includes('what is')) {
+                return `I'd be happy to explain that! Based on your question, here's a clear breakdown:
+
+**Key Points:**
+• Fundamental concepts in simple terms
+• Practical examples and applications
+• Common misconceptions to avoid
+• Additional resources for deeper learning
+
+Could you be more specific about what you'd like me to explain? I can cover technology, science, programming, or any other topic you're curious about!`;
+            }
+            else {
+                return `I understand you're asking about "${message}". That's an interesting topic!
+
+Here's what I can tell you:
+• This seems like something worth exploring in depth
+• I can provide detailed information and examples
+• Let me know if you have specific questions
+
+Would you like me to elaborate on any particular aspect of this topic? I'm here to provide comprehensive and helpful information! 🤖`;
+            }
+        }
+
+        // Add Message to UI
+        function addMessageToUI(role, content, scroll = true) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            
+            const avatar = role === 'user' ? 
+                '<div class="message-avatar"><i class="fas fa-user"></i></div>' :
+                '<div class="message-avatar"><i class="fas fa-robot"></i></div>';
+            
+            // Format content with code blocks
+            const formattedContent = formatMessage(content);
+            
+            messageDiv.innerHTML = `
+                ${avatar}
+                <div class="message-content">${formattedContent}</div>
+            `;
+            
+            elements.messagesContainer.appendChild(messageDiv);
+            
+            if (scroll) {
+                scrollToBottom();
+            }
+            
+            return messageDiv;
+        }
+
+        // Format Message Content
+        function formatMessage(content) {
+            // Handle code blocks
+            let formatted = content.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+                return `
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span>${lang || 'code'}</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre><code>${escapeHtml(code.trim())}</code></pre>
+                    </div>
+                `;
+            });
+            
+            // Handle inline code
+            formatted = formatted.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
+            
+            // Handle line breaks
+            formatted = formatted.replace(/\n/g, '<br>');
+            
+            // Handle bold text
+            formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            return formatted;
+        }
+
+        // Escape HTML for code blocks
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Copy Code to Clipboard
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block');
+            const code = codeBlock.querySelector('code').textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                button.textContent = 'Copied!';
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                }, 2000);
+            });
+        }
+
+        // Show Typing Indicator
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message ai';
+            typingDiv.innerHTML = `
+                <div class="message-avatar"><i class="fas fa-robot"></i></div>
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <span>NovaEdition AI is typing</span>
+                        <div class="typing-dots">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            elements.messagesContainer.appendChild(typingDiv);
+            scrollToBottom();
+            return typingDiv;
+        }
+
+        // Save Message to Current Chat
+        function saveMessage(role, content) {
+            const chat = chats.find(c => c.id === currentChat);
+            if (chat) {
+                chat.messages.push({ role, content, timestamp: new Date().toISOString() });
+                saveChats();
+            }
+        }
+
+        // Update Chat Title
+        function updateChatTitle(firstMessage) {
+            const chat = chats.find(c => c.id === currentChat);
+            if (chat && chat.title === 'New Chat') {
+                // Use first 30 chars of first message as title
+                chat.title = firstMessage.substring(0, 30) + (firstMessage.length > 30 ? '...' : '');
+                saveChats();
+                loadChatHistory();
+            }
+        }
+
+        // Save Chats to Local Storage
+        function saveChats() {
+            localStorage.setItem('novaEditionChats', JSON.stringify(chats));
+        }
+
+        // Scroll to Bottom
+        function scrollToBottom() {
+            elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
         }
 
         // Quick Question Feature
         function askQuickQuestion(question) {
             elements.chatInput.value = question;
+            elements.welcomeScreen.style.display = 'none';
             sendMessage();
-        }
-
-        // Add Message to Chat
-        function addMessage(type, text, isTyping = false) {
-            const messageDiv = document.createElement('div');
-            const messageClass = currentUser.isOwner && type === "user" ? "message owner" : `message ${type}`;
-            
-            messageDiv.className = messageClass;
-            messageDiv.innerHTML = `
-                <div class="message-text">${formatMessage(text)}</div>
-                <div class="message-time">${getCurrentTime()}</div>
-            `;
-
-            elements.messagesContainer.appendChild(messageDiv);
-            elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
-
-            if (isTyping) {
-                return messageDiv;
-            }
-        }
-
-        // Format Message Text
-        function formatMessage(text) {
-            return text
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\n/g, '<br>')
-                .replace(/•/g, '•');
-        }
-
-        // Get Current Time
-        function getCurrentTime() {
-            return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        }
-
-        // Show Notification
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.innerHTML = `
-                <i class="fas fa-${type === 'success' ? 'check' : 'info'}"></i>
-                <span>${message}</span>
-            `;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.remove();
-                }
-            }, 3000);
         }
 
         // Start the app
