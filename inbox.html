@@ -273,6 +273,16 @@
             text-transform: uppercase;
         }
 
+        .king-badge {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
         .conversation-last-message {
             color: var(--secondary);
             font-size: 0.95rem;
@@ -835,6 +845,7 @@
         let messageListener = null;
         const OWNER_EMAIL = "alizybaby381@gmail.com";
         const LEGENDARY_EMAIL = "ul8763325@gmail.com";
+        const KING_EMAIL = "Umehani77777@gmail.com";
         const OFFICIAL_AI_USER_ID = "official_ai_prompt_gallery";
 
         // DOM Elements
@@ -906,7 +917,7 @@
             }
         }
 
-        // ✅ FIXED - Load Conversations
+        // ✅ FIXED - Load Conversations with Error Handling
         async function loadConversations() {
             if (!currentUser) {
                 showNotification('Please login to view messages', 'error');
@@ -924,30 +935,35 @@
                     </div>
                 `;
 
-                // ✅ Load conversations where user is participant
+                // ✅ FIXED - Load conversations with proper error handling
                 const snapshot = await db.collection('conversations')
                     .where('participants', 'array-contains', currentUser.uid)
                     .orderBy('lastMessageAt', 'desc')
                     .get();
 
                 conversations = [];
-                snapshot.forEach(doc => {
-                    conversations.push({
-                        id: doc.id,
-                        ...doc.data(),
-                        lastMessage: doc.data().lastMessage || "Start a conversation",
-                        lastMessageAt: doc.data().lastMessageAt || doc.data().createdAt || new Date()
-                    });
-                });
-
-                console.log(`✅ Loaded ${conversations.length} conversations`);
-
-                // Create welcome conversation if none exist
-                if (conversations.length === 0) {
-                    console.log('👋 Creating welcome conversation...');
+                
+                if (snapshot.empty) {
+                    console.log('👋 No conversations found, creating welcome conversation...');
                     await createWelcomeConversation();
                     return;
                 }
+
+                snapshot.forEach(doc => {
+                    try {
+                        const data = doc.data();
+                        conversations.push({
+                            id: doc.id,
+                            ...data,
+                            lastMessage: data.lastMessage || "Start a conversation",
+                            lastMessageAt: data.lastMessageAt || data.createdAt || new Date()
+                        });
+                    } catch (error) {
+                        console.error('❌ Error processing conversation:', doc.id, error);
+                    }
+                });
+
+                console.log(`✅ Loaded ${conversations.length} conversations`);
 
                 await loadParticipantsData();
                 updateConversationsList();
@@ -968,9 +984,11 @@
             }
         }
 
-        // ✅ FIXED - Create Welcome Conversation with Official AI (FROM OFFICIAL ACCOUNT)
+        // ✅ FIXED - Create Welcome Conversation
         async function createWelcomeConversation() {
             try {
+                console.log('🎨 Creating welcome conversation...');
+                
                 const conversationData = {
                     participants: [currentUser.uid, OFFICIAL_AI_USER_ID],
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -981,11 +999,11 @@
 
                 const conversationRef = await db.collection('conversations').add(conversationData);
 
-                // Add welcome message from Official AI (NOT from user)
+                // Add welcome message from Official AI
                 await db.collection('conversations').doc(conversationRef.id)
                     .collection('messages').add({
                         text: `🎨 Welcome to AI Prompt Gallery, ${currentUser.displayName || 'friend'}!\n\nI'm your official AI assistant here to help you:\n\n• Discover amazing AI art prompts\n• Connect with creative artists\n• Share your own creations\n• Learn prompt engineering\n\nStart by exploring prompts or upload your first creation! What would you like to create today? ✨`,
-                        senderId: OFFICIAL_AI_USER_ID, // This should be OFFICIAL AI ID, not user ID
+                        senderId: OFFICIAL_AI_USER_ID,
                         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                         isOfficial: true
                     });
@@ -997,24 +1015,31 @@
                 
             } catch (error) {
                 console.error('❌ Error creating welcome conversation:', error);
+                showNotification('Error creating welcome conversation', 'error');
             }
         }
 
-        // ✅ FIXED - Load Participants Data
+        // ✅ FIXED - Load Participants Data with Error Handling
         async function loadParticipantsData() {
             try {
                 const allUserIds = new Set([OFFICIAL_AI_USER_ID]);
                 
                 conversations.forEach(conv => {
-                    conv.participants.forEach(uid => {
-                        if (uid !== currentUser.uid) allUserIds.add(uid);
-                    });
+                    if (conv.participants) {
+                        conv.participants.forEach(uid => {
+                            if (uid !== currentUser.uid) allUserIds.add(uid);
+                        });
+                    }
                 });
 
                 // Load official AI user first
-                const officialUserDoc = await db.collection('users').doc(OFFICIAL_AI_USER_ID).get();
-                if (officialUserDoc.exists) {
-                    users[OFFICIAL_AI_USER_ID] = officialUserDoc.data();
+                try {
+                    const officialUserDoc = await db.collection('users').doc(OFFICIAL_AI_USER_ID).get();
+                    if (officialUserDoc.exists) {
+                        users[OFFICIAL_AI_USER_ID] = officialUserDoc.data();
+                    }
+                } catch (error) {
+                    console.error('Error loading official user:', error);
                 }
 
                 // Load other users
@@ -1026,7 +1051,7 @@
                         if (userDoc.exists) {
                             users[uid] = userDoc.data();
                         } else {
-                            // If user document doesn't exist, create a basic one
+                            // Create basic user data if not found
                             users[uid] = {
                                 name: "User",
                                 avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${uid}`,
@@ -1035,7 +1060,7 @@
                             };
                         }
                     } catch (error) {
-                        console.log('User not found:', uid);
+                        console.error('Error loading user:', uid, error);
                         users[uid] = {
                             name: "User",
                             avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${uid}`,
@@ -1045,12 +1070,14 @@
                     }
                 }
 
+                console.log('✅ Loaded participants data for', Object.keys(users).length, 'users');
+
             } catch (error) {
-                console.error('Error loading participants:', error);
+                console.error('❌ Error loading participants:', error);
             }
         }
 
-        // ✅ FIXED - Update Conversations List UI
+        // ✅ FIXED - Update Conversations List UI with Badges
         function updateConversationsList() {
             if (!currentUser) {
                 elements.conversationsList.innerHTML = `
@@ -1076,7 +1103,9 @@
             }
             
             elements.conversationsList.innerHTML = conversations.map(conv => {
-                const otherUserId = conv.participants.find(uid => uid !== currentUser.uid);
+                const otherUserId = conv.participants?.find(uid => uid !== currentUser.uid);
+                if (!otherUserId) return '';
+
                 const otherUser = users[otherUserId] || {
                     name: 'User',
                     avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${otherUserId}`,
@@ -1086,9 +1115,10 @@
                 const lastMessage = conv.lastMessage || 'Start a conversation';
                 const lastMessageTime = conv.lastMessageAt ? formatTime(conv.lastMessageAt.toDate()) : '';
 
-                // ✅ VERIFIED TICK - ONLY FOR SPECIFIC USERS
+                // ✅ FIXED - Badges based on email
                 const isOwner = otherUser.email === OWNER_EMAIL;
                 const isLegendary = otherUser.email === LEGENDARY_EMAIL;
+                const isKing = otherUser.email === KING_EMAIL;
                 const isOfficial = otherUser.isOfficial;
 
                 return `
@@ -1098,9 +1128,10 @@
                         <div class="conversation-info">
                             <div class="conversation-name">
                                 ${otherUser.name}
-                                ${(isOwner || isLegendary || isOfficial) ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
+                                ${(isOwner || isLegendary || isKing || isOfficial) ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
                                 ${isOwner ? '<span class="owner-badge">Owner</span>' : ''}
                                 ${isLegendary ? '<span class="legendary-badge">Legendary</span>' : ''}
+                                ${isKing ? '<span class="king-badge">King</span>' : ''}
                                 ${isOfficial ? '<span class="owner-badge">Official</span>' : ''}
                             </div>
                             <div class="conversation-last-message">${lastMessage}</div>
@@ -1121,7 +1152,7 @@
             });
         }
 
-        // ✅ FIXED - Select Conversation with Real-time Updates
+        // ✅ FIXED - Select Conversation with Error Handling
         async function selectConversation(conversationId) {
             if (!currentUser) return;
             
@@ -1131,7 +1162,10 @@
             }
             
             currentConversation = conversations.find(conv => conv.id === conversationId);
-            if (!currentConversation) return;
+            if (!currentConversation) {
+                showNotification('Conversation not found', 'error');
+                return;
+            }
             
             console.log('💬 Selecting conversation:', conversationId);
             
@@ -1144,7 +1178,12 @@
             elements.chatHeader.classList.remove('hidden');
             elements.messageInputContainer.classList.remove('hidden');
             
-            const otherUserId = currentConversation.participants.find(uid => uid !== currentUser.uid);
+            const otherUserId = currentConversation.participants?.find(uid => uid !== currentUser.uid);
+            if (!otherUserId) {
+                showNotification('Error loading conversation', 'error');
+                return;
+            }
+            
             const otherUser = users[otherUserId] || { 
                 name: 'User', 
                 avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${otherUserId}`,
@@ -1154,24 +1193,30 @@
             // Update chat header
             elements.chatUserAvatar.src = otherUser.avatar;
             
+            // ✅ FIXED - Badges in chat header
             const isOwner = otherUser.email === OWNER_EMAIL;
             const isLegendary = otherUser.email === LEGENDARY_EMAIL;
+            const isKing = otherUser.email === KING_EMAIL;
             const isOfficial = otherUser.isOfficial;
             
             elements.chatUserName.innerHTML = `
                 ${otherUser.name}
-                ${(isOwner || isLegendary || isOfficial) ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
+                ${(isOwner || isLegendary || isKing || isOfficial) ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
                 ${isOwner ? '<span class="owner-badge">Owner</span>' : ''}
                 ${isLegendary ? '<span class="legendary-badge">Legendary</span>' : ''}
+                ${isKing ? '<span class="king-badge">King</span>' : ''}
                 ${isOfficial ? '<span class="owner-badge">Official</span>' : ''}
             `;
             elements.chatUserStatus.textContent = isOfficial ? 'Always Online' : 'Online';
             
             // Load messages with real-time listener
-            await loadMessages(conversationId);
-            
-            // Set up real-time listener for new messages
-            setupMessageListener(conversationId);
+            try {
+                await loadMessages(conversationId);
+                setupMessageListener(conversationId);
+            } catch (error) {
+                console.error('❌ Error loading messages:', error);
+                showNotification('Error loading messages', 'error');
+            }
         }
 
         // ✅ FIXED - Set up Real-time Message Listener
@@ -1207,7 +1252,7 @@
             }
         }
 
-        // ✅ FIXED - Load Messages
+        // ✅ FIXED - Load Messages with Error Handling
         async function loadMessages(conversationId) {
             try {
                 const snapshot = await db.collection('conversations').doc(conversationId)
@@ -1225,6 +1270,7 @@
             } catch (error) {
                 console.error('❌ Error loading messages:', error);
                 showNotification('Failed to load messages', 'error');
+                throw error;
             }
         }
 
@@ -1267,12 +1313,12 @@
             elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
         }
 
-        // ✅ FIXED - Send Message with Security Check
+        // ✅ FIXED - Send Message with Error Handling
         async function sendMessage() {
             if (!currentUser || !currentConversation || !elements.messageInput.value.trim()) return;
             
             // Security check - verify user is participant in conversation
-            if (!currentConversation.participants.includes(currentUser.uid)) {
+            if (!currentConversation.participants?.includes(currentUser.uid)) {
                 showNotification('You are not authorized to send messages in this conversation', 'error');
                 return;
             }
@@ -1283,7 +1329,7 @@
                 // Add message to Firestore
                 await db.collection('conversations').doc(currentConversation.id).collection('messages').add({
                     text: messageText,
-                    senderId: currentUser.uid, // This should be current user's ID
+                    senderId: currentUser.uid,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     read: false
                 });
@@ -1304,7 +1350,7 @@
             }
         }
 
-        // ✅ FIXED - New Conversation Modal (FIXED USER LOADING)
+        // ✅ FIXED - New Conversation Modal with Error Handling
         async function openNewConversationModal() {
             if (!currentUser) {
                 showNotification('Please login to start a conversation', 'error');
@@ -1322,7 +1368,7 @@
                     </div>
                 `;
 
-                // ✅ FIXED - Load all users except current user and official AI
+                // ✅ FIXED - Load all users with proper error handling
                 const snapshot = await db.collection('users').get();
                 
                 const allUsers = [];
@@ -1330,8 +1376,7 @@
                     // Exclude current user, official AI, and users without proper data
                     if (doc.id !== currentUser.uid && 
                         doc.id !== OFFICIAL_AI_USER_ID && 
-                        doc.data().email && 
-                        doc.data().name !== "User") {
+                        doc.data().email) {
                         const userData = doc.data();
                         allUsers.push({ 
                             id: doc.id, 
@@ -1354,6 +1399,7 @@
                     elements.userList.innerHTML = allUsers.map(user => {
                         const isOwner = user.email === OWNER_EMAIL;
                         const isLegendary = user.email === LEGENDARY_EMAIL;
+                        const isKing = user.email === KING_EMAIL;
                         
                         return `
                             <div class="user-item" data-user-id="${user.id}">
@@ -1362,9 +1408,10 @@
                                 <div class="user-info">
                                     <div class="user-name">
                                         ${user.name || 'User'}
-                                        ${(isOwner || isLegendary) ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
+                                        ${(isOwner || isLegendary || isKing) ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
                                         ${isOwner ? '<span class="owner-badge">Owner</span>' : ''}
                                         ${isLegendary ? '<span class="legendary-badge">Legendary</span>' : ''}
+                                        ${isKing ? '<span class="king-badge">King</span>' : ''}
                                     </div>
                                     <div class="user-bio">${user.bio || 'AI Art Enthusiast'}</div>
                                 </div>
@@ -1396,15 +1443,15 @@
             }
         }
 
-        // ✅ FIXED - Start New Conversation
+        // ✅ FIXED - Start New Conversation with Error Handling
         async function startNewConversation(otherUserId) {
             if (!currentUser) return;
             
             try {
                 // Check if conversation already exists
                 const existingConversation = conversations.find(conv => 
-                    conv.participants.includes(otherUserId) && 
-                    conv.participants.includes(currentUser.uid)
+                    conv.participants?.includes(otherUserId) && 
+                    conv.participants?.includes(currentUser.uid)
                 );
                 
                 if (existingConversation) {
@@ -1424,11 +1471,11 @@
                 
                 const conversationRef = await db.collection('conversations').add(conversationData);
                 
-                // Add first message FROM CURRENT USER (not from official account)
+                // Add first message FROM CURRENT USER
                 await db.collection('conversations').doc(conversationRef.id)
                     .collection('messages').add({
                         text: `Hello! I'd like to connect with you about AI art prompts. 👋`,
-                        senderId: currentUser.uid, // This should be current user's ID
+                        senderId: currentUser.uid,
                         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                         read: false
                     });
