@@ -538,28 +538,6 @@
             transform: none;
         }
 
-        .avatar-options {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .avatar-option {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            cursor: pointer;
-            border: 3px solid transparent;
-            transition: var(--transition);
-        }
-
-        .avatar-option:hover, .avatar-option.selected {
-            border-color: var(--primary);
-            transform: scale(1.1);
-        }
-
         .file-upload-container {
             text-align: center;
             margin: 20px 0;
@@ -691,10 +669,6 @@
             .header h1 {
                 font-size: 2.5rem;
             }
-
-            .avatar-options {
-                grid-template-columns: repeat(2, 1fr);
-            }
         }
     </style>
 </head>
@@ -820,10 +794,6 @@
             <div class="form-group">
                 <label class="form-label">Profile Avatar</label>
                 
-                <div class="avatar-options" id="avatarOptions">
-                    <!-- Avatar options will be loaded here -->
-                </div>
-                
                 <div class="file-upload-container">
                     <label class="file-upload-btn">
                         <i class="fas fa-upload"></i> Upload Custom Avatar
@@ -884,7 +854,6 @@
             editProfileModal: document.getElementById('editProfileModal'),
             editName: document.getElementById('editName'),
             editBio: document.getElementById('editBio'),
-            avatarOptions: document.getElementById('avatarOptions'),
             avatarUpload: document.getElementById('avatarUpload'),
             uploadPreview: document.getElementById('uploadPreview'),
             previewImage: document.getElementById('previewImage'),
@@ -898,7 +867,6 @@
             console.log('🚀 Initializing AI Prompt Gallery Profile...');
             setupEventListeners();
             initAuth();
-            loadAvatarOptions();
         }
 
         // ✅ FIXED - Authentication System
@@ -954,37 +922,54 @@
             }
         }
 
-        // ✅ FIXED - Update Profile UI with Badges
+        // ✅ FIXED - Update Profile UI with PROPER BADGES
         function updateProfileUI() {
             if (!userProfile) return;
 
-            // Update avatar with proper URL handling
+            console.log('🔄 Updating profile UI for:', userProfile.email);
+
+            // Update avatar
             let avatarUrl = userProfile.avatar;
             if (avatarUrl && avatarUrl.length > 500) {
-                // If URL is too long, use default avatar
                 avatarUrl = "https://api.dicebear.com/7.x/avataaars/svg?seed=" + currentUser.uid;
             }
             elements.profileAvatar.src = avatarUrl;
 
-            // Update name - ensure it's not "User" if we have proper data
+            // Update name
             let displayName = userProfile.name;
             if (!displayName || displayName === "User" || displayName === "undefined") {
                 displayName = currentUser.displayName || currentUser.email.split('@')[0] || "AI Artist";
             }
             elements.profileName.innerHTML = displayName;
 
-            // ✅ FIXED - Update badges based on email
-            const isOwner = userProfile.email === OWNER_EMAIL;
-            const isLegendary = userProfile.email === LEGENDARY_EMAIL;
-            const isKing = userProfile.email === KING_EMAIL;
+            // ✅ FIXED - Update badges based on email (CASE SENSITIVE CHECK)
+            const userEmail = userProfile.email;
+            console.log('📧 Checking badges for email:', userEmail);
             
-            // Show verified badge for all special users
+            const isOwner = userEmail === OWNER_EMAIL;
+            const isLegendary = userEmail === LEGENDARY_EMAIL;
+            const isKing = userEmail === KING_EMAIL;
+            
+            console.log('🏷️ Badges status:', { isOwner, isLegendary, isKing });
+
+            // Show verified badge (blue tick) for all special users
             elements.verifiedBadge.classList.toggle('hidden', !(isOwner || isLegendary || isKing));
             
             // Show specific badges
             elements.ownerBadge.classList.toggle('hidden', !isOwner);
             elements.legendaryBadge.classList.toggle('hidden', !isLegendary);
             elements.kingBadge.classList.toggle('hidden', !isKing);
+
+            // Add badges to name display
+            if (isOwner || isLegendary || isKing) {
+                elements.profileName.innerHTML = `
+                    ${displayName}
+                    <i class="fas fa-check-circle verified-badge"></i>
+                    ${isOwner ? '<span class="owner-badge">Owner</span>' : ''}
+                    ${isLegendary ? '<span class="legendary-badge">Legendary</span>' : ''}
+                    ${isKing ? '<span class="king-badge">King</span>' : ''}
+                `;
+            }
 
             // Update bio
             elements.profileBio.textContent = userProfile.bio || "Welcome to my AI art profile! 🎨";
@@ -1044,48 +1029,6 @@
             }
         }
 
-        // ✅ FIXED - Load Cool Cartoon Avatar Options
-        function loadAvatarOptions() {
-            const avatarStyles = [
-                "avataaars", "micah", "miniavs", "personas", "bottts", "jdenticon", "gridy", "identicon"
-            ];
-
-            const colors = ["ffadad", "ffd6a5", "fdffb6", "caffbf", "9bf6ff", "a0c4ff", "bdb2ff", "ffc6ff"];
-            
-            let avatars = [];
-            
-            // Generate unique avatars based on different seeds and styles
-            for (let i = 0; i < 6; i++) {
-                const style = avatarStyles[i % avatarStyles.length];
-                const color = colors[i % colors.length];
-                const seed = `avatar${i + 1}_${Date.now()}`;
-                
-                let avatarUrl = `https://api.dicebear.com/7.x/${style}/svg?seed=${seed}`;
-                
-                // Add color for some styles
-                if (style === "avataaars" || style === "personas" || style === "bottts") {
-                    avatarUrl += `&backgroundColor=${color}`;
-                }
-                
-                avatars.push(avatarUrl);
-            }
-
-            elements.avatarOptions.innerHTML = avatars.map((avatar, index) => `
-                <img src="${avatar}" class="avatar-option" data-avatar="${avatar}" alt="Avatar ${index + 1}">
-            `).join('');
-
-            // Add click listeners
-            document.querySelectorAll('.avatar-option').forEach(option => {
-                option.addEventListener('click', function() {
-                    document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
-                    this.classList.add('selected');
-                    // Clear file upload when preset avatar is selected
-                    selectedAvatarFile = null;
-                    elements.uploadPreview.classList.add('hidden');
-                });
-            });
-        }
-
         // ✅ FIXED - Handle File Upload
         function setupFileUpload() {
             elements.avatarUpload.addEventListener('change', function(e) {
@@ -1112,22 +1055,18 @@
                         elements.previewImage.src = event.target.result;
                         elements.fileName.textContent = file.name;
                         elements.uploadPreview.classList.remove('hidden');
-                        
-                        // Clear preset avatar selection
-                        document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
                     };
                     reader.readAsDataURL(file);
                 }
             });
         }
 
-        // ✅ FIXED - Save Profile with Custom Avatar Upload
+        // ✅ FIXED - Save Profile with WORKING Avatar Upload
         async function saveProfile() {
             if (!currentUser) return;
 
             const name = elements.editName.value.trim();
             const bio = elements.editBio.value.trim();
-            const selectedAvatar = document.querySelector('.avatar-option.selected');
 
             if (!name) {
                 showNotification('Please enter a display name', 'error');
@@ -1146,27 +1085,28 @@
 
                 console.log('🔄 Starting profile update...');
 
-                // ✅ FIXED - Handle file upload first (has priority)
+                // ✅ FIXED - Handle file upload
                 if (selectedAvatarFile) {
                     console.log('📁 Uploading custom avatar...');
                     const file = selectedAvatarFile;
                     const fileName = `avatar_${Date.now()}_${file.name}`;
                     const storageRef = storage.ref().child(`avatars/${currentUser.uid}/${fileName}`);
                     
-                    // Upload file to Firebase Storage
-                    const snapshot = await storageRef.put(file);
-                    console.log('✅ Avatar uploaded to storage');
-                    
-                    // Get download URL
-                    const downloadURL = await snapshot.ref.getDownloadURL();
-                    console.log('📸 Avatar URL:', downloadURL);
-                    
-                    updates.avatar = downloadURL;
-                }
-                // Handle preset avatar selection
-                else if (selectedAvatar) {
-                    console.log('🎨 Using preset avatar');
-                    updates.avatar = selectedAvatar.dataset.avatar;
+                    try {
+                        // Upload file to Firebase Storage
+                        const snapshot = await storageRef.put(file);
+                        console.log('✅ Avatar uploaded to storage');
+                        
+                        // Get download URL
+                        const downloadURL = await snapshot.ref.getDownloadURL();
+                        console.log('📸 Avatar URL:', downloadURL);
+                        
+                        updates.avatar = downloadURL;
+                    } catch (uploadError) {
+                        console.error('❌ Error uploading avatar:', uploadError);
+                        showNotification('Error uploading avatar', 'error');
+                        return;
+                    }
                 }
 
                 console.log('📝 Updating Firestore with:', updates);
