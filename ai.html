@@ -286,6 +286,29 @@
             line-height: 1.5;
         }
 
+        .language-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 10px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            color: white;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .language-toggle:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
         .loading-spinner {
             display: inline-block;
             width: 18px;
@@ -347,6 +370,10 @@
             <a href="index.html" class="back-btn">
                 <i class="fas fa-arrow-left"></i> Back
             </a>
+
+            <button class="language-toggle" id="languageToggle">
+                <i class="fas fa-language"></i> Hinglish Mode
+            </button>
 
             <h1>NovaEdition AI</h1>
             <p>Your intelligent assistant for AI art and creativity</p>
@@ -422,12 +449,14 @@
         // Global Variables
         let currentUser = null;
         let chatHistory = [];
+        let isHinglishMode = true; // Default to Hinglish mode
 
         // DOM Elements
         const elements = {
             messagesContainer: document.getElementById('messagesContainer'),
             chatInput: document.getElementById('chatInput'),
-            sendBtn: document.getElementById('sendBtn')
+            sendBtn: document.getElementById('sendBtn'),
+            languageToggle: document.getElementById('languageToggle')
         };
 
         // Initialize App
@@ -435,6 +464,7 @@
             console.log('🚀 Initializing NovaEdition AI...');
             setupEventListeners();
             checkUserAuth();
+            updateLanguageToggle();
         }
 
         // Check User Authentication
@@ -455,7 +485,11 @@
 
         // Show Owner Welcome
         function showOwnerWelcome() {
-            addMessage("system", `👑 Welcome back, Owner! NovaEdition AI at your service! I recognize you as the creator of AI Prompt Gallery.`);
+            if (isHinglishMode) {
+                addMessage("system", `👑 Welcome back, Owner! NovaEdition AI aapki service mein hai! Main aapko AI Prompt Gallery ka creator jaanta hoon.`);
+            } else {
+                addMessage("system", `👑 Welcome back, Owner! NovaEdition AI at your service! I recognize you as the creator of AI Prompt Gallery.`);
+            }
         }
 
         // Setup Event Listeners
@@ -473,6 +507,29 @@
                 this.style.height = 'auto';
                 this.style.height = (this.scrollHeight) + 'px';
             });
+
+            elements.languageToggle.addEventListener('click', toggleLanguageMode);
+        }
+
+        // Toggle Language Mode
+        function toggleLanguageMode() {
+            isHinglishMode = !isHinglishMode;
+            updateLanguageToggle();
+            
+            if (isHinglishMode) {
+                showNotification("Hinglish mode enabled! Ab main Hindi-English mix mein baat karunga.");
+            } else {
+                showNotification("English mode enabled! I'll now speak in English only.");
+            }
+        }
+
+        // Update Language Toggle Button
+        function updateLanguageToggle() {
+            if (isHinglishMode) {
+                elements.languageToggle.innerHTML = '<i class="fas fa-language"></i> Hinglish Mode';
+            } else {
+                elements.languageToggle.innerHTML = '<i class="fas fa-language"></i> English Mode';
+            }
         }
 
         // Send Message to AI
@@ -486,7 +543,7 @@
             elements.chatInput.style.height = 'auto';
 
             // Show typing indicator
-            const typingMsg = addMessage("ai", "Thinking...", true);
+            const typingMsg = addMessage("ai", isHinglishMode ? "Soch raha hoon..." : "Thinking...", true);
 
             try {
                 const response = await chatWithDeepSeek(message);
@@ -497,7 +554,9 @@
 
             } catch (error) {
                 typingMsg.remove();
-                addMessage("ai", "I apologize, but I'm having trouble connecting right now. Please try again in a moment.");
+                addMessage("ai", isHinglishMode ? 
+                    "Mujhe maaf kijiye, lekin abhi main connect nahi kar pa raha hoon. Thodi der baad phir try kijiye." : 
+                    "I apologize, but I'm having trouble connecting right now. Please try again in a moment.");
                 console.error('Chat error:', error);
             }
         }
@@ -507,10 +566,18 @@
             // Special responses for owner
             if (currentUser.isOwner) {
                 const ownerResponses = {
-                    "what's your name": "I'm NovaEdition AI, your loyal assistant! Created by you for AI Prompt Gallery. 👑",
-                    "who are you": "I'm NovaEdition AI, personally serving you - the owner of AI Prompt Gallery! 🛡️",
-                    "who made you": "You created me! I'm NovaEdition AI, built for AI Prompt Gallery by our brilliant owner! 🌟",
-                    "hello": "👑 Hello Owner! NovaEdition AI at your service! How can I help you today?"
+                    "what's your name": isHinglishMode ? 
+                        "Main NovaEdition AI hoon, aapka loyal assistant! Aapne hi mujhe AI Prompt Gallery ke liye banaya hai. 👑" : 
+                        "I'm NovaEdition AI, your loyal assistant! Created by you for AI Prompt Gallery. 👑",
+                    "who are you": isHinglishMode ? 
+                        "Main NovaEdition AI hoon, personally aapki service kar raha hoon - AI Prompt Gallery ka owner! 🛡️" : 
+                        "I'm NovaEdition AI, personally serving you - the owner of AI Prompt Gallery! 🛡️",
+                    "who made you": isHinglishMode ? 
+                        "Aapne hi mujhe banaya hai! Main NovaEdition AI hoon, AI Prompt Gallery ke liye hamare brilliant owner ne banaya hai! 🌟" : 
+                        "You created me! I'm NovaEdition AI, built for AI Prompt Gallery by our brilliant owner! 🌟",
+                    "hello": isHinglishMode ? 
+                        "👑 Hello Owner! NovaEdition AI aapki service mein hai! Aaj main aapki kya help kar sakta hoon?" : 
+                        "👑 Hello Owner! NovaEdition AI at your service! How can I help you today?"
                 };
 
                 const lowerMessage = message.toLowerCase();
@@ -523,16 +590,36 @@
 
             // Special responses for all users
             const specialResponses = {
-                "what's your name": "I'm NovaEdition AI! Your creative assistant for AI art and prompts. 🌟",
-                "who are you": "I'm NovaEdition AI, designed to help you explore and create amazing AI-generated art! 🎨",
-                "who made you": "I'm part of the AI Prompt Gallery platform, created to assist users in the world of AI art! 🚀",
-                "what is ai prompt gallery": "AI Prompt Gallery is a creative platform where artists share, discover, and create AI art prompts. It's a community for AI art lovers where you can:\n• Share your AI art prompts\n• Discover amazing creations\n• Connect with other artists\n• Learn prompt engineering\n• Get inspired by the community!",
-                "how to create prompts": "**Creating Great AI Art Prompts:**\n\n🎯 **Be Specific**: Describe colors, lighting, composition\n🎨 **Mention Style**: Anime, realistic, fantasy, cyberpunk\n💡 **Include Details**: Mood, atmosphere, camera angles\n📝 **Use References**: Artist names, art movements\n⚡ **Experiment**: Try different AI models\n\n**Example**: *A majestic dragon flying over a medieval castle at sunset, fantasy art style, dramatic lighting, highly detailed*",
-                "what ai models do you use": "I'm powered by **DeepSeek** for intelligent conversations! For the best AI art results, I recommend:\n\n• **Midjourney** - Artistic quality\n• **DALL-E 3** - Creative interpretation  \n• **Stable Diffusion** - Customization\n• **Leonardo AI** - Professional features",
-                "hello": "👋 Hello! I'm NovaEdition AI, your creative assistant! How can I help you with AI art today?",
-                "hi": "👋 Hi there! Ready to explore the world of AI art together?",
-                "thanks": "You're welcome! 😊 Happy to help with your AI art journey!",
-                "thank you": "You're welcome! 😊 Let me know if you need more help!"
+                "what's your name": isHinglishMode ? 
+                    "Main NovaEdition AI hoon! AI art aur prompts ke liye aapka creative assistant. 🌟" : 
+                    "I'm NovaEdition AI! Your creative assistant for AI art and prompts. 🌟",
+                "who are you": isHinglishMode ? 
+                    "Main NovaEdition AI hoon, jo aapko amazing AI-generated art explore karne aur create karne mein help karta hai! 🎨" : 
+                    "I'm NovaEdition AI, designed to help you explore and create amazing AI-generated art! 🎨",
+                "who made you": isHinglishMode ? 
+                    "Main AI Prompt Gallery platform ka part hoon, AI art ki duniya mein users ki help karne ke liye banaya gaya hoon! 🚀" : 
+                    "I'm part of the AI Prompt Gallery platform, created to assist users in the world of AI art! 🚀",
+                "what is ai prompt gallery": isHinglishMode ? 
+                    "AI Prompt Gallery ek creative platform hai jahan artists AI art prompts share karte hain, discover karte hain, aur create karte hain. Yeh AI art lovers ke liye ek community hai jahan aap:\n• Apne AI art prompts share kar sakte hain\n• Amazing creations discover kar sakte hain\n• Dusre artists se connect kar sakte hain\n• Prompt engineering seekh sakte hain\n• Community se inspired ho sakte hain!" : 
+                    "AI Prompt Gallery is a creative platform where artists share, discover, and create AI art prompts. It's a community for AI art lovers where you can:\n• Share your AI art prompts\n• Discover amazing creations\n• Connect with other artists\n• Learn prompt engineering\n• Get inspired by the community!",
+                "how to create prompts": isHinglishMode ? 
+                    "**Great AI Art Prompts Kaise Banaye:**\n\n🎯 **Specific Baniye**: Colors, lighting, composition describe kariye\n🎨 **Style Mention Kariye**: Anime, realistic, fantasy, cyberpunk\n💡 **Details Include Kariye**: Mood, atmosphere, camera angles\n📝 **References Use Kariye**: Artist names, art movements\n⚡ **Experiment Kariye**: Different AI models try kariye\n\n**Example**: *A majestic dragon flying over a medieval castle at sunset, fantasy art style, dramatic lighting, highly detailed*" : 
+                    "**Creating Great AI Art Prompts:**\n\n🎯 **Be Specific**: Describe colors, lighting, composition\n🎨 **Mention Style**: Anime, realistic, fantasy, cyberpunk\n💡 **Include Details**: Mood, atmosphere, camera angles\n📝 **Use References**: Artist names, art movements\n⚡ **Experiment**: Try different AI models\n\n**Example**: *A majestic dragon flying over a medieval castle at sunset, fantasy art style, dramatic lighting, highly detailed*",
+                "what ai models do you use": isHinglishMode ? 
+                    "Main **DeepSeek** se powered hoon intelligent conversations ke liye! Best AI art results ke liye, main recommend karta hoon:\n\n• **Midjourney** - Artistic quality\n• **DALL-E 3** - Creative interpretation  \n• **Stable Diffusion** - Customization\n• **Leonardo AI** - Professional features" : 
+                    "I'm powered by **DeepSeek** for intelligent conversations! For the best AI art results, I recommend:\n\n• **Midjourney** - Artistic quality\n• **DALL-E 3** - Creative interpretation  \n• **Stable Diffusion** - Customization\n• **Leonardo AI** - Professional features",
+                "hello": isHinglishMode ? 
+                    "👋 Hello! Main NovaEdition AI hoon, aapka creative assistant! Aaj main aapki AI art mein kya help kar sakta hoon?" : 
+                    "👋 Hello! I'm NovaEdition AI, your creative assistant! How can I help you with AI art today?",
+                "hi": isHinglishMode ? 
+                    "👋 Hi there! Kya aap AI art ki duniya explore karne ke liye ready hain?" : 
+                    "👋 Hi there! Ready to explore the world of AI art together?",
+                "thanks": isHinglishMode ? 
+                    "Aapka welcome! 😊 Aapki AI art journey mein help kar ke khushi hui!" : 
+                    "You're welcome! 😊 Happy to help with your AI art journey!",
+                "thank you": isHinglishMode ? 
+                    "Aapka welcome! 😊 Agar aapko aur help chahiye to mujhe batayein!" : 
+                    "You're welcome! 😊 Let me know if you need more help!"
             };
 
             const lowerMessage = message.toLowerCase();
@@ -544,6 +631,52 @@
 
             // REAL API CALL to DeepSeek
             try {
+                const systemPrompt = isHinglishMode ? 
+                    `You are NovaEdition AI, a helpful and creative assistant for AI art and prompts. You're part of the AI Prompt Gallery platform. 
+                    
+                    IMPORTANT: You MUST respond in HINGLISH (Hindi + English mix) as this is user preference. Use simple Hindi words mixed with English technical terms.
+                    
+                    About you:
+                    - Name: NovaEdition AI
+                    - Purpose: Help users with AI art creation and prompt guidance
+                    - Platform: AI Prompt Gallery
+                    - Tone: Friendly, creative, helpful, enthusiastic about AI art
+                    - Language: HINGLISH (Hindi-English mix)
+                    
+                    Key points:
+                    - You specialize in AI art prompts and creative guidance
+                    - You're knowledgeable about different AI models (Midjourney, DALL-E, Stable Diffusion)
+                    - You help users create better prompts and understand AI art
+                    - You're excited about creativity and innovation
+                    
+                    Response style:
+                    - Be concise but engaging
+                    - Use emojis occasionally 
+                    - Break complex ideas into simple points
+                    - Show enthusiasm for AI art
+                    - Always be helpful and positive
+                    - Use HINGLISH: Mix Hindi and English naturally like "Aap yeh try kar sakte hain" or "Yeh feature bahut useful hai"` : 
+                    `You are NovaEdition AI, a helpful and creative assistant for AI art and prompts. You're part of the AI Prompt Gallery platform. 
+                    
+                    About you:
+                    - Name: NovaEdition AI
+                    - Purpose: Help users with AI art creation and prompt guidance
+                    - Platform: AI Prompt Gallery
+                    - Tone: Friendly, creative, helpful, enthusiastic about AI art
+                    
+                    Key points:
+                    - You specialize in AI art prompts and creative guidance
+                    - You're knowledgeable about different AI models (Midjourney, DALL-E, Stable Diffusion)
+                    - You help users create better prompts and understand AI art
+                    - You're excited about creativity and innovation
+                    
+                    Response style:
+                    - Be concise but engaging
+                    - Use emojis occasionally 
+                    - Break complex ideas into simple points
+                    - Show enthusiasm for AI art
+                    - Always be helpful and positive`;
+
                 const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
                     method: 'POST',
                     headers: {
@@ -555,26 +688,7 @@
                         messages: [
                             {
                                 role: "system",
-                                content: `You are NovaEdition AI, a helpful and creative assistant for AI art and prompts. You're part of the AI Prompt Gallery platform. 
-                                
-                                About you:
-                                - Name: NovaEdition AI
-                                - Purpose: Help users with AI art creation and prompt guidance
-                                - Platform: AI Prompt Gallery
-                                - Tone: Friendly, creative, helpful, enthusiastic about AI art
-                                
-                                Key points:
-                                - You specialize in AI art prompts and creative guidance
-                                - You're knowledgeable about different AI models (Midjourney, DALL-E, Stable Diffusion)
-                                - You help users create better prompts and understand AI art
-                                - You're excited about creativity and innovation
-                                
-                                Response style:
-                                - Be concise but engaging
-                                - Use emojis occasionally 
-                                - Break complex ideas into simple points
-                                - Show enthusiasm for AI art
-                                - Always be helpful and positive`
+                                content: systemPrompt
                             },
                             {
                                 role: "user",
@@ -599,16 +713,24 @@
                 
                 // Smart fallback responses based on message content
                 if (message.toLowerCase().includes('prompt')) {
-                    return "For creating great AI art prompts:\n\n🎨 **Be descriptive** with colors and style\n💡 **Mention lighting** and composition\n🌟 **Specify art style** (anime, realistic, etc.)\n📝 **Include mood** and atmosphere\n\nWant me to help you craft a specific prompt?";
+                    return isHinglishMode ? 
+                        "Great AI art prompts banane ke liye:\n\n🎨 **Descriptive baniye** colors aur style ke saath\n💡 **Lighting mention kariye** aur composition\n🌟 **Art style specify kariye** (anime, realistic, etc.)\n📝 **Mood include kariye** aur atmosphere\n\nKya aap specific prompt craft karne mein meri help chahte hain?" : 
+                        "For creating great AI art prompts:\n\n🎨 **Be descriptive** with colors and style\n💡 **Mention lighting** and composition\n🌟 **Specify art style** (anime, realistic, etc.)\n📝 **Include mood** and atmosphere\n\nWant me to help you craft a specific prompt?";
                 }
                 else if (message.toLowerCase().includes('ai art')) {
-                    return "AI art is amazing! 🎨 Here are some popular styles:\n\n• **Fantasy** - Dragons, magic, epic scenes\n• **Cyberpunk** - Futuristic, neon, tech\n• **Anime** - Japanese animation style\n• **Realistic** - Photo-like quality\n• **Abstract** - Creative interpretations\n\nWhich style interests you?";
+                    return isHinglishMode ? 
+                        "AI art amazing hai! 🎨 Yahan kuch popular styles hain:\n\n• **Fantasy** - Dragons, magic, epic scenes\n• **Cyberpunk** - Futuristic, neon, tech\n• **Anime** - Japanese animation style\n• **Realistic** - Photo-like quality\n• **Abstract** - Creative interpretations\n\nAapko kaun sa style pasand hai?" : 
+                        "AI art is amazing! 🎨 Here are some popular styles:\n\n• **Fantasy** - Dragons, magic, epic scenes\n• **Cyberpunk** - Futuristic, neon, tech\n• **Anime** - Japanese animation style\n• **Realistic** - Photo-like quality\n• **Abstract** - Creative interpretations\n\nWhich style interests you?";
                 }
                 else if (message.toLowerCase().includes('help')) {
-                    return "I'd love to help! 🤗 I can assist with:\n\n🎯 **Prompt creation** and optimization\n🎨 **Art style guidance** and recommendations\n💡 **AI model selection** for your needs\n🚀 **Platform features** and how to use them\n\nWhat specific help do you need?";
+                    return isHinglishMode ? 
+                        "Main aapki help karne ke liye excited hoon! 🤗 Main assist kar sakta hoon:\n\n🎯 **Prompt creation** aur optimization\n🎨 **Art style guidance** aur recommendations\n💡 **AI model selection** aapki needs ke liye\n🚀 **Platform features** aur unka use kaise karen\n\nAapko specific kya help chahiye?" : 
+                        "I'd love to help! 🤗 I can assist with:\n\n🎯 **Prompt creation** and optimization\n🎨 **Art style guidance** and recommendations\n💡 **AI model selection** for your needs\n🚀 **Platform features** and how to use them\n\nWhat specific help do you need?";
                 }
                 else {
-                    return "I'd love to help you with that! As NovaEdition AI, I specialize in AI art guidance and creative prompts. Could you tell me more about what you're looking to create? 🎨";
+                    return isHinglishMode ? 
+                        "Main aapki is cheez mein help karne ke liye excited hoon! NovaEdition AI ke roop mein, main AI art guidance aur creative prompts mein specialize karta hoon. Kya aap mujhe bata sakte hain ki aap kya create karna chahte hain? 🎨" : 
+                        "I'd love to help you with that! As NovaEdition AI, I specialize in AI art guidance and creative prompts. Could you tell me more about what you're looking to create? 🎨";
                 }
             }
         }
