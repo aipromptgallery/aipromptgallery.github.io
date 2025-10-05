@@ -9,7 +9,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <style>
         * {
@@ -432,6 +431,11 @@
             color: var(--dark);
         }
 
+        .empty-state p {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -550,57 +554,44 @@
             transform: none;
         }
 
-        .file-upload-container {
-            text-align: center;
+        .avatar-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
             margin: 20px 0;
-            padding: 20px;
-            border: 2px dashed var(--light);
-            border-radius: var(--radius);
-            transition: var(--transition);
         }
 
-        .file-upload-container:hover {
-            border-color: var(--primary);
-        }
-
-        .file-upload-btn {
-            display: inline-block;
-            padding: 12px 24px;
-            background: var(--primary);
-            color: white;
-            border-radius: var(--radius);
+        .avatar-option {
+            text-align: center;
             cursor: pointer;
             transition: var(--transition);
-            text-align: center;
-            font-weight: 600;
+            padding: 15px;
+            border-radius: var(--radius);
+            border: 2px solid var(--light);
         }
 
-        .file-upload-btn:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
+        .avatar-option:hover {
+            border-color: var(--primary);
+            transform: scale(1.05);
         }
 
-        #avatarUpload {
-            display: none;
+        .avatar-option.selected {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            color: white;
         }
 
-        .upload-preview {
-            margin-top: 15px;
-            text-align: center;
-        }
-
-        .upload-preview img {
-            width: 100px;
-            height: 100px;
+        .avatar-option-img {
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             object-fit: cover;
-            border: 3px solid var(--primary);
+            margin-bottom: 10px;
+            border: 3px solid var(--light);
         }
 
-        .upload-preview p {
-            margin-top: 10px;
-            color: var(--secondary);
-            font-size: 0.9rem;
+        .avatar-option.selected .avatar-option-img {
+            border-color: white;
         }
 
         .notification {
@@ -681,6 +672,10 @@
             .header h1 {
                 font-size: 2.5rem;
             }
+
+            .avatar-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
@@ -760,6 +755,9 @@
                             <i class="fas fa-lightbulb"></i>
                             <h3>No prompts yet</h3>
                             <p>Create your first AI art prompt to get started!</p>
+                            <button class="action-btn primary" onclick="window.open('index.html', '_self')" style="margin-top: 15px;">
+                                <i class="fas fa-plus"></i> Create Prompt
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -804,16 +802,19 @@
             </div>
             
             <div class="form-group">
-                <label class="form-label">Profile Avatar</label>
-                
-                <div class="file-upload-container">
-                    <label class="file-upload-btn">
-                        <i class="fas fa-upload"></i> Upload Custom Avatar
-                        <input type="file" id="avatarUpload" accept="image/*">
-                    </label>
-                    <div class="upload-preview hidden" id="uploadPreview">
-                        <img id="previewImage" src="" alt="Preview">
-                        <p id="fileName">custom_avatar.jpg</p>
+                <label class="form-label">Choose Avatar Style</label>
+                <div class="avatar-options">
+                    <div class="avatar-option" data-style="avataaars">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=user1" class="avatar-option-img">
+                        <div>Default</div>
+                    </div>
+                    <div class="avatar-option" data-style="bottts">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=user1" class="avatar-option-img">
+                        <div>Robot</div>
+                    </div>
+                    <div class="avatar-option" data-style="identicon">
+                        <img src="https://api.dicebear.com/7.x/identicon/svg?seed=user1" class="avatar-option-img">
+                        <div>Geometric</div>
                     </div>
                 </div>
             </div>
@@ -835,16 +836,15 @@
             appId: "1:78516691257:web:466954e941fc6a7eb388e8"
         };
 
-        // Initialize Firebase
+        // Initialize Firebase - STORAGE REMOVED
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
-        const storage = firebase.storage();
 
         // Global Variables
         let currentUser = null;
         let userProfile = null;
-        let selectedAvatarFile = null;
+        let selectedAvatarStyle = "avataaars";
         const OWNER_EMAIL = "alizybaby381@gmail.com";
         const LEGENDARY_EMAIL = "ul8763325@gmail.com";
         const KING_EMAIL = "Umehani77777@gmail.com";
@@ -866,10 +866,6 @@
             editProfileModal: document.getElementById('editProfileModal'),
             editName: document.getElementById('editName'),
             editBio: document.getElementById('editBio'),
-            avatarUpload: document.getElementById('avatarUpload'),
-            uploadPreview: document.getElementById('uploadPreview'),
-            previewImage: document.getElementById('previewImage'),
-            fileName: document.getElementById('fileName'),
             saveProfileBtn: document.getElementById('saveProfileBtn'),
             promptsGrid: document.getElementById('promptsGrid')
         };
@@ -891,7 +887,7 @@
                     await loadUserPrompts();
                 } else {
                     currentUser = null;
-                    window.open('login.html', '_self');
+                    window.location.href = 'login.html';
                 }
             });
         }
@@ -913,7 +909,8 @@
                     userProfile = {
                         name: currentUser.displayName || currentUser.email.split('@')[0] || "AI Artist",
                         email: currentUser.email,
-                        avatar: currentUser.photoURL || "https://api.dicebear.com/7.x/avataaars/svg?seed=" + currentUser.uid,
+                        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser.uid}`,
+                        avatarStyle: "avataaars",
                         bio: "Welcome to my AI art profile! 🎨",
                         followers: 0,
                         following: 0,
@@ -940,10 +937,10 @@
 
             console.log('🔄 Updating profile UI for:', userProfile.email);
 
-            // Update avatar
+            // Update avatar - USING DICEBEAR API
             let avatarUrl = userProfile.avatar;
-            if (avatarUrl && avatarUrl.length > 500) {
-                avatarUrl = "https://api.dicebear.com/7.x/avataaars/svg?seed=" + currentUser.uid;
+            if (!avatarUrl || avatarUrl.includes('undefined')) {
+                avatarUrl = `https://api.dicebear.com/7.x/${userProfile.avatarStyle || 'avataaars'}/svg?seed=${currentUser.uid}`;
             }
             elements.profileAvatar.src = avatarUrl;
 
@@ -995,6 +992,22 @@
             // Update modal fields
             elements.editName.value = displayName;
             elements.editBio.value = userProfile.bio || "";
+            
+            // Update avatar style selection
+            selectedAvatarStyle = userProfile.avatarStyle || "avataaars";
+            updateAvatarSelection();
+        }
+
+        // ✅ FIXED - Update Avatar Selection
+        function updateAvatarSelection() {
+            document.querySelectorAll('.avatar-option').forEach(option => {
+                const style = option.dataset.style;
+                option.classList.toggle('selected', style === selectedAvatarStyle);
+                
+                // Update preview images with current user seed
+                const img = option.querySelector('.avatar-option-img');
+                img.src = `https://api.dicebear.com/7.x/${style}/svg?seed=${currentUser.uid}`;
+            });
         }
 
         // ✅ FIXED - Load User Prompts
@@ -1003,7 +1016,7 @@
 
             try {
                 const snapshot = await db.collection('prompts')
-                    .where('userId', '==', currentUser.uid)
+                    .where('authorId', '==', currentUser.uid)
                     .orderBy('createdAt', 'desc')
                     .get();
 
@@ -1013,7 +1026,7 @@
                             <i class="fas fa-lightbulb"></i>
                             <h3>No prompts yet</h3>
                             <p>Create your first AI art prompt to get started!</p>
-                            <button class="action-btn primary" onclick="window.open('create.html', '_self')" style="margin-top: 15px;">
+                            <button class="action-btn primary" onclick="window.open('index.html', '_self')" style="margin-top: 15px;">
                                 <i class="fas fa-plus"></i> Create Prompt
                             </button>
                         </div>
@@ -1025,7 +1038,7 @@
                     const prompt = doc.data();
                     return `
                         <div class="prompt-card">
-                            <div class="prompt-text">${prompt.text}</div>
+                            <div class="prompt-text">${prompt.text || prompt.description || 'No description'}</div>
                             <div class="prompt-meta">
                                 <div class="prompt-date">${formatDate(prompt.createdAt?.toDate())}</div>
                                 <div class="prompt-likes">
@@ -1039,42 +1052,17 @@
 
             } catch (error) {
                 console.error('❌ Error loading prompts:', error);
+                elements.promptsGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Error loading prompts</h3>
+                        <p>Please try again later</p>
+                    </div>
+                `;
             }
         }
 
-        // ✅ FIXED - Handle File Upload
-        function setupFileUpload() {
-            elements.avatarUpload.addEventListener('change', function(e) {
-                if (e.target.files[0]) {
-                    const file = e.target.files[0];
-                    
-                    // Validate file type
-                    if (!file.type.startsWith('image/')) {
-                        showNotification('Please select an image file', 'error');
-                        return;
-                    }
-                    
-                    // Validate file size (max 5MB)
-                    if (file.size > 5 * 1024 * 1024) {
-                        showNotification('Image size should be less than 5MB', 'error');
-                        return;
-                    }
-                    
-                    selectedAvatarFile = file;
-                    
-                    // Show preview
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        elements.previewImage.src = event.target.result;
-                        elements.fileName.textContent = file.name;
-                        elements.uploadPreview.classList.remove('hidden');
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-        }
-
-        // ✅ FIXED - Save Profile with WORKING Avatar Upload
+        // ✅ FIXED - Save Profile - NO STORAGE USAGE
         async function saveProfile() {
             if (!currentUser) return;
 
@@ -1093,54 +1081,14 @@
                 const updates = {
                     name: name,
                     bio: bio,
+                    avatar: `https://api.dicebear.com/7.x/${selectedAvatarStyle}/svg?seed=${currentUser.uid}`,
+                    avatarStyle: selectedAvatarStyle,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
                 console.log('🔄 Starting profile update...');
-
-                // ✅ FIXED - Handle file upload with better error handling
-                if (selectedAvatarFile) {
-                    console.log('📁 Uploading custom avatar...');
-                    const file = selectedAvatarFile;
-                    
-                    try {
-                        // Create unique filename
-                        const fileName = `avatar_${Date.now()}_${file.name}`;
-                        const storageRef = storage.ref().child(`avatars/${currentUser.uid}/${fileName}`);
-                        
-                        // Upload with progress tracking
-                        const uploadTask = storageRef.put(file);
-                        
-                        // Wait for upload to complete
-                        await new Promise((resolve, reject) => {
-                            uploadTask.on('state_changed',
-                                (snapshot) => {
-                                    // Progress tracking
-                                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                                    console.log('Upload progress: ' + progress + '%');
-                                },
-                                (error) => {
-                                    reject(error);
-                                },
-                                async () => {
-                                    // Upload completed
-                                    const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-                                    updates.avatar = downloadURL;
-                                    console.log('✅ Avatar uploaded successfully:', downloadURL);
-                                    resolve();
-                                }
-                            );
-                        });
-                    } catch (uploadError) {
-                        console.error('❌ Error uploading avatar:', uploadError);
-                        showNotification('Error uploading avatar. Please try again.', 'error');
-                        return;
-                    }
-                }
-
-                console.log('📝 Updating Firestore with:', updates);
                 
-                // Update Firestore
+                // Update Firestore - NO STORAGE USAGE
                 await db.collection('users').doc(currentUser.uid).update(updates);
                 console.log('✅ Profile updated in Firestore');
                 
@@ -1149,11 +1097,6 @@
                 
                 closeModal(elements.editProfileModal);
                 showNotification('Profile updated successfully!', 'success');
-                
-                // Reset file selection
-                selectedAvatarFile = null;
-                elements.avatarUpload.value = '';
-                elements.uploadPreview.classList.add('hidden');
                 
             } catch (error) {
                 console.error('❌ Error saving profile:', error);
@@ -1189,7 +1132,13 @@
 
             elements.saveProfileBtn.addEventListener('click', saveProfile);
 
-            setupFileUpload();
+            // Avatar selection
+            document.querySelectorAll('.avatar-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    selectedAvatarStyle = this.dataset.style;
+                    updateAvatarSelection();
+                });
+            });
 
             // Tab switching
             document.querySelectorAll('.tab-btn').forEach(tab => {
