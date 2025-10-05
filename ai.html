@@ -24,7 +24,6 @@
             --card-bg: #ffffff;
             --success: #10b981;
             --error: #ef4444;
-            --warning: #f59e0b;
             --ai-chat: #8b5cf6;
             --ai-image: #ec4899;
             --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -48,7 +47,7 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -56,27 +55,25 @@
         .header {
             background: var(--gradient);
             color: white;
-            padding: 60px 40px;
+            padding: 40px;
             border-radius: var(--radius);
             margin-bottom: 30px;
             text-align: center;
             position: relative;
-            overflow: hidden;
         }
 
         .back-btn {
             position: absolute;
-            top: 25px;
-            left: 25px;
+            top: 20px;
+            left: 20px;
             background: rgba(255,255,255,0.2);
             border: 2px solid rgba(255,255,255,0.3);
-            padding: 12px 20px;
-            border-radius: 25px;
+            padding: 10px 16px;
+            border-radius: 20px;
             cursor: pointer;
             color: white;
             transition: var(--transition);
             backdrop-filter: blur(10px);
-            z-index: 2;
             text-decoration: none;
             display: flex;
             align-items: center;
@@ -90,28 +87,21 @@
         }
 
         .header h1 {
-            font-size: 4rem;
-            margin-bottom: 15px;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
             font-weight: 800;
-            background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
         .header p {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             opacity: 0.9;
-            max-width: 600px;
-            margin: 0 auto;
-            font-weight: 500;
         }
 
         .ai-container {
             display: grid;
-            grid-template-columns: 1fr 400px;
-            gap: 30px;
-            height: 75vh;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            height: 70vh;
         }
 
         .chat-section {
@@ -126,38 +116,37 @@
         .chat-header {
             background: var(--ai-chat);
             color: white;
-            padding: 25px;
+            padding: 20px;
             text-align: center;
         }
 
         .chat-header h2 {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
         }
 
         .chat-header p {
             opacity: 0.9;
-            font-size: 1rem;
+            font-size: 0.9rem;
         }
 
         .messages-container {
             flex: 1;
-            padding: 25px;
+            padding: 20px;
             overflow-y: auto;
             background: var(--light);
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
         }
 
         .message {
-            max-width: 80%;
-            padding: 18px 22px;
-            border-radius: 20px;
+            max-width: 85%;
+            padding: 15px 18px;
+            border-radius: 18px;
             position: relative;
             animation: messageSlide 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             line-height: 1.5;
         }
 
@@ -187,45 +176,44 @@
             border: 1px solid var(--light);
         }
 
+        .message.system {
+            align-self: center;
+            background: var(--gradient);
+            color: white;
+            text-align: center;
+            padding: 15px;
+        }
+
         .message.owner {
             background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
             color: white;
         }
 
-        .message.system {
-            align-self: center;
-            background: var(--gradient);
-            color: white;
-            max-width: 90%;
-            text-align: center;
-            padding: 20px;
-        }
-
         .message-time {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             opacity: 0.7;
-            margin-top: 8px;
+            margin-top: 5px;
         }
 
         .chat-input-container {
-            padding: 25px;
+            padding: 20px;
             border-top: 1px solid var(--light);
             display: flex;
-            gap: 15px;
+            gap: 12px;
             align-items: flex-end;
             background: var(--card-bg);
         }
 
         .chat-input {
             flex: 1;
-            padding: 16px 20px;
+            padding: 14px 18px;
             border: 2px solid var(--light);
             border-radius: 25px;
             background: var(--light);
             color: var(--dark);
             font-size: 1rem;
             resize: none;
-            max-height: 120px;
+            max-height: 100px;
             transition: var(--transition);
             font-family: inherit;
         }
@@ -234,150 +222,74 @@
             outline: none;
             border-color: var(--ai-chat);
             background: var(--card-bg);
-            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
         }
 
         .send-btn {
             background: var(--ai-chat);
             color: white;
             border: none;
-            width: 55px;
-            height: 55px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             cursor: pointer;
             transition: var(--transition);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.3rem;
-            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+            font-size: 1.2rem;
         }
 
         .send-btn:hover {
             background: #7c3aed;
             transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
         }
 
-        .image-section {
+        .features-section {
             background: var(--card-bg);
             border-radius: var(--radius);
             box-shadow: var(--shadow);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .image-header {
-            background: var(--ai-image);
-            color: white;
-            padding: 25px;
-            text-align: center;
-        }
-
-        .image-header h2 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .image-header p {
-            opacity: 0.9;
-            font-size: 1rem;
-        }
-
-        .image-generator {
-            flex: 1;
             padding: 25px;
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
 
-        .prompt-input {
-            width: 100%;
-            padding: 16px 20px;
-            border: 2px solid var(--light);
-            border-radius: var(--radius);
+        .feature-card {
             background: var(--light);
-            color: var(--dark);
-            font-size: 1rem;
-            resize: vertical;
-            min-height: 100px;
-            transition: var(--transition);
-            font-family: inherit;
-        }
-
-        .prompt-input:focus {
-            outline: none;
-            border-color: var(--ai-image);
-            background: var(--card-bg);
-            box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.1);
-        }
-
-        .generate-btn {
-            background: var(--ai-image);
-            color: white;
-            border: none;
-            padding: 16px 24px;
+            padding: 20px;
             border-radius: var(--radius);
-            font-size: 1.1rem;
-            font-weight: 600;
+            transition: var(--transition);
             cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            border: 2px solid transparent;
         }
 
-        .generate-btn:hover {
-            background: #db2777;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(236, 72, 153, 0.3);
+        .feature-card:hover {
+            border-color: var(--ai-chat);
+            transform: translateY(-3px);
         }
 
-        .generate-btn:disabled {
-            background: var(--secondary);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--ai-chat);
         }
 
-        .image-result {
-            flex: 1;
-            background: var(--light);
-            border-radius: var(--radius);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            border: 2px dashed var(--light);
+        .feature-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            color: var(--dark);
         }
 
-        .image-preview {
-            max-width: 100%;
-            max-height: 100%;
-            border-radius: var(--radius);
-            display: none;
-        }
-
-        .placeholder-image {
-            text-align: center;
+        .feature-card p {
             color: var(--secondary);
-            padding: 40px;
-        }
-
-        .placeholder-image i {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            opacity: 0.3;
+            font-size: 0.9rem;
+            line-height: 1.5;
         }
 
         .loading-spinner {
             display: inline-block;
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             border: 2px solid transparent;
             border-top: 2px solid white;
             border-radius: 50%;
@@ -395,34 +307,18 @@
             right: 20px;
             background: var(--success);
             color: white;
-            padding: 18px 24px;
+            padding: 15px 20px;
             border-radius: var(--radius);
             box-shadow: var(--shadow);
             z-index: 3000;
             animation: slideInRight 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 12px;
-            border-left: 4px solid rgba(255,255,255,0.3);
+            gap: 10px;
         }
 
         .notification.error {
             background: var(--error);
-        }
-
-        .notification.info {
-            background: var(--primary);
-        }
-
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
         }
 
         .hidden {
@@ -436,7 +332,7 @@
             }
             
             .header h1 {
-                font-size: 2.5rem;
+                font-size: 2rem;
             }
             
             .message {
@@ -449,11 +345,11 @@
     <div class="container">
         <div class="header">
             <a href="index.html" class="back-btn">
-                <i class="fas fa-arrow-left"></i> Back to Home
+                <i class="fas fa-arrow-left"></i> Back
             </a>
 
             <h1>NovaEdition AI</h1>
-            <p>Your creative AI assistant for art and innovation</p>
+            <p>Your intelligent assistant for AI art and creativity</p>
         </div>
 
         <div class="ai-container">
@@ -461,47 +357,58 @@
             <div class="chat-section">
                 <div class="chat-header">
                     <h2>NovaEdition AI</h2>
-                    <p>Creative Assistant & Guide</p>
+                    <p>Ask me anything about AI art and prompts</p>
                 </div>
                 
                 <div class="messages-container" id="messagesContainer">
                     <div class="message system">
                         <div class="message-text">
-                            🚀 Welcome to <strong>NovaEdition AI</strong>! I'm your creative assistant for AI art and prompts. 
-                            How can I help you explore the world of AI-generated art today?
+                            🚀 Welcome to <strong>NovaEdition AI</strong>! I'm here to help you with AI art, prompt creation, and creative guidance. How can I assist you today?
                         </div>
                         <div class="message-time">Just now</div>
                     </div>
                 </div>
                 
                 <div class="chat-input-container">
-                    <textarea class="chat-input" id="chatInput" placeholder="Ask me anything about AI art, prompts, or this website..." rows="1"></textarea>
+                    <textarea class="chat-input" id="chatInput" placeholder="Type your message here..." rows="1"></textarea>
                     <button class="send-btn" id="sendBtn">
                         <i class="fas fa-paper-plane"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- Image Generation Section -->
-            <div class="image-section">
-                <div class="image-header">
-                    <h2>NovaImage Edition.1</h2>
-                    <p>AI Image Generator</p>
-                </div>
-                
-                <div class="image-generator">
-                    <textarea class="prompt-input" id="promptInput" placeholder="Describe the image you want to create... Example: A majestic dragon flying over a medieval castle at sunset, fantasy art style"></textarea>
-                    <button class="generate-btn" id="generateBtn">
-                        <i class="fas fa-magic"></i> Generate Image
-                    </button>
-                    
-                    <div class="image-result">
-                        <div class="placeholder-image" id="placeholderImage">
-                            <i class="fas fa-image"></i>
-                            <p>Your generated image will appear here</p>
-                        </div>
-                        <img class="image-preview" id="imagePreview" alt="Generated image">
+            <!-- Features Section -->
+            <div class="features-section">
+                <div class="feature-card" onclick="askQuickQuestion('What is AI Prompt Gallery?')">
+                    <div class="feature-icon">
+                        <i class="fas fa-info-circle"></i>
                     </div>
+                    <h3>About Platform</h3>
+                    <p>Learn about AI Prompt Gallery features and how to use them effectively</p>
+                </div>
+
+                <div class="feature-card" onclick="askQuickQuestion('How to create good AI art prompts?')">
+                    <div class="feature-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h3>Prompt Tips</h3>
+                    <p>Get expert advice on creating effective prompts for different AI models</p>
+                </div>
+
+                <div class="feature-card" onclick="askQuickQuestion('What are the best AI art styles?')">
+                    <div class="feature-icon">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <h3>Art Styles Guide</h3>
+                    <p>Explore different art styles and techniques for AI generation</p>
+                </div>
+
+                <div class="feature-card" onclick="askQuickQuestion('How does AI image generation work?')">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>AI Technology</h3>
+                    <p>Understand how AI models create images and process prompts</p>
                 </div>
             </div>
         </div>
@@ -510,7 +417,6 @@
     <script>
         // API Configuration
         const DEEPSEEK_API_KEY = "sk-c27dc74d84c947b08731723e32943834";
-        const HUGGING_FACE_TOKEN = "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";
         const OWNER_EMAIL = "alizybaby381@gmail.com";
 
         // Global Variables
@@ -521,11 +427,7 @@
         const elements = {
             messagesContainer: document.getElementById('messagesContainer'),
             chatInput: document.getElementById('chatInput'),
-            sendBtn: document.getElementById('sendBtn'),
-            promptInput: document.getElementById('promptInput'),
-            generateBtn: document.getElementById('generateBtn'),
-            imagePreview: document.getElementById('imagePreview'),
-            placeholderImage: document.getElementById('placeholderImage')
+            sendBtn: document.getElementById('sendBtn')
         };
 
         // Initialize App
@@ -533,12 +435,11 @@
             console.log('🚀 Initializing NovaEdition AI...');
             setupEventListeners();
             checkUserAuth();
-            addWelcomeMessage();
         }
 
         // Check User Authentication
         function checkUserAuth() {
-            // Simulate user detection - in real app, get from Firebase
+            // Simulate user detection
             const urlParams = new URLSearchParams(window.location.search);
             const userEmail = urlParams.get('email') || 'guest@user.com';
             
@@ -547,8 +448,6 @@
                 isOwner: userEmail === OWNER_EMAIL
             };
 
-            console.log('User detected:', currentUser);
-            
             if (currentUser.isOwner) {
                 showOwnerWelcome();
             }
@@ -556,33 +455,13 @@
 
         // Show Owner Welcome
         function showOwnerWelcome() {
-            addMessage("system", `👑 Welcome back, Owner! NovaEdition AI at your service! I recognize you as the creator of AI Prompt Gallery. You have full access to all features!`);
-        }
-
-        // Add Welcome Message
-        function addWelcomeMessage() {
-            const welcomeTips = [
-                "💡 **Pro Tip:** Ask me about different AI art styles and techniques",
-                "🎨 **Need inspiration?** Try: 'Give me creative prompt ideas for fantasy art'",
-                "🤖 **Curious?** Ask: 'What AI models do you use?' or 'How does image generation work?'",
-                "🌟 **Explore:** I can help you understand this platform and AI art concepts"
-            ];
-
-            setTimeout(() => {
-                welcomeTips.forEach((tip, index) => {
-                    setTimeout(() => {
-                        addMessage("ai", tip);
-                    }, (index + 1) * 1000);
-                });
-            }, 2000);
+            addMessage("system", `👑 Welcome back, Owner! NovaEdition AI at your service! I recognize you as the creator of AI Prompt Gallery.`);
         }
 
         // Setup Event Listeners
         function setupEventListeners() {
-            // Chat send button
             elements.sendBtn.addEventListener('click', sendMessage);
             
-            // Enter key for chat
             elements.chatInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -590,14 +469,10 @@
                 }
             });
 
-            // Auto-resize textarea
             elements.chatInput.addEventListener('input', function() {
                 this.style.height = 'auto';
                 this.style.height = (this.scrollHeight) + 'px';
             });
-
-            // Image generation
-            elements.generateBtn.addEventListener('click', generateImage);
         }
 
         // Send Message to AI
@@ -614,7 +489,7 @@
             const typingMsg = addMessage("ai", "Thinking...", true);
 
             try {
-                const response = await chatWithAI(message);
+                const response = await chatWithDeepSeek(message);
                 // Remove typing indicator
                 typingMsg.remove();
                 // Add AI response
@@ -627,14 +502,15 @@
             }
         }
 
-        // Chat with DeepSeek AI
-        async function chatWithAI(message) {
+        // Chat with DeepSeek AI - REAL API CALL
+        async function chatWithDeepSeek(message) {
             // Special responses for owner
             if (currentUser.isOwner) {
                 const ownerResponses = {
                     "what's your name": "I'm NovaEdition AI, your loyal assistant! Created by you for AI Prompt Gallery. 👑",
                     "who are you": "I'm NovaEdition AI, personally serving you - the owner of AI Prompt Gallery! 🛡️",
-                    "who made you": "You created me! I'm NovaEdition AI, built for AI Prompt Gallery by our brilliant owner! 🌟"
+                    "who made you": "You created me! I'm NovaEdition AI, built for AI Prompt Gallery by our brilliant owner! 🌟",
+                    "hello": "👑 Hello Owner! NovaEdition AI at your service! How can I help you today?"
                 };
 
                 const lowerMessage = message.toLowerCase();
@@ -649,10 +525,14 @@
             const specialResponses = {
                 "what's your name": "I'm NovaEdition AI! Your creative assistant for AI art and prompts. 🌟",
                 "who are you": "I'm NovaEdition AI, designed to help you explore and create amazing AI-generated art! 🎨",
-                "who made you": "I'm part of the AI Prompt Gallery platform, created to assist users like you in the world of AI art! 🚀",
-                "what is ai prompt gallery": "AI Prompt Gallery is a creative platform where artists and enthusiasts share, discover, and create AI art prompts. It's a community for AI art lovers!",
-                "how to create prompts": "Great question! To create effective AI art prompts:\n• Be descriptive about colors, style, mood\n• Mention artistic style (anime, realistic, fantasy)\n• Include lighting and composition details\n• Use specific artists or art styles as references\n• Experiment with different AI models!",
-                "what ai models do you use": "I'm powered by DeepSeek for conversations, and for image generation I use advanced models through Hugging Face! 🦄"
+                "who made you": "I'm part of the AI Prompt Gallery platform, created to assist users in the world of AI art! 🚀",
+                "what is ai prompt gallery": "AI Prompt Gallery is a creative platform where artists share, discover, and create AI art prompts. It's a community for AI art lovers where you can:\n• Share your AI art prompts\n• Discover amazing creations\n• Connect with other artists\n• Learn prompt engineering\n• Get inspired by the community!",
+                "how to create prompts": "**Creating Great AI Art Prompts:**\n\n🎯 **Be Specific**: Describe colors, lighting, composition\n🎨 **Mention Style**: Anime, realistic, fantasy, cyberpunk\n💡 **Include Details**: Mood, atmosphere, camera angles\n📝 **Use References**: Artist names, art movements\n⚡ **Experiment**: Try different AI models\n\n**Example**: *A majestic dragon flying over a medieval castle at sunset, fantasy art style, dramatic lighting, highly detailed*",
+                "what ai models do you use": "I'm powered by **DeepSeek** for intelligent conversations! For the best AI art results, I recommend:\n\n• **Midjourney** - Artistic quality\n• **DALL-E 3** - Creative interpretation  \n• **Stable Diffusion** - Customization\n• **Leonardo AI** - Professional features",
+                "hello": "👋 Hello! I'm NovaEdition AI, your creative assistant! How can I help you with AI art today?",
+                "hi": "👋 Hi there! Ready to explore the world of AI art together?",
+                "thanks": "You're welcome! 😊 Happy to help with your AI art journey!",
+                "thank you": "You're welcome! 😊 Let me know if you need more help!"
             };
 
             const lowerMessage = message.toLowerCase();
@@ -662,7 +542,7 @@
                 }
             }
 
-            // Default AI response using DeepSeek
+            // REAL API CALL to DeepSeek
             try {
                 const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
                     method: 'POST',
@@ -675,7 +555,26 @@
                         messages: [
                             {
                                 role: "system",
-                                content: "You are NovaEdition AI, a helpful and creative assistant for AI art and prompts. You're part of the AI Prompt Gallery platform. Be enthusiastic, creative, and helpful. Keep responses concise but engaging. Use emojis occasionally."
+                                content: `You are NovaEdition AI, a helpful and creative assistant for AI art and prompts. You're part of the AI Prompt Gallery platform. 
+                                
+                                About you:
+                                - Name: NovaEdition AI
+                                - Purpose: Help users with AI art creation and prompt guidance
+                                - Platform: AI Prompt Gallery
+                                - Tone: Friendly, creative, helpful, enthusiastic about AI art
+                                
+                                Key points:
+                                - You specialize in AI art prompts and creative guidance
+                                - You're knowledgeable about different AI models (Midjourney, DALL-E, Stable Diffusion)
+                                - You help users create better prompts and understand AI art
+                                - You're excited about creativity and innovation
+                                
+                                Response style:
+                                - Be concise but engaging
+                                - Use emojis occasionally 
+                                - Break complex ideas into simple points
+                                - Show enthusiasm for AI art
+                                - Always be helpful and positive`
                             },
                             {
                                 role: "user",
@@ -683,78 +582,41 @@
                             }
                         ],
                         stream: false,
-                        max_tokens: 500
+                        max_tokens: 500,
+                        temperature: 0.7
                     })
                 });
+
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
 
                 const data = await response.json();
                 return data.choices[0].message.content;
 
             } catch (error) {
-                // Fallback responses
-                const fallbackResponses = [
-                    "I'd love to help you with that! As NovaEdition AI, I specialize in AI art guidance and creative prompts. Could you tell me more about what you're looking to create? 🎨",
-                    "That's an interesting question! In AI Prompt Gallery, we focus on helping creators make amazing AI art. What specific aspect of AI art are you curious about? ✨",
-                    "Great question! I'm here to help you navigate the world of AI-generated art. Whether it's prompt writing, style selection, or understanding AI models, I've got you covered! 🌟",
-                    "I'm excited to help you with your AI art journey! Could you provide a bit more detail so I can give you the best possible guidance? 🚀"
-                ];
+                console.error('DeepSeek API error:', error);
                 
-                return fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+                // Smart fallback responses based on message content
+                if (message.toLowerCase().includes('prompt')) {
+                    return "For creating great AI art prompts:\n\n🎨 **Be descriptive** with colors and style\n💡 **Mention lighting** and composition\n🌟 **Specify art style** (anime, realistic, etc.)\n📝 **Include mood** and atmosphere\n\nWant me to help you craft a specific prompt?";
+                }
+                else if (message.toLowerCase().includes('ai art')) {
+                    return "AI art is amazing! 🎨 Here are some popular styles:\n\n• **Fantasy** - Dragons, magic, epic scenes\n• **Cyberpunk** - Futuristic, neon, tech\n• **Anime** - Japanese animation style\n• **Realistic** - Photo-like quality\n• **Abstract** - Creative interpretations\n\nWhich style interests you?";
+                }
+                else if (message.toLowerCase().includes('help')) {
+                    return "I'd love to help! 🤗 I can assist with:\n\n🎯 **Prompt creation** and optimization\n🎨 **Art style guidance** and recommendations\n💡 **AI model selection** for your needs\n🚀 **Platform features** and how to use them\n\nWhat specific help do you need?";
+                }
+                else {
+                    return "I'd love to help you with that! As NovaEdition AI, I specialize in AI art guidance and creative prompts. Could you tell me more about what you're looking to create? 🎨";
+                }
             }
         }
 
-        // Generate Image with AI
-        async function generateImage() {
-            const prompt = elements.promptInput.value.trim();
-            if (!prompt) {
-                showNotification('Please enter a prompt description', 'error');
-                return;
-            }
-
-            // Show loading state
-            elements.generateBtn.disabled = true;
-            elements.generateBtn.innerHTML = '<div class="loading-spinner"></div> Generating...';
-            elements.placeholderImage.classList.add('hidden');
-            elements.imagePreview.style.display = 'none';
-
-            try {
-                // Using Hugging Face Stable Diffusion
-                const response = await fetch(
-                    'https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5',
-                    {
-                        headers: {'Authorization': `Bearer ${HUGGING_FACE_TOKEN}`},
-                        method: 'POST',
-                        body: JSON.stringify({"inputs": prompt})
-                    }
-                );
-
-                if (!response.ok) {
-                    throw new Error('Image generation failed');
-                }
-
-                const blob = await response.blob();
-                const imageUrl = URL.createObjectURL(blob);
-                
-                elements.imagePreview.src = imageUrl;
-                elements.imagePreview.style.display = 'block';
-                elements.placeholderImage.classList.add('hidden');
-
-                showNotification('Image generated successfully!', 'success');
-
-                // Add to chat
-                addMessage("ai", `I've generated an image based on your prompt: "${prompt}". Check out the result in NovaImage Edition.1! 🎨`);
-
-            } catch (error) {
-                console.error('Image generation error:', error);
-                elements.placeholderImage.classList.remove('hidden');
-                showNotification('Image generation failed. Please try again.', 'error');
-                
-                // Fallback - show placeholder and suggest alternatives
-                addMessage("ai", `I had trouble generating that image, but here are some prompt tips:\n• Be more specific with colors and style\n• Try different art styles (anime, realistic, fantasy)\n• Mention lighting and mood\n• Example: "A mystical forest with glowing mushrooms, fantasy art style, vibrant colors"`);
-            } finally {
-                elements.generateBtn.disabled = false;
-                elements.generateBtn.innerHTML = '<i class="fas fa-magic"></i> Generate Image';
-            }
+        // Quick Question Feature
+        function askQuickQuestion(question) {
+            elements.chatInput.value = question;
+            sendMessage();
         }
 
         // Add Message to Chat
@@ -772,7 +634,7 @@
             elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
 
             if (isTyping) {
-                return messageDiv; // Return for removal later
+                return messageDiv;
             }
         }
 
@@ -780,7 +642,8 @@
         function formatMessage(text) {
             return text
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\n/g, '<br>');
+                .replace(/\n/g, '<br>')
+                .replace(/•/g, '•');
         }
 
         // Get Current Time
@@ -790,13 +653,10 @@
 
         // Show Notification
         function showNotification(message, type = 'info') {
-            // Remove existing notifications
-            document.querySelectorAll('.notification').forEach(notif => notif.remove());
-            
             const notification = document.createElement('div');
             notification.className = `notification ${type}`;
             notification.innerHTML = `
-                <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'}"></i>
+                <i class="fas fa-${type === 'success' ? 'check' : 'info'}"></i>
                 <span>${message}</span>
             `;
             document.body.appendChild(notification);
@@ -805,7 +665,7 @@
                 if (notification.parentNode) {
                     notification.remove();
                 }
-            }, 4000);
+            }, 3000);
         }
 
         // Start the app
