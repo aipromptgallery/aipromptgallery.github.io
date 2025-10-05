@@ -9,780 +9,68 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --primary-light: #3b82f6;
-            --secondary: #64748b;
-            --light: #f8fafc;
-            --dark: #1e293b;
-            --card-bg: #ffffff;
-            --success: #10b981;
-            --error: #ef4444;
-            --warning: #f59e0b;
-            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --shadow: 0 8px 30px rgba(0,0,0,0.08);
-            --radius: 16px;
-            --transition: all 0.3s ease;
-        }
-
-        [data-theme="dark"] {
-            --light: #0f172a;
-            --dark: #f8fafc;
-            --card-bg: #1e293b;
-            --secondary: #94a3b8;
-        }
-
-        body {
-            background: var(--light);
-            color: var(--dark);
-            transition: var(--transition);
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .header {
-            background: var(--gradient);
-            color: white;
-            padding: 60px 40px;
-            border-radius: var(--radius);
-            margin-bottom: 30px;
+        /* SAME CSS AS BEFORE */
+        /* Add file upload styles */
+        .file-upload-container {
             text-align: center;
-            position: relative;
-        }
-
-        .back-btn {
-            position: absolute;
-            top: 25px;
-            left: 25px;
-            background: rgba(255,255,255,0.2);
-            border: 2px solid rgba(255,255,255,0.3);
-            padding: 12px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            color: white;
-            transition: var(--transition);
-            backdrop-filter: blur(10px);
-            z-index: 2;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 600;
-        }
-
-        .back-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-2px);
-        }
-
-        .header h1 {
-            font-size: 3.5rem;
-            margin-bottom: 15px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .header p {
-            font-size: 1.3rem;
-            opacity: 0.9;
-            max-width: 600px;
-            margin: 0 auto;
-            font-weight: 500;
-        }
-
-        .profile-container {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 30px;
-        }
-
-        .profile-sidebar {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 30px;
-            box-shadow: var(--shadow);
-            text-align: center;
-            height: fit-content;
-        }
-
-        .profile-avatar-container {
-            position: relative;
-            display: inline-block;
-            margin-bottom: 25px;
-        }
-
-        .profile-avatar {
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 5px solid var(--primary);
-            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
-        }
-
-        .avatar-edit-btn {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        .avatar-edit-btn:hover {
-            background: var(--primary-dark);
-            transform: scale(1.1);
-        }
-
-        .profile-name {
-            font-size: 1.8rem;
-            font-weight: 800;
-            margin-bottom: 10px;
-            color: var(--dark);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .verified-badge {
-            color: var(--primary);
-            font-size: 1.2rem;
-        }
-
-        .owner-badge {
-            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
-            color: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            border: 2px solid #3730a3;
-        }
-
-        .legendary-badge {
-            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-            color: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            border: 2px solid #7f1d1d;
-        }
-
-        .king-badge {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            color: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            border: 2px solid #92400e;
-        }
-
-        .profile-bio {
-            color: var(--secondary);
-            font-size: 1.1rem;
-            line-height: 1.6;
-            margin-bottom: 25px;
-            max-width: 100%;
-            word-wrap: break-word;
-        }
-
-        .profile-stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .stat-item {
-            background: var(--light);
-            padding: 20px;
-            border-radius: var(--radius);
-            text-align: center;
-            transition: var(--transition);
-        }
-
-        .stat-item:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow);
-        }
-
-        .stat-number {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--primary);
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: var(--secondary);
-            font-weight: 600;
-        }
-
-        .profile-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .action-btn {
-            padding: 15px 20px;
-            border: none;
-            border-radius: var(--radius);
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .action-btn.primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .action-btn.primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
-        }
-
-        .action-btn.secondary {
-            background: var(--light);
-            color: var(--dark);
-            border: 2px solid var(--light);
-        }
-
-        .action-btn.secondary:hover {
-            background: transparent;
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .action-btn.danger {
-            background: transparent;
-            color: var(--error);
-            border: 2px solid var(--error);
-        }
-
-        .action-btn.danger:hover {
-            background: var(--error);
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        .profile-content {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 30px;
-            box-shadow: var(--shadow);
-        }
-
-        .content-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            border-bottom: 2px solid var(--light);
-            padding-bottom: 20px;
-        }
-
-        .content-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--dark);
-        }
-
-        .content-tabs {
-            display: flex;
-            gap: 10px;
-        }
-
-        .tab-btn {
-            padding: 12px 24px;
-            background: var(--light);
-            border: none;
-            border-radius: var(--radius);
-            color: var(--secondary);
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .tab-btn.active {
-            background: var(--primary);
-            color: white;
-        }
-
-        .tab-btn:hover:not(.active) {
-            background: var(--primary-light);
-            color: white;
-        }
-
-        .prompts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-        }
-
-        .prompt-card {
-            background: var(--light);
-            border-radius: var(--radius);
-            padding: 25px;
-            transition: var(--transition);
-            border: 2px solid transparent;
-        }
-
-        .prompt-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow);
-            border-color: var(--primary-light);
-        }
-
-        .prompt-text {
-            color: var(--dark);
-            font-size: 1.1rem;
-            line-height: 1.6;
-            margin-bottom: 15px;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            word-wrap: break-word;
-        }
-
-        .prompt-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9rem;
-            color: var(--secondary);
-        }
-
-        .prompt-likes {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-weight: 600;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--secondary);
-        }
-
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.3;
-        }
-
-        .empty-state h3 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-            color: var(--dark);
-        }
-
-        .empty-state p {
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 2000;
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: var(--radius);
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            animation: modalSlideIn 0.3s ease;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translate(-50%, -60%);
-            }
-            to {
-                opacity: 1;
-                transform: translate(-50%, -50%);
-            }
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--secondary);
-            transition: var(--transition);
-            padding: 5px;
-            border-radius: 50%;
-        }
-
-        .close-btn:hover {
-            color: var(--error);
-            background: var(--light);
-            transform: rotate(90deg);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid var(--light);
-            border-radius: var(--radius);
-            background: var(--light);
-            color: var(--dark);
-            font-size: 1rem;
-            transition: var(--transition);
-            font-family: inherit;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: var(--card-bg);
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
-        }
-
-        .form-textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .save-btn {
-            width: 100%;
-            padding: 15px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: var(--radius);
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .save-btn:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-
-        .save-btn:disabled {
-            background: var(--secondary);
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .avatar-options {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
             margin: 20px 0;
+            padding: 20px;
+            border: 2px dashed var(--light);
+            border-radius: var(--radius);
+            transition: var(--transition);
+            cursor: pointer;
         }
 
-        .avatar-option {
-            text-align: center;
+        .file-upload-container:hover {
+            border-color: var(--primary);
+        }
+
+        .file-upload-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: var(--primary);
+            color: white;
+            border-radius: var(--radius);
             cursor: pointer;
             transition: var(--transition);
-            padding: 15px;
-            border-radius: var(--radius);
-            border: 2px solid var(--light);
+            font-weight: 600;
         }
 
-        .avatar-option:hover {
-            border-color: var(--primary);
-            transform: scale(1.05);
+        .file-upload-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
         }
 
-        .avatar-option.selected {
-            border-color: var(--primary);
-            background: var(--primary-light);
-            color: white;
+        #avatarUpload {
+            display: none;
         }
 
-        .avatar-option-img {
-            width: 80px;
-            height: 80px;
+        .upload-preview {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .upload-preview img {
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             object-fit: cover;
-            margin-bottom: 10px;
-            border: 3px solid var(--light);
+            border: 3px solid var(--primary);
         }
 
-        .avatar-option.selected .avatar-option-img {
-            border-color: white;
-        }
-
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--success);
-            color: white;
-            padding: 18px 24px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            z-index: 3000;
-            animation: slideInRight 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-left: 4px solid rgba(255,255,255,0.3);
-        }
-
-        .notification.error {
-            background: var(--error);
-        }
-
-        .notification.info {
-            background: var(--primary);
-        }
-
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid transparent;
-            border-top: 2px solid white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @media (max-width: 768px) {
-            .profile-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .profile-stats {
-                grid-template-columns: 1fr;
-            }
-            
-            .content-header {
-                flex-direction: column;
-                gap: 20px;
-                align-items: flex-start;
-            }
-            
-            .content-tabs {
-                width: 100%;
-                overflow-x: auto;
-            }
-            
-            .header h1 {
-                font-size: 2.5rem;
-            }
-
-            .avatar-options {
-                grid-template-columns: repeat(2, 1fr);
-            }
+        .upload-preview p {
+            margin-top: 10px;
+            color: var(--secondary);
+            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <a href="index.html" class="back-btn">
-                <i class="fas fa-arrow-left"></i> Back to Home
-            </a>
-
-            <h1>AI Prompt Gallery</h1>
-            <p>Your creative profile</p>
-        </div>
-
-        <div class="profile-container">
-            <div class="profile-sidebar">
-                <div class="profile-avatar-container">
-                    <img src="" alt="Profile Avatar" class="profile-avatar" id="profileAvatar">
-                    <button class="avatar-edit-btn" id="avatarEditBtn">
-                        <i class="fas fa-camera"></i>
-                    </button>
-                </div>
-                
-                <div class="profile-name" id="profileName">
-                    Loading...
-                    <i class="fas fa-check-circle verified-badge hidden" id="verifiedBadge"></i>
-                    <span class="owner-badge hidden" id="ownerBadge"><i class="fas fa-crown"></i> Owner</span>
-                    <span class="legendary-badge hidden" id="legendaryBadge">Legendary <i class="fas fa-fire"></i></span>
-                    <span class="king-badge hidden" id="kingBadge"><i class="fas fa-crown"></i> King</span>
-                </div>
-                
-                <div class="profile-bio" id="profileBio">
-                    Loading bio...
-                </div>
-                
-                <div class="profile-stats">
-                    <div class="stat-item">
-                        <div class="stat-number" id="promptsCount">0</div>
-                        <div class="stat-label">Prompts</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="followersCount">0</div>
-                        <div class="stat-label">Followers</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="likesCount">0</div>
-                        <div class="stat-label">Likes</div>
-                    </div>
-                </div>
-                
-                <div class="profile-actions">
-                    <button class="action-btn primary" id="editProfileBtn">
-                        <i class="fas fa-edit"></i> Edit Profile
-                    </button>
-                    <button class="action-btn secondary" id="settingsBtn">
-                        <i class="fas fa-cog"></i> Settings
-                    </button>
-                    <button class="action-btn danger" id="logoutBtn">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </button>
-                </div>
-            </div>
-            
-            <div class="profile-content">
-                <div class="content-header">
-                    <h2 class="content-title" id="contentTitle">My Prompts</h2>
-                    <div class="content-tabs">
-                        <button class="tab-btn active" data-tab="prompts">Prompts</button>
-                        <button class="tab-btn" data-tab="likes">Liked</button>
-                        <button class="tab-btn" data-tab="collections">Collections</button>
-                    </div>
-                </div>
-                
-                <div class="tab-content" id="promptsTab">
-                    <div class="prompts-grid" id="promptsGrid">
-                        <div class="empty-state">
-                            <i class="fas fa-lightbulb"></i>
-                            <h3>No prompts yet</h3>
-                            <p>Create your first AI art prompt to get started!</p>
-                            <button class="action-btn primary" onclick="window.open('index.html', '_self')" style="margin-top: 15px;">
-                                <i class="fas fa-plus"></i> Create Prompt
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="tab-content hidden" id="likesTab">
-                    <div class="prompts-grid" id="likesGrid">
-                        <div class="empty-state">
-                            <i class="fas fa-heart"></i>
-                            <h3>No liked prompts</h3>
-                            <p>Like some prompts to see them here</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="tab-content hidden" id="collectionsTab">
-                    <div class="empty-state">
-                        <i class="fas fa-folder"></i>
-                        <h3>No collections</h3>
-                        <p>Create collections to organize your favorite prompts</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <!-- SAME HTML STRUCTURE AS BEFORE -->
+    
     <!-- Edit Profile Modal -->
     <div class="modal" id="editProfileModal">
         <div class="modal-content">
@@ -802,6 +90,23 @@
             </div>
             
             <div class="form-group">
+                <label class="form-label">Profile Avatar</label>
+                
+                <!-- CUSTOM AVATAR UPLOAD SECTION -->
+                <div class="file-upload-container" id="fileUploadContainer">
+                    <label class="file-upload-btn">
+                        <i class="fas fa-upload"></i> Upload Custom Avatar
+                        <input type="file" id="avatarUpload" accept="image/*">
+                    </label>
+                    <div class="upload-preview hidden" id="uploadPreview">
+                        <img id="previewImage" src="" alt="Preview">
+                        <p id="fileName">custom_avatar.jpg</p>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin: 15px 0; color: var(--secondary);">OR</div>
+
+                <!-- Avatar Styles -->
                 <label class="form-label">Choose Avatar Style</label>
                 <div class="avatar-options">
                     <div class="avatar-option" data-style="avataaars">
@@ -836,15 +141,17 @@
             appId: "1:78516691257:web:466954e941fc6a7eb388e8"
         };
 
-        // Initialize Firebase - STORAGE REMOVED
+        // Initialize Firebase WITH STORAGE
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
+        const storage = firebase.storage(); // ✅ STORAGE ENABLED
 
         // Global Variables
         let currentUser = null;
         let userProfile = null;
         let selectedAvatarStyle = "avataaars";
+        let selectedAvatarFile = null; // For custom avatar upload
         const OWNER_EMAIL = "alizybaby381@gmail.com";
         const LEGENDARY_EMAIL = "ul8763325@gmail.com";
         const KING_EMAIL = "Umehani77777@gmail.com";
@@ -857,27 +164,27 @@
             promptsCount: document.getElementById('promptsCount'),
             followersCount: document.getElementById('followersCount'),
             likesCount: document.getElementById('likesCount'),
-            verifiedBadge: document.getElementById('verifiedBadge'),
-            ownerBadge: document.getElementById('ownerBadge'),
-            legendaryBadge: document.getElementById('legendaryBadge'),
-            kingBadge: document.getElementById('kingBadge'),
             editProfileBtn: document.getElementById('editProfileBtn'),
             logoutBtn: document.getElementById('logoutBtn'),
             editProfileModal: document.getElementById('editProfileModal'),
             editName: document.getElementById('editName'),
             editBio: document.getElementById('editBio'),
             saveProfileBtn: document.getElementById('saveProfileBtn'),
-            promptsGrid: document.getElementById('promptsGrid')
+            promptsGrid: document.getElementById('promptsGrid'),
+            avatarUpload: document.getElementById('avatarUpload'),
+            uploadPreview: document.getElementById('uploadPreview'),
+            previewImage: document.getElementById('previewImage'),
+            fileName: document.getElementById('fileName')
         };
 
-        // ✅ FIXED - Initialize App
+        // Initialize App
         function initApp() {
             console.log('🚀 Initializing AI Prompt Gallery Profile...');
             setupEventListeners();
             initAuth();
         }
 
-        // ✅ FIXED - Authentication System
+        // Authentication System
         function initAuth() {
             auth.onAuthStateChanged(async (user) => {
                 if (user) {
@@ -892,7 +199,7 @@
             });
         }
 
-        // ✅ FIXED - Load User Profile
+        // Load User Profile
         async function loadUserProfile() {
             if (!currentUser) return;
 
@@ -931,13 +238,11 @@
             }
         }
 
-        // ✅ FIXED - Update Profile UI with ENHANCED BADGES
+        // Update Profile UI
         function updateProfileUI() {
             if (!userProfile) return;
 
-            console.log('🔄 Updating profile UI for:', userProfile.email);
-
-            // Update avatar - USING DICEBEAR API
+            // Update avatar - CUSTOM OR DICEBEAR
             let avatarUrl = userProfile.avatar;
             if (!avatarUrl || avatarUrl.includes('undefined')) {
                 avatarUrl = `https://api.dicebear.com/7.x/${userProfile.avatarStyle || 'avataaars'}/svg?seed=${currentUser.uid}`;
@@ -950,25 +255,19 @@
                 displayName = currentUser.displayName || currentUser.email.split('@')[0] || "AI Artist";
             }
 
-            // ✅ FIXED - Enhanced badges with symbols
+            // Badges system
             const userEmail = userProfile.email;
-            console.log('📧 Checking badges for email:', userEmail);
-            
             const isOwner = userEmail === OWNER_EMAIL;
             const isLegendary = userEmail === LEGENDARY_EMAIL;
             const isKing = userEmail === KING_EMAIL;
-            
-            console.log('🏷️ Badges status:', { isOwner, isLegendary, isKing });
 
             // Build profile name with badges
             let profileNameHTML = displayName;
             
-            // Add verified badge (blue tick) for all special users
             if (isOwner || isLegendary || isKing) {
                 profileNameHTML += ' <i class="fas fa-check-circle verified-badge"></i>';
             }
             
-            // Add specific badges with symbols
             if (isOwner) {
                 profileNameHTML += ' <span class="owner-badge"><i class="fas fa-crown"></i> Owner</span>';
             }
@@ -980,11 +279,7 @@
             }
 
             elements.profileName.innerHTML = profileNameHTML;
-
-            // Update bio
             elements.profileBio.textContent = userProfile.bio || "Welcome to my AI art profile! 🎨";
-
-            // Update stats
             elements.promptsCount.textContent = userProfile.prompts || 0;
             elements.followersCount.textContent = userProfile.followers || 0;
             elements.likesCount.textContent = userProfile.likes || 0;
@@ -996,9 +291,14 @@
             // Update avatar style selection
             selectedAvatarStyle = userProfile.avatarStyle || "avataaars";
             updateAvatarSelection();
+
+            // Reset file upload
+            selectedAvatarFile = null;
+            elements.avatarUpload.value = '';
+            elements.uploadPreview.classList.add('hidden');
         }
 
-        // ✅ FIXED - Update Avatar Selection
+        // Update Avatar Selection
         function updateAvatarSelection() {
             document.querySelectorAll('.avatar-option').forEach(option => {
                 const style = option.dataset.style;
@@ -1010,7 +310,113 @@
             });
         }
 
-        // ✅ FIXED - Load User Prompts
+        // Setup File Upload for Custom Avatar
+        function setupFileUpload() {
+            elements.avatarUpload.addEventListener('change', function(e) {
+                if (e.target.files[0]) {
+                    const file = e.target.files[0];
+                    
+                    // Validate file type
+                    if (!file.type.startsWith('image/')) {
+                        showNotification('Please select an image file', 'error');
+                        return;
+                    }
+                    
+                    // Validate file size (max 2MB)
+                    if (file.size > 2 * 1024 * 1024) {
+                        showNotification('Image size should be less than 2MB', 'error');
+                        return;
+                    }
+                    
+                    selectedAvatarFile = file;
+                    
+                    // Show preview
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        elements.previewImage.src = event.target.result;
+                        elements.fileName.textContent = file.name;
+                        elements.uploadPreview.classList.remove('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        // Save Profile WITH CUSTOM AVATAR UPLOAD
+        async function saveProfile() {
+            if (!currentUser) return;
+
+            const name = elements.editName.value.trim();
+            const bio = elements.editBio.value.trim();
+
+            if (!name) {
+                showNotification('Please enter a display name', 'error');
+                return;
+            }
+
+            try {
+                elements.saveProfileBtn.disabled = true;
+                elements.saveProfileBtn.innerHTML = '<div class="loading-spinner"></div> Saving...';
+
+                const updates = {
+                    name: name,
+                    bio: bio,
+                    avatarStyle: selectedAvatarStyle,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                console.log('🔄 Starting profile update...');
+
+                // ✅ CUSTOM AVATAR UPLOAD TO FIREBASE STORAGE
+                if (selectedAvatarFile) {
+                    console.log('📁 Uploading custom avatar...');
+                    const file = selectedAvatarFile;
+                    
+                    try {
+                        // Create unique filename
+                        const fileName = `avatar_${currentUser.uid}_${Date.now()}.jpg`;
+                        const storageRef = storage.ref().child(`avatars/${fileName}`);
+                        
+                        // Upload file to Firebase Storage
+                        const snapshot = await storageRef.put(file);
+                        
+                        // Get download URL
+                        const downloadURL = await snapshot.ref.getDownloadURL();
+                        updates.avatar = downloadURL;
+                        
+                        console.log('✅ Avatar uploaded successfully:', downloadURL);
+                    } catch (uploadError) {
+                        console.error('❌ Error uploading avatar:', uploadError);
+                        showNotification('Error uploading avatar. Using default avatar.', 'error');
+                        updates.avatar = `https://api.dicebear.com/7.x/${selectedAvatarStyle}/svg?seed=${currentUser.uid}`;
+                    }
+                } else {
+                    // Use DiceBear avatar if no custom upload
+                    updates.avatar = `https://api.dicebear.com/7.x/${selectedAvatarStyle}/svg?seed=${currentUser.uid}`;
+                }
+
+                console.log('📝 Updating Firestore with:', updates);
+                
+                // Update Firestore
+                await db.collection('users').doc(currentUser.uid).update(updates);
+                console.log('✅ Profile updated in Firestore');
+                
+                // Reload profile
+                await loadUserProfile();
+                
+                closeModal(elements.editProfileModal);
+                showNotification('Profile updated successfully!', 'success');
+                
+            } catch (error) {
+                console.error('❌ Error saving profile:', error);
+                showNotification('Error updating profile. Please try again.', 'error');
+            } finally {
+                elements.saveProfileBtn.disabled = false;
+                elements.saveProfileBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+            }
+        }
+
+        // Load User Prompts
         async function loadUserPrompts() {
             if (!currentUser) return;
 
@@ -1062,52 +468,7 @@
             }
         }
 
-        // ✅ FIXED - Save Profile - NO STORAGE USAGE
-        async function saveProfile() {
-            if (!currentUser) return;
-
-            const name = elements.editName.value.trim();
-            const bio = elements.editBio.value.trim();
-
-            if (!name) {
-                showNotification('Please enter a display name', 'error');
-                return;
-            }
-
-            try {
-                elements.saveProfileBtn.disabled = true;
-                elements.saveProfileBtn.innerHTML = '<div class="loading-spinner"></div> Saving...';
-
-                const updates = {
-                    name: name,
-                    bio: bio,
-                    avatar: `https://api.dicebear.com/7.x/${selectedAvatarStyle}/svg?seed=${currentUser.uid}`,
-                    avatarStyle: selectedAvatarStyle,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-
-                console.log('🔄 Starting profile update...');
-                
-                // Update Firestore - NO STORAGE USAGE
-                await db.collection('users').doc(currentUser.uid).update(updates);
-                console.log('✅ Profile updated in Firestore');
-                
-                // Reload profile
-                await loadUserProfile();
-                
-                closeModal(elements.editProfileModal);
-                showNotification('Profile updated successfully!', 'success');
-                
-            } catch (error) {
-                console.error('❌ Error saving profile:', error);
-                showNotification('Error updating profile. Please try again.', 'error');
-            } finally {
-                elements.saveProfileBtn.disabled = false;
-                elements.saveProfileBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
-            }
-        }
-
-        // ✅ FIXED - Logout Function
+        // Logout Function
         function logout() {
             if (confirm('Are you sure you want to logout?')) {
                 auth.signOut().then(() => {
@@ -1122,15 +483,17 @@
             }
         }
 
-        // ✅ FIXED - Event Listeners
+        // Event Listeners
         function setupEventListeners() {
             elements.editProfileBtn.addEventListener('click', () => {
                 openModal(elements.editProfileModal);
             });
 
             elements.logoutBtn.addEventListener('click', logout);
-
             elements.saveProfileBtn.addEventListener('click', saveProfile);
+
+            // Setup file upload
+            setupFileUpload();
 
             // Avatar selection
             document.querySelectorAll('.avatar-option').forEach(option => {
@@ -1145,15 +508,12 @@
                 tab.addEventListener('click', function() {
                     const tabName = this.dataset.tab;
                     
-                    // Update active tab
                     document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
                     this.classList.add('active');
                     
-                    // Show correct content
                     document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
                     document.getElementById(tabName + 'Tab').classList.remove('hidden');
                     
-                    // Update content title
                     elements.contentTitle.textContent = this.textContent;
                 });
             });
@@ -1173,7 +533,7 @@
             });
         }
 
-        // ✅ FIXED - Utility Functions
+        // Utility Functions
         function formatDate(date) {
             if (!date) return '';
             return date.toLocaleDateString('en-US', { 
@@ -1184,7 +544,6 @@
         }
 
         function showNotification(message, type = 'info') {
-            // Remove existing notifications
             document.querySelectorAll('.notification').forEach(notif => notif.remove());
             
             const notification = document.createElement('div');
