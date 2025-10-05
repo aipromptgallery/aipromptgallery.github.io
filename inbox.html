@@ -883,7 +883,7 @@
                     currentUser = null;
                     conversations = [];
                     updateConversationsList();
-                    window.open('login.html', '_self');
+                    window.location.href = 'login.html';
                 }
             });
         }
@@ -970,12 +970,13 @@
 
             } catch (error) {
                 console.error('❌ Error loading conversations:', error);
-                showNotification('Failed to load conversations', 'error');
+                showNotification('Failed to load conversations. Please check Firestore rules.', 'error');
                 
                 elements.conversationsList.innerHTML = `
                     <div style="text-align: center; padding: 40px; color: var(--secondary);">
                         <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 15px;"></i>
                         <p>Failed to load conversations</p>
+                        <small>Check browser console for details</small>
                         <button onclick="loadConversations()" style="margin-top: 15px; padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer;">
                             <i class="fas fa-redo"></i> Try Again
                         </button>
@@ -1239,6 +1240,7 @@
                     }
                 }, error => {
                     console.error('Error in message listener:', error);
+                    showNotification('Real-time updates not working', 'error');
                 });
         }
 
@@ -1346,7 +1348,7 @@
                 
             } catch (error) {
                 console.error('❌ Error sending message:', error);
-                showNotification('Error sending message', 'error');
+                showNotification('Error sending message. Check Firestore permissions.', 'error');
             }
         }
 
@@ -1488,7 +1490,7 @@
                 
             } catch (error) {
                 console.error('❌ Error starting new conversation:', error);
-                showNotification('Error starting conversation', 'error');
+                showNotification('Error starting conversation. Check Firestore permissions.', 'error');
             }
         }
 
