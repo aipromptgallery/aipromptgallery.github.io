@@ -31,7 +31,8 @@
             --warning: #f59e0b;
             --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             --shadow: 0 8px 30px rgba(0,0,0,0.08);
-            --radius: 16px;
+            --radius: 20px;
+            --radius-sm: 12px;
             --transition: all 0.3s ease;
         }
 
@@ -40,6 +41,7 @@
             --dark: #f8fafc;
             --card-bg: #1e293b;
             --secondary: #94a3b8;
+            --shadow: 0 8px 30px rgba(0,0,0,0.3);
         }
 
         body {
@@ -64,6 +66,7 @@
             padding: 40px;
             box-shadow: var(--shadow);
             text-align: center;
+            position: relative;
         }
 
         .logo {
@@ -101,7 +104,7 @@
             width: 100%;
             padding: 15px 20px;
             border: 2px solid var(--light);
-            border-radius: var(--radius);
+            border-radius: var(--radius-sm);
             background: var(--light);
             color: var(--dark);
             font-size: 1rem;
@@ -185,7 +188,7 @@
             background: var(--primary);
             color: white;
             border: none;
-            border-radius: var(--radius);
+            border-radius: var(--radius-sm);
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
@@ -239,7 +242,7 @@
             flex: 1;
             padding: 12px;
             border: 2px solid var(--light);
-            border-radius: var(--radius);
+            border-radius: var(--radius-sm);
             background: var(--card-bg);
             color: var(--dark);
             font-size: 1rem;
@@ -294,57 +297,6 @@
             text-decoration: underline;
         }
 
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--success);
-            color: white;
-            padding: 18px 24px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            z-index: 3000;
-            animation: slideInRight 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-left: 4px solid rgba(255,255,255,0.3);
-        }
-
-        .notification.error {
-            background: var(--error);
-        }
-
-        .notification.info {
-            background: var(--primary);
-        }
-
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid transparent;
-            border-top: 2px solid white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
         .back-home {
             position: absolute;
             top: 25px;
@@ -368,6 +320,89 @@
             transform: translateY(-2px);
         }
 
+        /* Tabs */
+        .auth-tabs {
+            display: flex;
+            background: var(--light);
+            border-radius: var(--radius-sm);
+            padding: 6px;
+            margin-bottom: 30px;
+            gap: 6px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            color: var(--secondary);
+            text-align: center;
+        }
+
+        .auth-tab.active {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            background: var(--success);
+            color: white;
+            padding: 18px 24px;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow);
+            z-index: 3000;
+            animation: slideInRight 0.4s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .notification.error {
+            background: var(--error);
+        }
+
+        .notification.info {
+            background: var(--primary);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
             .login-card {
                 padding: 30px 25px;
@@ -402,37 +437,50 @@
             .logo h1 {
                 font-size: 1.8rem;
             }
+            
+            .remember-forgot {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
 <body>
-    <a href="index.html" class="back-home">
-        <i class="fas fa-arrow-left"></i> Back to Home
-    </a>
-
     <div class="login-container">
         <div class="login-card">
+            <a href="index.html" class="back-home">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+
             <div class="logo">
                 <h1>AI Prompt Gallery</h1>
-                <p>Welcome back to your creative space</p>
+                <p>Join our creative community</p>
             </div>
 
+            <!-- Auth Tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="loginTab">Login</button>
+                <button class="auth-tab" id="signupTab">Sign Up</button>
+            </div>
+
+            <!-- Login Form -->
             <form id="loginForm">
                 <div class="form-group">
-                    <label class="form-label" for="email">Email Address</label>
-                    <input type="email" class="form-input" id="email" placeholder="Enter your email" required>
-                    <div class="error-message" id="emailError">Please enter a valid email address</div>
+                    <label class="form-label" for="loginEmail">Email Address</label>
+                    <input type="email" class="form-input" id="loginEmail" placeholder="Enter your email" required>
+                    <div class="error-message" id="loginEmailError">Please enter a valid email address</div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="password">Password</label>
+                    <label class="form-label" for="loginPassword">Password</label>
                     <div class="password-input">
-                        <input type="password" class="form-input" id="password" placeholder="Enter your password" required>
-                        <button type="button" class="toggle-password" id="togglePassword">
+                        <input type="password" class="form-input" id="loginPassword" placeholder="Enter your password" required>
+                        <button type="button" class="toggle-password" id="toggleLoginPassword">
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
-                    <div class="error-message" id="passwordError">Password must be at least 6 characters</div>
+                    <div class="error-message" id="loginPasswordError">Password must be at least 6 characters</div>
                 </div>
 
                 <div class="remember-forgot">
@@ -440,11 +488,52 @@
                         <input type="checkbox" id="rememberMe">
                         Remember me
                     </label>
-                    <a href="forgot-password.html" class="forgot-password">Forgot Password?</a>
+                    <a href="#" class="forgot-password">Forgot Password?</a>
                 </div>
 
                 <button type="submit" class="login-btn" id="loginBtn">
                     <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+            </form>
+
+            <!-- Signup Form (Hidden by default) -->
+            <form id="signupForm" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label" for="signupName">Full Name</label>
+                    <input type="text" class="form-input" id="signupName" placeholder="Enter your full name" required>
+                    <div class="error-message" id="signupNameError">Please enter your name</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="signupEmail">Email Address</label>
+                    <input type="email" class="form-input" id="signupEmail" placeholder="Enter your email" required>
+                    <div class="error-message" id="signupEmailError">Please enter a valid email address</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="signupPassword">Password</label>
+                    <div class="password-input">
+                        <input type="password" class="form-input" id="signupPassword" placeholder="Create a password" required>
+                        <button type="button" class="toggle-password" id="toggleSignupPassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="error-message" id="signupPasswordError">Password must be at least 6 characters</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="confirmPassword">Confirm Password</label>
+                    <div class="password-input">
+                        <input type="password" class="form-input" id="confirmPassword" placeholder="Confirm your password" required>
+                        <button type="button" class="toggle-password" id="toggleConfirmPassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="error-message" id="confirmPasswordError">Passwords do not match</div>
+                </div>
+
+                <button type="submit" class="login-btn" id="signupBtn">
+                    <i class="fas fa-user-plus"></i> Create Account
                 </button>
             </form>
 
@@ -461,8 +550,11 @@
                 </button>
             </div>
 
-            <div class="signup-link">
-                Don't have an account? <a href="signup.html">Sign up now</a>
+            <div class="signup-link" id="signupLink">
+                Don't have an account? <a href="#" id="switchToSignup">Sign up now</a>
+            </div>
+            <div class="signup-link" id="loginLink" style="display: none;">
+                Already have an account? <a href="#" id="switchToLogin">Sign in</a>
             </div>
         </div>
     </div>
@@ -485,27 +577,63 @@
 
         // DOM Elements
         const elements = {
+            // Forms
             loginForm: document.getElementById('loginForm'),
-            email: document.getElementById('email'),
-            password: document.getElementById('password'),
-            togglePassword: document.getElementById('togglePassword'),
+            signupForm: document.getElementById('signupForm'),
+            
+            // Login inputs
+            loginEmail: document.getElementById('loginEmail'),
+            loginPassword: document.getElementById('loginPassword'),
+            toggleLoginPassword: document.getElementById('toggleLoginPassword'),
             rememberMe: document.getElementById('rememberMe'),
             loginBtn: document.getElementById('loginBtn'),
+            
+            // Signup inputs
+            signupName: document.getElementById('signupName'),
+            signupEmail: document.getElementById('signupEmail'),
+            signupPassword: document.getElementById('signupPassword'),
+            confirmPassword: document.getElementById('confirmPassword'),
+            toggleSignupPassword: document.getElementById('toggleSignupPassword'),
+            toggleConfirmPassword: document.getElementById('toggleConfirmPassword'),
+            signupBtn: document.getElementById('signupBtn'),
+            
+            // Social login
             googleLogin: document.getElementById('googleLogin'),
             githubLogin: document.getElementById('githubLogin'),
-            emailError: document.getElementById('emailError'),
-            passwordError: document.getElementById('passwordError')
+            
+            // Tabs and switches
+            loginTab: document.getElementById('loginTab'),
+            signupTab: document.getElementById('signupTab'),
+            switchToSignup: document.getElementById('switchToSignup'),
+            switchToLogin: document.getElementById('switchToLogin'),
+            signupLink: document.getElementById('signupLink'),
+            loginLink: document.getElementById('loginLink'),
+            
+            // Error messages
+            loginEmailError: document.getElementById('loginEmailError'),
+            loginPasswordError: document.getElementById('loginPasswordError'),
+            signupNameError: document.getElementById('signupNameError'),
+            signupEmailError: document.getElementById('signupEmailError'),
+            signupPasswordError: document.getElementById('signupPasswordError'),
+            confirmPasswordError: document.getElementById('confirmPasswordError')
         };
 
-        // ✅ FIXED - Initialize App
+        // Initialize App
         function initApp() {
-            console.log('🚀 Initializing AI Prompt Gallery Login...');
+            console.log('🚀 Initializing Login Page...');
             setupEventListeners();
+            initTheme();
             checkAuthState();
             loadRememberedEmail();
         }
 
-        // ✅ FIXED - Check Authentication State
+        // Theme Management
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+        }
+
+        // Check Authentication State
         function checkAuthState() {
             auth.onAuthStateChanged((user) => {
                 if (user) {
@@ -516,40 +644,79 @@
             });
         }
 
-        // ✅ FIXED - Setup Event Listeners
+        // Setup Event Listeners
         function setupEventListeners() {
-            // Form submission
+            // Form submissions
             elements.loginForm.addEventListener('submit', handleLogin);
+            elements.signupForm.addEventListener('submit', handleSignup);
             
-            // Toggle password visibility
-            elements.togglePassword.addEventListener('click', togglePasswordVisibility);
+            // Tab switching
+            elements.loginTab.addEventListener('click', () => switchAuthTab('login'));
+            elements.signupTab.addEventListener('click', () => switchAuthTab('signup'));
+            elements.switchToSignup.addEventListener('click', (e) => {
+                e.preventDefault();
+                switchAuthTab('signup');
+            });
+            elements.switchToLogin.addEventListener('click', (e) => {
+                e.preventDefault();
+                switchAuthTab('login');
+            });
             
-            // Real-time validation
-            elements.email.addEventListener('input', validateEmail);
-            elements.password.addEventListener('input', validatePassword);
+            // Password visibility toggle
+            elements.toggleLoginPassword.addEventListener('click', () => togglePasswordVisibility('login'));
+            elements.toggleSignupPassword.addEventListener('click', () => togglePasswordVisibility('signup'));
+            elements.toggleConfirmPassword.addEventListener('click', () => togglePasswordVisibility('confirm'));
             
-            // Social login buttons
+            // Social login
             elements.googleLogin.addEventListener('click', signInWithGoogle);
             elements.githubLogin.addEventListener('click', signInWithGitHub);
             
+            // Real-time validation
+            elements.loginEmail.addEventListener('input', () => validateEmail(elements.loginEmail, elements.loginEmailError));
+            elements.loginPassword.addEventListener('input', () => validatePassword(elements.loginPassword, elements.loginPasswordError));
+            elements.signupName.addEventListener('input', () => validateName(elements.signupName, elements.signupNameError));
+            elements.signupEmail.addEventListener('input', () => validateEmail(elements.signupEmail, elements.signupEmailError));
+            elements.signupPassword.addEventListener('input', () => validateSignupPassword());
+            elements.confirmPassword.addEventListener('input', () => validateSignupPassword());
+            
             // Enter key support
-            elements.password.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    handleLogin(e);
-                }
+            elements.loginPassword.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleLogin(e);
+            });
+            elements.confirmPassword.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleSignup(e);
             });
         }
 
-        // ✅ FIXED - Handle Login
+        // Switch Auth Tab
+        function switchAuthTab(tab) {
+            if (tab === 'login') {
+                elements.loginForm.style.display = 'block';
+                elements.signupForm.style.display = 'none';
+                elements.loginTab.classList.add('active');
+                elements.signupTab.classList.remove('active');
+                elements.signupLink.style.display = 'block';
+                elements.loginLink.style.display = 'none';
+            } else {
+                elements.loginForm.style.display = 'none';
+                elements.signupForm.style.display = 'block';
+                elements.loginTab.classList.remove('active');
+                elements.signupTab.classList.add('active');
+                elements.signupLink.style.display = 'none';
+                elements.loginLink.style.display = 'block';
+            }
+        }
+
+        // Handle Login
         async function handleLogin(e) {
             e.preventDefault();
             
-            if (!validateForm()) {
+            if (!validateLoginForm()) {
                 return;
             }
             
-            const email = elements.email.value.trim();
-            const password = elements.password.value;
+            const email = elements.loginEmail.value.trim();
+            const password = elements.loginPassword.value;
             const rememberMe = elements.rememberMe.checked;
             
             try {
@@ -590,7 +757,7 @@
                 
             } catch (error) {
                 console.error('❌ Login error:', error);
-                handleLoginError(error);
+                handleAuthError(error, 'login');
             } finally {
                 // Reset button state
                 elements.loginBtn.disabled = false;
@@ -598,7 +765,56 @@
             }
         }
 
-        // ✅ FIXED - Create User Profile
+        // Handle Signup
+        async function handleSignup(e) {
+            e.preventDefault();
+            
+            if (!validateSignupForm()) {
+                return;
+            }
+            
+            const name = elements.signupName.value.trim();
+            const email = elements.signupEmail.value.trim();
+            const password = elements.signupPassword.value;
+            
+            try {
+                // Show loading state
+                elements.signupBtn.disabled = true;
+                elements.signupBtn.innerHTML = '<div class="loading-spinner"></div> Creating Account...';
+                
+                // Create user with email and password
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                console.log('✅ User created:', user.email);
+                
+                // Update user profile
+                await user.updateProfile({
+                    displayName: name
+                });
+                
+                // Create user profile in Firestore
+                await createUserProfile(user);
+                
+                // Show success message
+                showNotification('Account created successfully! Welcome!', 'success');
+                
+                // Redirect to home page after short delay
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+                
+            } catch (error) {
+                console.error('❌ Signup error:', error);
+                handleAuthError(error, 'signup');
+            } finally {
+                // Reset button state
+                elements.signupBtn.disabled = false;
+                elements.signupBtn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
+            }
+        }
+
+        // Create User Profile
         async function createUserProfile(user) {
             try {
                 const userDoc = await db.collection('users').doc(user.uid).get();
@@ -608,7 +824,7 @@
                     await db.collection('users').doc(user.uid).set({
                         name: user.displayName || user.email.split('@')[0],
                         email: user.email,
-                        avatar: user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.email.split('@')[0])}&background=667eea&color=fff&size=256`,
+                        avatar: user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.uid}`,
                         bio: "Welcome to my AI art profile! 🎨",
                         followers: 0,
                         following: 0,
@@ -629,7 +845,7 @@
             }
         }
 
-        // ✅ FIXED - Sign in with Google
+        // Sign in with Google
         async function signInWithGoogle() {
             try {
                 elements.googleLogin.disabled = true;
@@ -653,14 +869,14 @@
                 
             } catch (error) {
                 console.error('❌ Google sign in error:', error);
-                handleLoginError(error);
+                handleAuthError(error, 'social');
             } finally {
                 elements.googleLogin.disabled = false;
                 elements.googleLogin.innerHTML = '<i class="fab fa-google"></i> Google';
             }
         }
 
-        // ✅ FIXED - Sign in with GitHub
+        // Sign in with GitHub
         async function signInWithGitHub() {
             try {
                 elements.githubLogin.disabled = true;
@@ -683,128 +899,211 @@
                 
             } catch (error) {
                 console.error('❌ GitHub sign in error:', error);
-                handleLoginError(error);
+                handleAuthError(error, 'social');
             } finally {
                 elements.githubLogin.disabled = false;
                 elements.githubLogin.innerHTML = '<i class="fab fa-github"></i> GitHub';
             }
         }
 
-        // ✅ FIXED - Handle Login Errors
-        function handleLoginError(error) {
-            let errorMessage = 'An error occurred during login. Please try again.';
+        // Handle Authentication Errors
+        function handleAuthError(error, type) {
+            let errorMessage = 'An error occurred. Please try again.';
             
             switch (error.code) {
                 case 'auth/invalid-email':
                     errorMessage = 'Please enter a valid email address.';
-                    elements.email.classList.add('error');
-                    elements.emailError.style.display = 'block';
+                    if (type === 'login') {
+                        elements.loginEmail.classList.add('error');
+                        elements.loginEmailError.textContent = errorMessage;
+                        elements.loginEmailError.style.display = 'block';
+                    } else {
+                        elements.signupEmail.classList.add('error');
+                        elements.signupEmailError.textContent = errorMessage;
+                        elements.signupEmailError.style.display = 'block';
+                    }
                     break;
                 case 'auth/user-disabled':
                     errorMessage = 'This account has been disabled.';
                     break;
                 case 'auth/user-not-found':
                     errorMessage = 'No account found with this email.';
-                    elements.email.classList.add('error');
-                    elements.emailError.textContent = 'No account found with this email';
-                    elements.emailError.style.display = 'block';
+                    elements.loginEmail.classList.add('error');
+                    elements.loginEmailError.textContent = errorMessage;
+                    elements.loginEmailError.style.display = 'block';
                     break;
                 case 'auth/wrong-password':
                     errorMessage = 'Incorrect password. Please try again.';
-                    elements.password.classList.add('error');
-                    elements.passwordError.textContent = 'Incorrect password';
-                    elements.passwordError.style.display = 'block';
+                    elements.loginPassword.classList.add('error');
+                    elements.loginPasswordError.textContent = errorMessage;
+                    elements.loginPasswordError.style.display = 'block';
                     break;
-                case 'auth/too-many-requests':
-                    errorMessage = 'Too many failed attempts. Please try again later.';
+                case 'auth/email-already-in-use':
+                    errorMessage = 'This email is already registered. Please sign in.';
+                    elements.signupEmail.classList.add('error');
+                    elements.signupEmailError.textContent = errorMessage;
+                    elements.signupEmailError.style.display = 'block';
                     break;
-                case 'auth/popup-closed-by-user':
-                    errorMessage = 'Login cancelled.';
+                case 'auth/weak-password':
+                    errorMessage = 'Password should be at least 6 characters.';
+                    elements.signupPassword.classList.add('error');
+                    elements.signupPasswordError.textContent = errorMessage;
+                    elements.signupPasswordError.style.display = 'block';
                     break;
                 case 'auth/network-request-failed':
                     errorMessage = 'Network error. Please check your connection.';
                     break;
+                case 'auth/popup-closed-by-user':
+                    errorMessage = 'Sign in cancelled.';
+                    break;
                 default:
-                    errorMessage = error.message || 'Login failed. Please try again.';
+                    errorMessage = error.message || 'Authentication failed. Please try again.';
             }
             
             showNotification(errorMessage, 'error');
         }
 
-        // ✅ FIXED - Form Validation
-        function validateForm() {
-            const isEmailValid = validateEmail();
-            const isPasswordValid = validatePassword();
-            
+        // Validation Functions
+        function validateLoginForm() {
+            const isEmailValid = validateEmail(elements.loginEmail, elements.loginEmailError);
+            const isPasswordValid = validatePassword(elements.loginPassword, elements.loginPasswordError);
             return isEmailValid && isPasswordValid;
         }
 
-        function validateEmail() {
-            const email = elements.email.value.trim();
+        function validateSignupForm() {
+            const isNameValid = validateName(elements.signupName, elements.signupNameError);
+            const isEmailValid = validateEmail(elements.signupEmail, elements.signupEmailError);
+            const isPasswordValid = validateSignupPassword();
+            return isNameValid && isEmailValid && isPasswordValid;
+        }
+
+        function validateEmail(input, errorElement) {
+            const email = input.value.trim();
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             
             if (!email) {
-                elements.email.classList.add('error');
-                elements.emailError.textContent = 'Email is required';
-                elements.emailError.style.display = 'block';
+                input.classList.add('error');
+                errorElement.textContent = 'Email is required';
+                errorElement.style.display = 'block';
                 return false;
             }
             
             if (!emailRegex.test(email)) {
-                elements.email.classList.add('error');
-                elements.emailError.textContent = 'Please enter a valid email address';
-                elements.emailError.style.display = 'block';
+                input.classList.add('error');
+                errorElement.textContent = 'Please enter a valid email address';
+                errorElement.style.display = 'block';
                 return false;
             }
             
-            elements.email.classList.remove('error');
-            elements.emailError.style.display = 'none';
+            input.classList.remove('error');
+            errorElement.style.display = 'none';
             return true;
         }
 
-        function validatePassword() {
-            const password = elements.password.value;
+        function validatePassword(input, errorElement) {
+            const password = input.value;
             
             if (!password) {
-                elements.password.classList.add('error');
-                elements.passwordError.textContent = 'Password is required';
-                elements.passwordError.style.display = 'block';
+                input.classList.add('error');
+                errorElement.textContent = 'Password is required';
+                errorElement.style.display = 'block';
                 return false;
             }
             
             if (password.length < 6) {
-                elements.password.classList.add('error');
-                elements.passwordError.textContent = 'Password must be at least 6 characters';
-                elements.passwordError.style.display = 'block';
+                input.classList.add('error');
+                errorElement.textContent = 'Password must be at least 6 characters';
+                errorElement.style.display = 'block';
                 return false;
             }
             
-            elements.password.classList.remove('error');
-            elements.passwordError.style.display = 'none';
+            input.classList.remove('error');
+            errorElement.style.display = 'none';
             return true;
         }
 
-        // ✅ FIXED - Toggle Password Visibility
-        function togglePasswordVisibility() {
-            const type = elements.password.getAttribute('type') === 'password' ? 'text' : 'password';
-            elements.password.setAttribute('type', type);
+        function validateName(input, errorElement) {
+            const name = input.value.trim();
             
-            const icon = elements.togglePassword.querySelector('i');
-            icon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+            if (!name) {
+                input.classList.add('error');
+                errorElement.textContent = 'Name is required';
+                errorElement.style.display = 'block';
+                return false;
+            }
+            
+            if (name.length < 2) {
+                input.classList.add('error');
+                errorElement.textContent = 'Name must be at least 2 characters';
+                errorElement.style.display = 'block';
+                return false;
+            }
+            
+            input.classList.remove('error');
+            errorElement.style.display = 'none';
+            return true;
         }
 
-        // ✅ FIXED - Load Remembered Email
+        function validateSignupPassword() {
+            const password = elements.signupPassword.value;
+            const confirm = elements.confirmPassword.value;
+            
+            // Validate password
+            if (!validatePassword(elements.signupPassword, elements.signupPasswordError)) {
+                return false;
+            }
+            
+            // Validate confirmation
+            if (!confirm) {
+                elements.confirmPassword.classList.add('error');
+                elements.confirmPasswordError.textContent = 'Please confirm your password';
+                elements.confirmPasswordError.style.display = 'block';
+                return false;
+            }
+            
+            if (password !== confirm) {
+                elements.confirmPassword.classList.add('error');
+                elements.confirmPasswordError.textContent = 'Passwords do not match';
+                elements.confirmPasswordError.style.display = 'block';
+                return false;
+            }
+            
+            elements.confirmPassword.classList.remove('error');
+            elements.confirmPasswordError.style.display = 'none';
+            return true;
+        }
+
+        // Toggle Password Visibility
+        function togglePasswordVisibility(type) {
+            let input, icon;
+            
+            if (type === 'login') {
+                input = elements.loginPassword;
+                icon = elements.toggleLoginPassword.querySelector('i');
+            } else if (type === 'signup') {
+                input = elements.signupPassword;
+                icon = elements.toggleSignupPassword.querySelector('i');
+            } else {
+                input = elements.confirmPassword;
+                icon = elements.toggleConfirmPassword.querySelector('i');
+            }
+            
+            const isPassword = input.getAttribute('type') === 'password';
+            input.setAttribute('type', isPassword ? 'text' : 'password');
+            icon.className = isPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
+        }
+
+        // Load Remembered Email
         function loadRememberedEmail() {
             const rememberedEmail = localStorage.getItem('rememberedEmail');
             if (rememberedEmail) {
-                elements.email.value = rememberedEmail;
+                elements.loginEmail.value = rememberedEmail;
                 elements.rememberMe.checked = true;
             }
         }
 
-        // ✅ FIXED - Show Notification
+        // Show Notification
         function showNotification(message, type = 'info') {
-            // Remove existing notifications
             document.querySelectorAll('.notification').forEach(notif => notif.remove());
             
             const notification = document.createElement('div');
