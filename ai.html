@@ -8,8 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <script src="https://cdn.jsdelivr.net/npm/@google/genai@0.16.0/dist/client.umd.js"></script>
-    
     <style>
         * {
             margin: 0;
@@ -456,11 +454,7 @@
             </div>
             
             <div class="chat-history" id="chatHistory">
-                <div class="chat-item active">
-                    <i class="fas fa-message"></i>
-                    <span>Welcome Chat</span>
                 </div>
-            </div>
             
             <div class="sidebar-footer">
                 <div style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius); background: var(--sidebar-bg);">
@@ -550,8 +544,10 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@google/genai@0.16.0/dist/client.umd.js"></script>
+
     <script>
-        // DOM Elements (Same as before)
+        // DOM Elements
         const elements = {
             messagesContainer: document.getElementById('messagesContainer'),
             chatInput: document.getElementById('chatInput'),
@@ -565,52 +561,53 @@
         let chats = JSON.parse(localStorage.getItem('novaEditionChats')) || [];
         let isGenerating = false;
         
-        // --- 2. GEMINI CLIENT SETUP (INSECURE) ---
+        // --- GEMINI CLIENT SETUP (INSECURE) ---
         // ⚠️ WARNING: API Key is exposed here. Use only for local testing.
         const GEMINI_API_KEY = 'AIzaSyBlPNFOrM3pJDhy1E5yeciNZeJSa9U8s3Y'; 
         const MODEL_NAME = 'gemini-2.5-flash';
 
-        // Initialize the Gemini Client
+        // Initialize the Gemini Client now that GoogleGenAI is defined
         const ai = new GoogleGenAI.GoogleGenAI(GEMINI_API_KEY);
-        let chatSession = null; // To hold the ongoing chat session for context
+        let chatSession = null; 
 
-        // System Instruction (AI ki personality)
+        // System Instruction 
         const SYSTEM_INSTRUCTION = `You are NovaEdition AI, a helpful, premium AI assistant powered by Gemini. 
         Your responses should be engaging, informative, and formatted using Markdown. 
         You must maintain the context of the conversation. 
         Always be ready to answer in Hindi, English, or Hinglish. Be creative and concise.`;
 
 
-        // Initialize App (Same as before)
+        // Initialize App
         function initApp() {
             setupEventListeners();
             loadChatHistory();
             
             if (chats.length > 0) {
-                // If chats exist, load the last one
                 loadChat(chats[chats.length - 1].id);
             } else {
-                // Otherwise, show welcome screen and initialize a new session
                 elements.welcomeScreen.style.display = 'flex';
                 initializeNewChatSession();
             }
         }
         
-        // --- 3. NEW: Initialize Gemini Chat Session ---
+        // Initialize Gemini Chat Session
         function initializeNewChatSession(history = []) {
+            // Map stored messages to the format the Gemini Chat API expects
+            const geminiHistory = history.map(msg => ({
+                role: msg.role === 'assistant' ? 'model' : 'user',
+                parts: [{ text: msg.content }]
+            }));
+            
             chatSession = ai.chats.create({
                 model: MODEL_NAME,
                 config: {
                     systemInstruction: SYSTEM_INSTRUCTION,
                 },
-                history: history.map(msg => ({ // Map stored messages to Gemini format
-                    role: msg.role === 'assistant' ? 'model' : 'user',
-                    parts: [{ text: msg.content }]
-                }))
+                history: geminiHistory
             });
         }
 
-        // Setup Event Listeners (Same as before)
+        // Setup Event Listeners
         function setupEventListeners() {
             elements.sendBtn.addEventListener('click', sendMessage);
             
@@ -629,7 +626,7 @@
             elements.newChatBtn.addEventListener('click', createNewChat);
         }
 
-        // Create New Chat (Modified to initialize session)
+        // Create New Chat
         function createNewChat() {
             const chatId = 'chat_' + Date.now();
             const newChat = {
@@ -643,14 +640,14 @@
             saveChats();
             loadChat(chatId);
             elements.welcomeScreen.style.display = 'none';
-            initializeNewChatSession(); // Start a fresh Gemini session
+            initializeNewChatSession(); 
         }
 
-        // Load Chat History (Same as before)
+        // Load Chat History
         function loadChatHistory() {
             elements.chatHistory.innerHTML = '';
             
-            // Reverse order to show latest chat first in history panel
+            // Show latest chat first in history panel
             [...chats].reverse().forEach(chat => {
                 const chatElement = document.createElement('div');
                 const isActive = currentChat === chat.id;
@@ -665,7 +662,7 @@
             });
         }
 
-        // Load Specific Chat (Modified to initialize session with history)
+        // Load Specific Chat
         function loadChat(chatId) {
             currentChat = chatId;
             const chat = chats.find(c => c.id === chatId);
@@ -681,46 +678,39 @@
             
             loadChatHistory();
             scrollToBottom();
-            initializeNewChatSession(chat.messages); // Load history into the Gemini session
+            initializeNewChatSession(chat.messages); 
         }
 
-        // Send Message (Modified for Direct API Call)
+        // Send Message (Direct API Call)
         async function sendMessage() {
             const message = elements.chatInput.value.trim();
             if (!message || isGenerating) return;
 
-            // Ensure chat session and chat ID exist
             if (!currentChat) {
                 createNewChat();
             }
 
-            // Add user message
+            // 1. Add user message
             addMessageToUI('user', message);
             elements.chatInput.value = '';
             elements.chatInput.style.height = 'auto';
             
-            // Save user message to chat (before getting AI response)
+            // 2. Save message (for context and history)
             saveMessage('user', message);
-            
-            // Update chat title if first message
             updateChatTitle(message);
 
-            // Show typing indicator
+            // 3. Show loading state
             const typingIndicator = showTypingIndicator();
-            
             isGenerating = true;
             elements.sendBtn.disabled = true;
 
             try {
-                // --- *** DIRECT API CALL TO GEMINI *** ---
+                // 4. Send message to the active chat session
                 const response = await chatSession.sendMessage({ message: message });
                 
-                // Remove typing indicator
+                // 5. Process and display AI response
                 typingIndicator.remove();
-                
                 const aiResponse = response.text;
-                
-                // Add AI response
                 addMessageToUI('assistant', aiResponse);
                 saveMessage('assistant', aiResponse);
                 
@@ -728,7 +718,7 @@
                 console.error('Gemini API Error:', error);
                 typingIndicator.remove();
                 addMessageToUI('assistant', 
-                    `**Gemini Connection Error!** ❌\n\nThere was an issue communicating with the Gemini API. This might be due to:\n1. An invalid or expired API Key.\n2. Network issues.\n3. Content that violated safety policies.\n\nPlease check your console for details. (Error: ${error.message})`
+                    `**Gemini Connection Error!** ❌\n\nThere was an issue communicating with the Gemini API. This is usually due to **API Key Restrictions** not allowing your current website URL (**https://aipromptgallery.github.io/**). Please check your Google AI Studio settings. (Error: ${error.message})`
                 );
             } finally {
                 isGenerating = false;
@@ -736,10 +726,7 @@
             }
         }
 
-        // Add Message to UI, Format Message Content, Show Typing Indicator, Save Message, 
-        // Update Chat Title, Save Chats, Scroll to Bottom, Quick Question Feature 
-        // (All these auxiliary functions remain the same as the complete code)
-
+        // Add Message to UI
         function addMessageToUI(role, content, scroll = true) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${role}`;
@@ -757,7 +744,6 @@
             
             elements.messagesContainer.appendChild(messageDiv);
             
-            // Change AI generated badge text
             if (role === 'assistant') {
                 const badge = document.createElement('div');
                 badge.className = 'ai-generated-badge';
@@ -772,10 +758,12 @@
             return messageDiv;
         }
 
+        // Format Message Content (for Markdown rendering)
         function formatMessage(content) {
             // Handle code blocks
             let formatted = content.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
-                return `<div style="background: #1e293b; color: white; padding: 12px; border-radius: 6px; margin: 8px 0; font-family: monospace; font-size: 12px; white-space: pre-wrap; border: 1px solid #334155;">${code.trim()}</div>`;
+                const language = lang || '';
+                return `<div style="background: #1e293b; color: white; padding: 12px; border-radius: 6px; margin: 8px 0; font-family: monospace; font-size: 12px; white-space: pre-wrap; border: 1px solid #334155;"><span style="color: #64748b; font-size: 10px; display: block; margin-bottom: 5px;">${language.toUpperCase()}</span>${code.trim()}</div>`;
             });
             
             // Handle bold text
@@ -787,6 +775,7 @@
             return formatted;
         }
 
+        // Show Typing Indicator
         function showTypingIndicator() {
             const typingDiv = document.createElement('div');
             typingDiv.className = 'message ai';
@@ -809,6 +798,7 @@
             return typingDiv;
         }
 
+        // Save Message to Current Chat
         function saveMessage(role, content) {
             const chat = chats.find(c => c.id === currentChat);
             if (chat) {
@@ -817,23 +807,27 @@
             }
         }
 
+        // Update Chat Title
         function updateChatTitle(firstMessage) {
             const chat = chats.find(c => c.id === currentChat);
-            if (chat && chat.title === 'New Chat') {
+            if (chat && chat.messages.filter(m => m.role === 'user').length === 1) { // Check if it's the first user message
                 chat.title = firstMessage.substring(0, 30) + (firstMessage.length > 30 ? '...' : '');
                 saveChats();
                 loadChatHistory();
             }
         }
 
+        // Save Chats to Local Storage
         function saveChats() {
             localStorage.setItem('novaEditionChats', JSON.stringify(chats));
         }
 
+        // Scroll to Bottom
         function scrollToBottom() {
             elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
         }
 
+        // Quick Question Feature
         function askQuickQuestion(question) {
             elements.chatInput.value = question;
             elements.welcomeScreen.style.display = 'none';
