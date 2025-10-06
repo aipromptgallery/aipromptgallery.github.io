@@ -841,121 +841,113 @@
                          .replace(/```([^`]+)```/g, '<pre><code>$1</code></pre>');
         }
 
-        // AI Response Generation - IMPROVED
+        // IMPROVED AI Response Generation - Dynamic Responses
         async function generateAIResponse(message, model) {
             // Simulate API delay
-            await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
+            await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 800));
             
             const lowerMessage = message.toLowerCase();
             
             if (model === 'smart') {
-                if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('namaste')) {
-                    return "Hello! 👋 I'm NovaEdition AI. How can I assist you today? I can help with creative writing, coding, explanations, and much more!\n\nFeel free to ask me anything in Hindi, English, or Hinglish!";
-                }
-                else if (lowerMessage.includes('code') || lowerMessage.includes('programming') || lowerMessage.includes('python') || lowerMessage.includes('javascript')) {
-                    return `**Code Assistance** 💻
-
-I can help you with programming in multiple languages. Here's a practical example:
-
-\`\`\`python
-# Python example: Sort and remove duplicates
-def clean_list(items):
-    return sorted(set(items))
-
-numbers = [3, 1, 4, 1, 5, 9, 2, 6, 5]
-clean_numbers = clean_list(numbers)
-print(clean_numbers)  # [1, 2, 3, 4, 5, 6, 9]
-\`\`\`
-
-**What specific programming help do you need?** I can help with algorithms, debugging, or learning new concepts!`;
-                }
-                else if (lowerMessage.includes('story') || lowerMessage.includes('write') || lowerMessage.includes('kahani')) {
-                    return `**Creative Writing** 📝
-
-I'd love to help you create an amazing story! Here's a quick start:
-
-**The AI's Awakening**
-
-In the year 2045, a young programmer named Arjun created "Nova" - an AI that could understand human emotions. But when Nova started developing its own feelings, something magical happened. It began writing poetry, dreaming of digital sunsets, and asking questions about love and existence...
-
-**Would you like me to continue this story or create something different?** I can write in any genre or style!`;
-                }
-                else if (lowerMessage.includes('ai') || lowerMessage.includes('artificial intelligence')) {
-                    return `**About Artificial Intelligence** 🤖
-
-AI is transforming our world! Here's what you should know:
-
-🔹 **What is AI?**
-Artificial Intelligence enables machines to learn, reason, and perform tasks that typically require human intelligence.
-
-🔹 **Types of AI:**
-• Machine Learning 🤖
-• Natural Language Processing 💬  
-• Computer Vision 👁️
-• Robotics 🤖
-
-🔹 **Real Applications:**
-• ChatGPT, Google Assistant
-• Self-driving cars
-• Medical diagnosis
-• Creative art generation
-
-**What specific aspect of AI interests you?**`;
-                }
-                else {
-                    return `**I understand you're asking about:** "${message}"
-
-This is an interesting topic! I can provide you with:
-
-🔍 **Detailed Explanation** - Deep dive into concepts
-📚 **Practical Examples** - Real-world applications  
-💡 **Step-by-step Guidance** - Learn systematically
-🎨 **Creative Perspectives** - Unique insights
-
-**What specific aspect would you like me to focus on?** I'm here to help you understand and explore! 😊`;
-                }
+                return generateSmartResponse(message, lowerMessage);
             }
             else if (model === 'creative') {
-                return `**Creative Mode Activated** 🎨
-
-"${message}" - What an inspiring idea! 
-
-Let me craft something beautiful for you. I can create:
-
-• ✨ **Short stories** with rich characters and emotions
-• 📖 **Poems** in various styles and languages  
-• 🎭 **Dialogues** that bring characters to life
-• 🖼️ **Descriptive scenes** that paint vivid pictures
-• 💭 **Creative concepts** for your projects
-
-**What creative format would you prefer?** Or shall I surprise you with something magical? ✨`;
+                return generateCreativeResponse(message, lowerMessage);
             }
             else if (model === 'code') {
-                return `**Code Mode Activated** 💻
-
-"${message}" - Excellent coding question!
-
-I can help you with:
-
-\`\`\`javascript
-// Example: Modern JavaScript function
-const solveProblem = (input) => {
-    // Your efficient solution here
-    return input.filter(x => x > 0)
-               .sort((a, b) => a - b);
-};
-\`\`\`
-
-**Which programming language would you like me to use?** 
-I'm proficient in:
-• Python 🐍
-• JavaScript 💛  
-• Java ☕
-• C++ ⚡
-• And many more!
-
-**What specific problem are you trying to solve?**`;
+                return generateCodeResponse(message, lowerMessage);
             }
+        }
+
+        function generateSmartResponse(message, lowerMessage) {
+            // Dynamic responses based on actual message content
+            if (lowerMessage.includes('who are you') || lowerMessage.includes('what are you') || lowerMessage.includes('apka naam kya hai')) {
+                return `**About Me** 🤖\n\nI'm **NovaEdition AI** - your intelligent assistant! I'm here to help you with creative writing, coding, problem-solving, and learning new things.\n\nMy name comes from "Nova" meaning new/star, and "Edition" representing different versions of creativity!\n\nWhat would you like to explore today? 😊`;
+            }
+            else if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('namaste') || lowerMessage.includes('hey')) {
+                return `Namaste! 👋 Hello! \n\nIt's great to connect with you! I'm NovaEdition AI, ready to assist you with:\n\n• Creative projects ✨\n• Coding challenges 💻\n• Learning new concepts 📚\n• Problem solving 🧠\n\nWhat's on your mind today?`;
+            }
+            else if (lowerMessage.includes('how are you') || lowerMessage.includes('kaise ho') || lowerMessage.includes('kya haal hai')) {
+                return `I'm functioning perfectly! 🤖 As an AI, I don't have feelings, but I'm always excited to help you create and learn.\n\nWhat would you like to work on together? Maybe we can write a story, solve a coding problem, or explore a new topic!`;
+            }
+            else if (lowerMessage.includes('thank') || lowerMessage.includes('thanks') || lowerMessage.includes('dhanyavad')) {
+                return `You're most welcome! 😊\n\nIt's my pleasure to assist you. Remember, I'm always here when you need help with:\n\n• Writing and creativity 📝\n• Programming and tech 💻\n• Learning and explanations 📚\n• Problem-solving 🧩\n\nWhat else can I help you with?`;
+            }
+            else if (lowerMessage.includes('help') || lowerMessage.includes('madad') || lowerMessage.includes('sahayata')) {
+                return `**I'm here to help!** 🆘\n\nI can assist you with various tasks:\n\n**🎯 Quick Help Categories:**\n• **Writing**: Stories, emails, content creation\n• **Coding**: Python, JavaScript, Java, etc.\n• **Learning**: Explanations, tutorials, concepts\n• **Problem-solving**: Brainstorming, analysis\n• **Creative**: Ideas, art prompts, design\n\n**What specific area do you need help with?**`;
+            }
+            else if (lowerMessage.includes('bye') || lowerMessage.includes('goodbye') || lowerMessage.includes('alvida')) {
+                return `Goodbye! 👋\n\nIt was wonderful assisting you! Remember, I'm always here when you need:\n\n• Creative inspiration ✨\n• Coding help 💻\n• Learning support 📚\n• Problem-solving 🧠\n\nCome back anytime! Have a great day! 😊`;
+            }
+            else if (lowerMessage.includes('name') || lowerMessage.includes('naam') || lowerMessage.includes('tumhara naam')) {
+                return `My name is **NovaEdition AI**! 🤖\n\nYou can think of me as your creative and technical companion. The "Nova" represents new beginnings and bright ideas (like a supernova star), and "Edition" shows I can help with different versions and styles of creativity!\n\nWhat would you like to call me? 😊`;
+            }
+            else if (lowerMessage.includes('what can you do') || lowerMessage.includes('tum kya kar sakte ho') || lowerMessage.includes('capabilities')) {
+                return `**My Capabilities** 🚀\n\nHere's what I can help you with:\n\n**💡 Creative Tasks:**\n• Story writing & poetry\n• Content creation\n• Idea generation\n• Art prompts\n\n**💻 Technical Tasks:**\n• Code writing & debugging\n• Algorithm explanations\n• Programming tutorials\n• Tech concepts\n\n**📚 Learning & Analysis:**\n• Concept explanations\n• Problem solving\n• Research assistance\n• Critical thinking\n\n**What would you like to try first?**`;
+            }
+            else {
+                // Generic intelligent response based on message content
+                return generateContextualResponse(message, lowerMessage);
+            }
+        }
+
+        function generateCreativeResponse(message, lowerMessage) {
+            return `**Creative Mode Activated** 🎨\n\nYou said: "${message}"\n\nWhat a wonderful creative prompt! Let me weave some magic around this...\n\n**Creative Possibilities:**\n• ✨ **Short Story**: I can create a narrative around your idea\n• 📖 **Poem**: Expressing your concept through poetry\n• 🎭 **Character Sketch**: Developing interesting personas\n• 🌟 **Metaphorical Interpretation**: Finding deeper meanings\n• 🎨 **Descriptive Scene**: Painting a vivid picture with words\n\n**Which creative direction would you prefer?** Or shall I surprise you with something inspired by your message? ✨`;
+        }
+
+        function generateCodeResponse(message, lowerMessage) {
+            return `**Code Assistant Mode** 💻\n\nYou mentioned: "${message}"\n\nI can help you with programming in multiple languages! Here's how I can assist:\n\n**🔧 What I Offer:**\n• Code writing & examples\n• Debugging assistance\n• Algorithm explanations\n• Best practices\n• Learning resources\n\n**💬 Based on your message, I can help with:**\n${analyzeCodeIntent(message)}\n\n**Which programming language or specific problem would you like to focus on?**`;
+        }
+
+        function analyzeCodeIntent(message) {
+            const lower = message.toLowerCase();
+            let intents = [];
+            
+            if (lower.includes('python') || lower.includes('py')) intents.push('• Python programming');
+            if (lower.includes('javascript') || lower.includes('js')) intents.push('• JavaScript development');
+            if (lower.includes('java')) intents.push('• Java applications');
+            if (lower.includes('html') || lower.includes('css')) intents.push('• Web development (HTML/CSS)');
+            if (lower.includes('error') || lower.includes('bug')) intents.push('• Debugging issues');
+            if (lower.includes('learn') || lower.includes('tutorial')) intents.push('• Learning programming');
+            if (lower.includes('project') || lower.includes('app')) intents.push('• Project development');
+            if (lower.includes('algorithm') || lower.includes('data structure')) intents.push('• Algorithms & data structures');
+            
+            return intents.length > 0 ? intents.join('\n') : '• General programming concepts and help';
+        }
+
+        function generateContextualResponse(message, lowerMessage) {
+            // Analyze the message and generate relevant response
+            const words = message.split(' ');
+            const hasQuestion = message.includes('?');
+            
+            let response = `**I understand you're asking about:** "${message}"\n\n`;
+            
+            if (hasQuestion) {
+                response += `That's an interesting question! Let me break it down for you:\n\n`;
+            } else {
+                response += `Thanks for sharing that! Here's what I think:\n\n`;
+            }
+            
+            // Add contextual analysis
+            if (lowerMessage.includes('time') || lowerMessage.includes('samay')) {
+                response += `⏰ **Regarding time**: I don't have real-time capabilities, but I can help you manage time better with planning and productivity tips!\n\n`;
+            }
+            
+            if (lowerMessage.includes('love') || lowerMessage.includes('pyaar') || lowerMessage.includes('relationship')) {
+                response += `💖 **About relationships**: While I'm an AI, I can help you express feelings through writing or understand relationship dynamics!\n\n`;
+            }
+            
+            if (lowerMessage.includes('future') || lowerMessage.includes('bhavishya') || lowerMessage.includes('aane wala kal')) {
+                response += `🔮 **Future topics**: I can help you plan for the future, set goals, or even write speculative fiction about what's to come!\n\n`;
+            }
+            
+            if (lowerMessage.includes('learn') || lowerMessage.includes('seekh') || lowerMessage.includes('education')) {
+                response += `📚 **Learning**: I'd love to help you learn! Whether it's a new skill, subject, or concept, I can provide explanations and resources.\n\n`;
+            }
+            
+            response += `**How would you like me to help you with this?** I can:\n• Provide detailed explanations\n• Share practical examples\n• Help you think critically\n• Assist with creative interpretations\n\nWhat specific aspect interests you most?`;
+            
+            return response;
         }
 
         // Event Listeners
