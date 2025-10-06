@@ -278,6 +278,22 @@
             border: none;
         }
 
+        /* Image Styles */
+        .generated-image {
+            max-width: 100%;
+            border-radius: 15px;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .image-loading {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 10px;
+        }
+
         .chat-input-container {
             padding: 20px 30px;
             border-top: 1px solid var(--secondary);
@@ -613,6 +629,9 @@
                         <button class="model-btn" onclick="setModel('code')">
                             <i class="fas fa-code"></i> Code Assistant
                         </button>
+                        <button class="model-btn" onclick="setModel('image')">
+                            <i class="fas fa-image"></i> Image Generator
+                        </button>
                     </div>
                 </div>
 
@@ -629,6 +648,7 @@
                             <br>• 💻 Code generation and debugging
                             <br>• 🧠 Problem solving and explanations
                             <br>• 🎨 AI art prompt creation
+                            <br>• 🖼️ AI Image Generation
                             <br><br>
                             Choose your mode and let's create something amazing together!
                         </div>
@@ -637,7 +657,7 @@
 
                 <div class="chat-input-container">
                     <div class="input-wrapper">
-                        <textarea class="chat-input" id="chatInput" placeholder="Ask me anything... (Hindi, English, Hinglish)" rows="1"></textarea>
+                        <textarea class="chat-input" id="chatInput" placeholder="Ask me anything or describe an image to generate... (Hindi, English, Hinglish)" rows="1"></textarea>
                         <button class="send-btn" id="sendBtn">
                             <i class="fas fa-paper-plane"></i>
                         </button>
@@ -676,12 +696,12 @@
                             <div class="action-desc">Understand complex topics easily</div>
                         </div>
                         
-                        <div class="action-card" onclick="askQuickQuestion('Create a prompt for AI image generation of a futuristic city')">
+                        <div class="action-card" onclick="generateQuickImage('A futuristic city with flying cars and neon lights, digital art')">
                             <div class="action-icon">
                                 <i class="fas fa-robot"></i>
                             </div>
-                            <div class="action-title">AI Art Prompt</div>
-                            <div class="action-desc">Generate prompts for AI image creation</div>
+                            <div class="action-title">AI Image</div>
+                            <div class="action-desc">Generate AI images from text</div>
                         </div>
                     </div>
                 </div>
@@ -698,7 +718,7 @@
                             <i class="fas fa-code"></i> Python Help Session
                         </div>
                         <div class="history-item">
-                            <i class="fas fa-feather"></i> Creative Writing
+                            <i class="fas fa-image"></i> Image Generation
                         </div>
                     </div>
                 </div>
@@ -725,6 +745,10 @@
     </div>
 
     <script>
+        // API Keys - YAHAN APNI KEYS DALDO
+        const GEMINI_API_KEY = "AIzaSyBlPNFOrM3pJDhy1E5yeciNZeJSa9U8s3Y";
+        const HUGGING_FACE_API_KEY = "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";
+
         // Theme Management
         function initTheme() {
             const savedTheme = localStorage.getItem('theme') || 'light';
@@ -752,10 +776,24 @@
             currentModel = model;
             document.querySelectorAll('.model-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
+            
+            // Update placeholder based on model
+            const chatInput = document.getElementById('chatInput');
+            if (model === 'image') {
+                chatInput.placeholder = "Describe the image you want to generate...";
+            } else {
+                chatInput.placeholder = "Ask me anything... (Hindi, English, Hinglish)";
+            }
         }
 
         function askQuickQuestion(question) {
             document.getElementById('chatInput').value = question;
+            sendMessage();
+        }
+
+        function generateQuickImage(prompt) {
+            document.getElementById('chatInput').value = prompt;
+            setModel('image');
             sendMessage();
         }
 
@@ -775,16 +813,175 @@
             document.getElementById('sendBtn').disabled = true;
 
             try {
-                const response = await generateAIResponse(message, currentModel);
+                let response;
+                if (currentModel === 'image') {
+                    response = await generateImageWithHuggingFace(message);
+                } else {
+                    response = await generateAIResponseWithGemini(message, currentModel);
+                }
+                
                 removeTypingIndicator();
-                addMessageToUI('ai', response);
+                
+                if (currentModel === 'image' && response.imageUrl) {
+                    addImageToUI(response.imageUrl, response.prompt);
+                } else {
+                    addMessageToUI('ai', response);
+                }
             } catch (error) {
                 removeTypingIndicator();
-                addMessageToUI('ai', 'Sorry, something went wrong. Please try again.');
+                addMessageToUI('ai', 'Sorry, something went wrong. Please try again. Error: ' + error.message);
             } finally {
                 isGenerating = false;
                 document.getElementById('sendBtn').disabled = false;
             }
+        }
+
+        // Gemini AI Chat API
+        async function generateAIResponseWithGemini(message, model) {
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+                
+                let prompt = '';
+                switch(model) {
+                    case 'creative':
+                        prompt = `You are a creative writing assistant. Respond creatively to: "${message}" in engaging, story-like manner. Use Hindi, English or Hinglish appropriately.`;
+                        break;
+                    case 'code':
+                        prompt = `You are a coding assistant. Help with programming question: "${message}". Provide code examples and explanations. Use clear, technical language.`;
+                        break;
+                    default:
+                        prompt = `You are NovaEdition AI assistant. Respond helpfully to: "${message}". Use friendly, informative tone in Hindi, English or Hinglish as appropriate.`;
+                }
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: prompt
+                            }]
+                        }]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Gemini API error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                return data.candidates[0].content.parts[0].text;
+                
+            } catch (error) {
+                console.error('Gemini API Error:', error);
+                return `I'm having trouble connecting right now. Please try again later. Meanwhile, I can tell you about: ${message}`;
+            }
+        }
+
+        // Hugging Face Image Generation API
+        async function generateImageWithHuggingFace(prompt) {
+            try {
+                // Show image loading state
+                const loadingId = showImageLoading(prompt);
+                
+                const response = await fetch(
+                    "https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5",
+                    {
+                        headers: {
+                            Authorization: `Bearer ${HUGGING_FACE_API_KEY}`,
+                            "Content-Type": "application/json",
+                        },
+                        method: "POST",
+                        body: JSON.stringify({
+                            inputs: prompt,
+                            options: {
+                                wait_for_model: true
+                            }
+                        }),
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error(`Hugging Face API error: ${response.status}`);
+                }
+
+                const imageBlob = await response.blob();
+                const imageUrl = URL.createObjectURL(imageBlob);
+                
+                // Remove loading indicator
+                removeImageLoading(loadingId);
+                
+                return {
+                    imageUrl: imageUrl,
+                    prompt: prompt
+                };
+                
+            } catch (error) {
+                console.error('Hugging Face API Error:', error);
+                removeImageLoading('all');
+                throw new Error('Image generation failed. Please try a different prompt.');
+            }
+        }
+
+        function showImageLoading(prompt) {
+            const messagesContainer = document.getElementById('messagesContainer');
+            const loadingDiv = document.createElement('div');
+            const loadingId = 'image-loading-' + Date.now();
+            loadingDiv.id = loadingId;
+            loadingDiv.className = 'message ai';
+            
+            loadingDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content">
+                    <strong>Generating Image: "${prompt}"</strong>
+                    <div class="image-loading">
+                        <i class="fas fa-spinner fa-spin"></i><br>
+                        Creating your image... This may take 20-30 seconds.
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(loadingDiv);
+            scrollToBottom();
+            return loadingId;
+        }
+
+        function removeImageLoading(loadingId) {
+            if (loadingId === 'all') {
+                document.querySelectorAll('.image-loading').forEach(el => {
+                    el.closest('.message').remove();
+                });
+            } else {
+                const element = document.getElementById(loadingId);
+                if (element) element.remove();
+            }
+        }
+
+        function addImageToUI(imageUrl, prompt) {
+            const messagesContainer = document.getElementById('messagesContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ai';
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content">
+                    <strong>Generated Image: "${prompt}"</strong>
+                    <img src="${imageUrl}" alt="${prompt}" class="generated-image">
+                    <div style="margin-top: 10px; font-size: 0.9em; color: var(--secondary);">
+                        <i class="fas fa-download"></i> 
+                        <a href="${imageUrl}" download="ai-generated-image.png" style="color: var(--primary);">Download Image</a>
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            scrollToBottom();
         }
 
         function addMessageToUI(role, content) {
@@ -839,115 +1036,6 @@
             return content.replace(/\n/g, '<br>')
                          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                          .replace(/```([^`]+)```/g, '<pre><code>$1</code></pre>');
-        }
-
-        // IMPROVED AI Response Generation - Dynamic Responses
-        async function generateAIResponse(message, model) {
-            // Simulate API delay
-            await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 800));
-            
-            const lowerMessage = message.toLowerCase();
-            
-            if (model === 'smart') {
-                return generateSmartResponse(message, lowerMessage);
-            }
-            else if (model === 'creative') {
-                return generateCreativeResponse(message, lowerMessage);
-            }
-            else if (model === 'code') {
-                return generateCodeResponse(message, lowerMessage);
-            }
-        }
-
-        function generateSmartResponse(message, lowerMessage) {
-            // Dynamic responses based on actual message content
-            if (lowerMessage.includes('who are you') || lowerMessage.includes('what are you') || lowerMessage.includes('apka naam kya hai')) {
-                return `**About Me** 🤖\n\nI'm **NovaEdition AI** - your intelligent assistant! I'm here to help you with creative writing, coding, problem-solving, and learning new things.\n\nMy name comes from "Nova" meaning new/star, and "Edition" representing different versions of creativity!\n\nWhat would you like to explore today? 😊`;
-            }
-            else if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('namaste') || lowerMessage.includes('hey')) {
-                return `Namaste! 👋 Hello! \n\nIt's great to connect with you! I'm NovaEdition AI, ready to assist you with:\n\n• Creative projects ✨\n• Coding challenges 💻\n• Learning new concepts 📚\n• Problem solving 🧠\n\nWhat's on your mind today?`;
-            }
-            else if (lowerMessage.includes('how are you') || lowerMessage.includes('kaise ho') || lowerMessage.includes('kya haal hai')) {
-                return `I'm functioning perfectly! 🤖 As an AI, I don't have feelings, but I'm always excited to help you create and learn.\n\nWhat would you like to work on together? Maybe we can write a story, solve a coding problem, or explore a new topic!`;
-            }
-            else if (lowerMessage.includes('thank') || lowerMessage.includes('thanks') || lowerMessage.includes('dhanyavad')) {
-                return `You're most welcome! 😊\n\nIt's my pleasure to assist you. Remember, I'm always here when you need help with:\n\n• Writing and creativity 📝\n• Programming and tech 💻\n• Learning and explanations 📚\n• Problem-solving 🧩\n\nWhat else can I help you with?`;
-            }
-            else if (lowerMessage.includes('help') || lowerMessage.includes('madad') || lowerMessage.includes('sahayata')) {
-                return `**I'm here to help!** 🆘\n\nI can assist you with various tasks:\n\n**🎯 Quick Help Categories:**\n• **Writing**: Stories, emails, content creation\n• **Coding**: Python, JavaScript, Java, etc.\n• **Learning**: Explanations, tutorials, concepts\n• **Problem-solving**: Brainstorming, analysis\n• **Creative**: Ideas, art prompts, design\n\n**What specific area do you need help with?**`;
-            }
-            else if (lowerMessage.includes('bye') || lowerMessage.includes('goodbye') || lowerMessage.includes('alvida')) {
-                return `Goodbye! 👋\n\nIt was wonderful assisting you! Remember, I'm always here when you need:\n\n• Creative inspiration ✨\n• Coding help 💻\n• Learning support 📚\n• Problem-solving 🧠\n\nCome back anytime! Have a great day! 😊`;
-            }
-            else if (lowerMessage.includes('name') || lowerMessage.includes('naam') || lowerMessage.includes('tumhara naam')) {
-                return `My name is **NovaEdition AI**! 🤖\n\nYou can think of me as your creative and technical companion. The "Nova" represents new beginnings and bright ideas (like a supernova star), and "Edition" shows I can help with different versions and styles of creativity!\n\nWhat would you like to call me? 😊`;
-            }
-            else if (lowerMessage.includes('what can you do') || lowerMessage.includes('tum kya kar sakte ho') || lowerMessage.includes('capabilities')) {
-                return `**My Capabilities** 🚀\n\nHere's what I can help you with:\n\n**💡 Creative Tasks:**\n• Story writing & poetry\n• Content creation\n• Idea generation\n• Art prompts\n\n**💻 Technical Tasks:**\n• Code writing & debugging\n• Algorithm explanations\n• Programming tutorials\n• Tech concepts\n\n**📚 Learning & Analysis:**\n• Concept explanations\n• Problem solving\n• Research assistance\n• Critical thinking\n\n**What would you like to try first?**`;
-            }
-            else {
-                // Generic intelligent response based on message content
-                return generateContextualResponse(message, lowerMessage);
-            }
-        }
-
-        function generateCreativeResponse(message, lowerMessage) {
-            return `**Creative Mode Activated** 🎨\n\nYou said: "${message}"\n\nWhat a wonderful creative prompt! Let me weave some magic around this...\n\n**Creative Possibilities:**\n• ✨ **Short Story**: I can create a narrative around your idea\n• 📖 **Poem**: Expressing your concept through poetry\n• 🎭 **Character Sketch**: Developing interesting personas\n• 🌟 **Metaphorical Interpretation**: Finding deeper meanings\n• 🎨 **Descriptive Scene**: Painting a vivid picture with words\n\n**Which creative direction would you prefer?** Or shall I surprise you with something inspired by your message? ✨`;
-        }
-
-        function generateCodeResponse(message, lowerMessage) {
-            return `**Code Assistant Mode** 💻\n\nYou mentioned: "${message}"\n\nI can help you with programming in multiple languages! Here's how I can assist:\n\n**🔧 What I Offer:**\n• Code writing & examples\n• Debugging assistance\n• Algorithm explanations\n• Best practices\n• Learning resources\n\n**💬 Based on your message, I can help with:**\n${analyzeCodeIntent(message)}\n\n**Which programming language or specific problem would you like to focus on?**`;
-        }
-
-        function analyzeCodeIntent(message) {
-            const lower = message.toLowerCase();
-            let intents = [];
-            
-            if (lower.includes('python') || lower.includes('py')) intents.push('• Python programming');
-            if (lower.includes('javascript') || lower.includes('js')) intents.push('• JavaScript development');
-            if (lower.includes('java')) intents.push('• Java applications');
-            if (lower.includes('html') || lower.includes('css')) intents.push('• Web development (HTML/CSS)');
-            if (lower.includes('error') || lower.includes('bug')) intents.push('• Debugging issues');
-            if (lower.includes('learn') || lower.includes('tutorial')) intents.push('• Learning programming');
-            if (lower.includes('project') || lower.includes('app')) intents.push('• Project development');
-            if (lower.includes('algorithm') || lower.includes('data structure')) intents.push('• Algorithms & data structures');
-            
-            return intents.length > 0 ? intents.join('\n') : '• General programming concepts and help';
-        }
-
-        function generateContextualResponse(message, lowerMessage) {
-            // Analyze the message and generate relevant response
-            const words = message.split(' ');
-            const hasQuestion = message.includes('?');
-            
-            let response = `**I understand you're asking about:** "${message}"\n\n`;
-            
-            if (hasQuestion) {
-                response += `That's an interesting question! Let me break it down for you:\n\n`;
-            } else {
-                response += `Thanks for sharing that! Here's what I think:\n\n`;
-            }
-            
-            // Add contextual analysis
-            if (lowerMessage.includes('time') || lowerMessage.includes('samay')) {
-                response += `⏰ **Regarding time**: I don't have real-time capabilities, but I can help you manage time better with planning and productivity tips!\n\n`;
-            }
-            
-            if (lowerMessage.includes('love') || lowerMessage.includes('pyaar') || lowerMessage.includes('relationship')) {
-                response += `💖 **About relationships**: While I'm an AI, I can help you express feelings through writing or understand relationship dynamics!\n\n`;
-            }
-            
-            if (lowerMessage.includes('future') || lowerMessage.includes('bhavishya') || lowerMessage.includes('aane wala kal')) {
-                response += `🔮 **Future topics**: I can help you plan for the future, set goals, or even write speculative fiction about what's to come!\n\n`;
-            }
-            
-            if (lowerMessage.includes('learn') || lowerMessage.includes('seekh') || lowerMessage.includes('education')) {
-                response += `📚 **Learning**: I'd love to help you learn! Whether it's a new skill, subject, or concept, I can provide explanations and resources.\n\n`;
-            }
-            
-            response += `**How would you like me to help you with this?** I can:\n• Provide detailed explanations\n• Share practical examples\n• Help you think critically\n• Assist with creative interpretations\n\nWhat specific aspect interests you most?`;
-            
-            return response;
         }
 
         // Event Listeners
