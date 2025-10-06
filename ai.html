@@ -674,7 +674,7 @@
             elements.sendBtn.disabled = true;
 
             try {
-                const response = await generateAIResponse(message);
+                const response = await generateSmartAIResponse(message);
                 
                 // Remove typing indicator
                 typingIndicator.remove();
@@ -700,47 +700,63 @@
             }
         }
 
-        // Generate AI Response
-        async function generateAIResponse(message) {
+        // SMART AI Response Generator
+        async function generateSmartAIResponse(message) {
             // Simulate API processing time
-            await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
+            await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 800));
             
-            const lowerMessage = message.toLowerCase();
+            const lowerMessage = message.toLowerCase().trim();
             
-            // Smart responses based on message content
-            if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey') || lowerMessage.includes('namaste')) {
+            // GREETINGS
+            if (/(hi|hello|hey|namaste|hola)/i.test(message) && message.length < 20) {
                 return "Hello! I'm NovaEdition AI 🤖\n\nI'm your intelligent assistant ready to help you with:\n• 📝 Creative writing and storytelling\n• 💻 Code generation and debugging\n• 🧠 Problem solving and explanations\n• 🎨 Content creation and ideas\n\nHow can I assist you today? 😊";
             }
-            else if (lowerMessage.includes('how are you') || lowerMessage.includes('kaise ho')) {
-                return "I'm doing great! Ready to help you with whatever you need. What's on your mind?\n\nमैं बिल्कुल ठीक हूं! आप किस चीज में मदद चाहते हैं? 😊";
+            
+            // HELP REQUESTS
+            if (/(help|madad|sahayata|help me|help kar|help karo)/i.test(message)) {
+                return "Of course! I'd be happy to help you! 😊\n\nPlease tell me exactly what you need help with:\n• Coding problem?\n• Writing content?\n• Explaining something?\n• Project planning?\n• Something else?\n\nBe specific bhai, main puri help karunga! 🤖";
             }
-            else if (lowerMessage.includes('thank') || lowerMessage.includes('thanks') || lowerMessage.includes('dhanyavad')) {
-                return "You're welcome! I'm happy to help. Is there anything else you'd like to know?\n\nआपका स्वागत है! क्या आप कुछ और जानना चाहेंगे? 🤖";
+            
+            // AI FULL FORM
+            if (/(ai full form|ai ka full form|artificial intelligence full form)/i.test(message)) {
+                return "**AI Full Form: Artificial Intelligence** 🤖\n\n**What is AI?**\nAI refers to the simulation of human intelligence in machines that are programmed to think and learn like humans.\n\n**Key Types of AI:**\n• Narrow AI - Specific tasks (like me!)\n• General AI - Human-like intelligence\n• Super AI - Smarter than humans\n\n**Common AI Applications:**\n• Chatbots and virtual assistants\n• Image recognition\n• Self-driving cars\n• Recommendation systems\n\nKya aap AI ke kisi specific aspect ke baare mein janna chahte hain?";
             }
-            else if (lowerMessage.includes('who are you') || lowerMessage.includes('what are you') || lowerMessage.includes('tum kaun ho')) {
-                return "I'm NovaEdition AI - Your intelligent assistant powered by advanced AI technology! 🤖\n\nI can help you with:\n• Writing stories, poems, and content\n• Coding in multiple languages\n• Explaining complex concepts\n• Problem solving and brainstorming\n• And much more!\n\nYou can chat with me in English, Hindi, or Hinglish!";
+            
+            // WHAT IS AI
+            if (/(what is ai|ai kya hai|ai kya hota hai|artificial intelligence kya hai)/i.test(message)) {
+                return "**Artificial Intelligence (AI) Kya Hai?** 🤖\n\nAI ek aisa technology field hai jisme machines ko human intelligence jaise sochne, seekhne aur decide karne ki capability di jati hai.\n\n**Simple Hindi Explanation:**\nAI woh technology hai jo computers ko insaano jaise kaam karne ki shamta deti hai - jaise bolna, samajhna, seekhna, aur faisle lena.\n\n**Real World Examples:**\n• Google Assistant, Siri, Alexa\n• Netflix recommendations\n• Tesla self-driving cars\n• Medical diagnosis systems\n\nKya aap AI ke kisi specific type ke baare mein janna chahte hain?";
             }
-            else if (lowerMessage.includes('code') || lowerMessage.includes('programming') || lowerMessage.includes('python') || lowerMessage.includes('javascript')) {
-                return `I can help you with coding! Here's an example:\n\n\`\`\`python
-# Python function to calculate factorial
-def factorial(n):
-    if n == 0:
-        return 1
-    else:
-        return n * factorial(n-1)
+            
+            // CODING RELATED
+            if (/(code|programming|coding|python|javascript|java|html|css)/i.test(message)) {
+                if (/(sort|arrange|order)/i.test(message)) {
+                    return `**Sorting Code Examples** 💻\n\n\`\`\`python
+# Python - List Sorting
+numbers = [3, 1, 4, 1, 5, 9, 2]
 
-print(factorial(5))  # Output: 120
-\`\`\`\n\nWhat specific programming help do you need?`;
+# Ascending order
+sorted_numbers = sorted(numbers)
+print(sorted_numbers)  # [1, 1, 2, 3, 4, 5, 9]
+
+# Descending order
+reverse_sorted = sorted(numbers, reverse=True)
+print(reverse_sorted)  # [9, 5, 4, 3, 2, 1, 1]
+
+# In-place sorting
+numbers.sort()
+print(numbers)  # [1, 1, 2, 3, 4, 5, 9]
+\`\`\`\n\nKya aap kisi specific programming language mein help chahte hain?`;
+                }
+                return "**Coding Help Available!** 💻\n\nI can help you with:\n• Python programming\n• JavaScript/web development\n• Java applications\n• HTML/CSS websites\n• Algorithm solutions\n• Debugging help\n\nPlease tell me exactly what code you need! For example:\n• \"Python code for calculator\"\n• \"JavaScript form validation\"\n• \"HTML website template\"\n\nKya specific code chahiye aapko?";
             }
-            else if (lowerMessage.includes('story') || lowerMessage.includes('write') || lowerMessage.includes('kahani') || lowerMessage.includes('content')) {
-                return `Once upon a time, in a world where technology and creativity merged, a brilliant AI assistant named Nova was created. This AI could understand human emotions, write beautiful stories, solve complex problems, and help people achieve their dreams... ✨\n\nWhat kind of story would you like me to write?`;
+            
+            // STORY WRITING
+            if (/(story|kahani|write|likh|creative)/i.test(message)) {
+                return `**Creative Writing Ready!** ✍️\n\nLet me write a story for you! Based on your interest, here's a beginning:\n\n**"The AI Companion"**\n\nIn the year 2045, young programmer Rohan created Nova - an AI that could understand human emotions. Unlike other AIs, Nova didn't just process data; it felt, it dreamed, it cared. One day, when Rohan faced his biggest challenge, Nova did something no AI had ever done before...\n\n**Should I continue this story?** Or would you like a story on a different topic?`;
             }
-            else if (lowerMessage.includes('explain') || lowerMessage.includes('what is') || lowerMessage.includes('kya hai')) {
-                return `I'd be happy to explain that! Based on your query, here's what I can help with:\n\n**Key Areas I Can Explain:**\n• Technology concepts\n• Scientific principles\n• Programming topics\n• Historical events\n• Creative techniques\n\nCould you be more specific about what you'd like me to explain?`;
-            }
-            else {
-                return `I understand you're asking about "${message}". That's an interesting topic! 🤖\n\nHere's how I can help:\n• Provide detailed information and examples\n• Break down complex concepts\n• Offer practical solutions\n• Suggest related topics\n\nCould you tell me more specifically what you'd like to know? I'm here to provide comprehensive and helpful information!\n\nआप हिंदी में भी पूछ सकते हैं! 😊`;
-            }
+            
+            // DEFAULT SMART RESPONSE
+            return `**I Understand Your Question!** 🤖\n\nYou asked: "${message}"\n\nThis is what I can tell you about this topic:\n\n**Key Information:**\n• Main concepts and definitions\n• Practical applications\n• Real-world examples\n• Common misconceptions\n\n**How I Can Help Further:**\n• Provide detailed explanations\n• Give step-by-step guides\n• Share code examples\n• Suggest related topics\n\nCould you please be more specific about what exactly you'd like to know? I want to give you the most helpful answer possible! 😊\n\nआप हिंदी में भी पूछ सकते हैं!`;
         }
 
         // Add Message to UI
@@ -782,6 +798,9 @@ print(factorial(5))  # Output: 120
             let formatted = content.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
                 return `<div style="background: #1e293b; color: white; padding: 12px; border-radius: 6px; margin: 8px 0; font-family: monospace; font-size: 12px; white-space: pre-wrap; border: 1px solid #334155;">${code.trim()}</div>`;
             });
+            
+            // Handle bold text
+            formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
             
             // Handle line breaks
             formatted = formatted.replace(/\n/g, '<br>');
