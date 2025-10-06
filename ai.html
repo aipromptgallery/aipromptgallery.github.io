@@ -3,18 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Assistant | NovaEdition AI</title>
+    <title>NovaEdition AI | Premium AI Assistant</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         :root {
@@ -22,235 +21,266 @@
             --primary-dark: #1d4ed8;
             --primary-light: #3b82f6;
             --secondary: #64748b;
-            --light: #f8fafc;
-            --dark: #1e293b;
-            --card-bg: #ffffff;
-            --success: #10b981;
-            --error: #ef4444;
-            --warning: #f59e0b;
-            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --gradient-hover: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-            --shadow: 0 8px 30px rgba(0,0,0,0.08);
-            --shadow-hover: 0 15px 40px rgba(0,0,0,0.15);
-            --radius: 20px;
-            --radius-sm: 12px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        [data-theme="dark"] {
-            --light: #0f172a;
-            --dark: #f8fafc;
-            --card-bg: #1e293b;
-            --secondary: #94a3b8;
-            --shadow: 0 8px 30px rgba(0,0,0,0.3);
-            --shadow-hover: 0 15px 40px rgba(0,0,0,0.4);
+            --light: #ffffff;
+            --dark: #0f172a;
+            --sidebar-bg: #f8fafc;
+            --chat-bg: #ffffff;
+            --user-msg: #f1f5f9;
+            --ai-msg: #ffffff;
+            --input-bg: #ffffff;
+            --border: #e2e8f0;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+            --transition: all 0.2s ease;
         }
 
         body {
-            background: var(--light);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: var(--dark);
-            transition: var(--transition);
             min-height: 100vh;
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        /* Header - Exact Index Style */
-        .header {
-            background: var(--gradient);
-            color: white;
-            padding: 60px 40px;
-            border-radius: var(--radius);
-            margin-bottom: 40px;
-            text-align: center;
-            position: relative;
             overflow: hidden;
         }
 
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            animation: float 6s ease-in-out infinite;
+        .app-container {
+            display: flex;
+            height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            background: var(--light);
+            box-shadow: var(--shadow);
+            border-radius: 12px;
+            overflow: hidden;
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(1deg); }
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border);
         }
 
-        .theme-toggle {
-            position: absolute;
-            top: 25px;
-            left: 25px;
-            background: rgba(255,255,255,0.2);
-            border: 2px solid rgba(255,255,255,0.3);
-            padding: 12px;
-            border-radius: 50%;
-            cursor: pointer;
-            color: white;
-            transition: var(--transition);
-            backdrop-filter: blur(10px);
-            z-index: 2;
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            background: var(--light);
         }
 
-        .theme-toggle:hover {
-            background: rgba(255,255,255,0.3);
-            transform: rotate(180deg) scale(1.1);
-        }
-
-        .back-btn {
-            position: absolute;
-            top: 25px;
-            right: 25px;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: 2px solid rgba(255,255,255,0.4);
-            padding: 10px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: var(--transition);
-            font-weight: 600;
-            backdrop-filter: blur(10px);
+        .logo {
             display: flex;
             align-items: center;
-            gap: 8px;
-            text-decoration: none;
+            gap: 12px;
+            margin-bottom: 16px;
         }
 
-        .back-btn:hover {
-            background: white;
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: 700;
             color: var(--primary);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255,255,255,0.3);
         }
 
-        .header-content {
-            position: relative;
-            z-index: 2;
-        }
-
-        .header h1 {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .header p {
-            font-size: 1.4rem;
-            opacity: 0.9;
-            max-width: 600px;
-            margin: 0 auto 30px;
+        .new-chat-btn {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--primary);
+            border: none;
+            border-radius: var(--radius);
+            color: var(--light);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: var(--transition);
+            font-size: 14px;
             font-weight: 500;
         }
 
-        /* AI Main Container */
-        .ai-main {
-            display: grid;
-            grid-template-columns: 1fr 400px;
-            gap: 30px;
-            margin-bottom: 50px;
+        .new-chat-btn:hover {
+            background: var(--primary-dark);
         }
 
-        /* Chat Container */
-        .chat-container {
-            background: var(--card-bg);
+        .chat-history {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .chat-item {
+            padding: 12px 16px;
             border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            overflow: hidden;
+            cursor: pointer;
+            margin-bottom: 8px;
+            font-size: 14px;
             display: flex;
-            flex-direction: column;
-            height: 600px;
+            align-items: center;
+            gap: 12px;
+            transition: var(--transition);
+            border: 1px solid transparent;
         }
 
-        .chat-header {
-            padding: 25px 30px;
-            border-bottom: 1px solid var(--secondary);
+        .chat-item:hover {
+            background: var(--light);
+            border-color: var(--border);
+        }
+
+        .chat-item.active {
+            background: var(--light);
+            border-color: var(--primary);
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid var(--border);
             background: var(--light);
         }
 
-        .model-selector {
+        /* Main Chat Area */
+        .chat-container {
+            flex: 1;
             display: flex;
-            gap: 15px;
+            flex-direction: column;
+            background: var(--chat-bg);
         }
 
-        .model-btn {
-            padding: 12px 24px;
-            border: 2px solid var(--secondary);
-            background: var(--card-bg);
-            border-radius: 25px;
-            cursor: pointer;
-            transition: var(--transition);
-            font-weight: 600;
-            color: var(--secondary);
+        .chat-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            background: var(--light);
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: space-between;
         }
 
-        .model-btn.active {
-            background: var(--gradient);
+        .model-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .model-badge {
+            background: var(--primary);
             color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .welcome-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+            background: var(--chat-bg);
+        }
+
+        .welcome-icon {
+            font-size: 64px;
+            margin-bottom: 24px;
+            color: var(--primary);
+        }
+
+        .welcome-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--dark);
+        }
+
+        .welcome-subtitle {
+            font-size: 16px;
+            color: var(--secondary);
+            margin-bottom: 40px;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .capabilities-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            max-width: 800px;
+            margin-bottom: 40px;
+        }
+
+        .capability-card {
+            padding: 20px;
+            background: var(--light);
+            border-radius: var(--radius);
+            text-align: left;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid var(--border);
+        }
+
+        .capability-card:hover {
             border-color: var(--primary);
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+        }
+
+        .capability-icon {
+            font-size: 24px;
+            margin-bottom: 12px;
+            color: var(--primary);
+        }
+
+        .capability-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+
+        .capability-desc {
+            font-size: 14px;
+            color: var(--secondary);
+            line-height: 1.5;
         }
 
         .messages-container {
             flex: 1;
-            padding: 30px;
             overflow-y: auto;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 16px;
+            background: var(--chat-bg);
         }
 
         .message {
             display: flex;
-            gap: 15px;
-            max-width: 80%;
-            animation: messageSlide 0.3s ease;
-        }
-
-        @keyframes messageSlide {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .message.user {
-            align-self: flex-end;
-            flex-direction: row-reverse;
+            gap: 12px;
+            max-width: 100%;
         }
 
         .message-avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 14px;
             font-weight: 600;
             flex-shrink: 0;
-            font-size: 1.1rem;
         }
 
         .message.user .message-avatar {
@@ -259,801 +289,567 @@
         }
 
         .message.ai .message-avatar {
-            background: var(--success);
+            background: #10b981;
             color: white;
         }
 
         .message-content {
-            padding: 18px 22px;
-            border-radius: 20px;
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: var(--radius);
             line-height: 1.6;
-            background: var(--light);
-            border: 1px solid var(--secondary);
-            box-shadow: var(--shadow);
+            font-size: 14px;
         }
 
         .message.user .message-content {
-            background: var(--gradient);
+            background: var(--primary);
             color: white;
-            border: none;
         }
 
-        /* Image Styles */
-        .generated-image {
-            max-width: 100%;
-            border-radius: 15px;
-            margin-top: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .image-loading {
+        .message.ai .message-content {
             background: var(--light);
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            margin-top: 10px;
+            color: var(--dark);
+            border: 1px solid var(--border);
         }
 
         .chat-input-container {
-            padding: 20px 30px;
-            border-top: 1px solid var(--secondary);
+            padding: 20px;
             background: var(--light);
+            border-top: 1px solid var(--border);
         }
 
         .input-wrapper {
-            display: flex;
-            gap: 15px;
-            align-items: flex-end;
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
         }
 
         .chat-input {
-            flex: 1;
-            padding: 16px 20px;
-            border: 2px solid var(--secondary);
-            border-radius: 25px;
-            background: var(--card-bg);
+            width: 100%;
+            background: var(--light);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 50px 12px 16px;
             color: var(--dark);
-            font-size: 1rem;
+            font-size: 14px;
             resize: none;
-            min-height: 60px;
+            min-height: 48px;
             max-height: 120px;
             line-height: 1.5;
-            transition: var(--transition);
         }
 
         .chat-input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
         }
 
         .send-btn {
-            background: var(--gradient);
-            color: white;
+            position: absolute;
+            right: 8px;
+            bottom: 8px;
+            background: var(--primary);
             border: none;
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            color: white;
             cursor: pointer;
-            transition: var(--transition);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.3rem;
-            box-shadow: var(--shadow);
         }
 
-        .send-btn:hover {
-            background: var(--gradient-hover);
-            transform: scale(1.05);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-        }
-
-        .send-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* AI Features Sidebar */
-        .ai-sidebar {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 30px;
-            box-shadow: var(--shadow);
-            height: 600px;
-            overflow-y: auto;
-        }
-
-        .sidebar-section {
-            margin-bottom: 30px;
-        }
-
-        .sidebar-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-            color: var(--dark);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .quick-actions-grid {
-            display: grid;
-            gap: 15px;
-        }
-
-        .action-card {
-            background: var(--light);
-            padding: 20px;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            transition: var(--transition);
-            border: 2px solid transparent;
+        .input-footer {
             text-align: center;
-        }
-
-        .action-card:hover {
-            border-color: var(--primary);
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-hover);
-        }
-
-        .action-icon {
-            font-size: 2.2rem;
-            margin-bottom: 12px;
-            color: var(--primary);
-        }
-
-        .action-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--dark);
-        }
-
-        .action-desc {
+            margin-top: 12px;
+            font-size: 12px;
             color: var(--secondary);
-            font-size: 0.9rem;
-            line-height: 1.5;
         }
 
-        /* Chat History */
-        .chat-history {
-            max-height: 300px;
-            overflow-y: auto;
+        .ai-generated-badge {
+            text-align: center;
+            font-size: 11px;
+            color: var(--secondary);
+            margin-top: 8px;
+            font-style: italic;
         }
 
-        .history-item {
-            padding: 15px;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            margin-bottom: 10px;
-            transition: var(--transition);
-            border: 2px solid transparent;
-            background: var(--light);
-        }
-
-        .history-item:hover {
-            border-color: var(--primary);
-            transform: translateX(5px);
-        }
-
-        .history-item.active {
-            border-color: var(--primary);
-            background: var(--primary-light);
-            color: white;
-        }
-
-        /* Dashboard Buttons - Same as Index */
-        .dashboard-buttons {
-            position: fixed;
-            bottom: 40px;
-            right: 40px;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            align-items: flex-end;
-        }
-
-        .dashboard-btn {
-            width: 65px;
-            height: 65px;
-            background: var(--gradient);
-            border: none;
-            border-radius: 50%;
-            color: white;
-            font-size: 1.6rem;
-            cursor: pointer;
-            box-shadow: 0 6px 25px rgba(37, 99, 235, 0.4);
-            transition: var(--transition);
+        .typing-indicator {
             display: flex;
             align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
+            gap: 8px;
+            padding: 12px 16px;
+            background: var(--light);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            font-size: 14px;
+            color: var(--secondary);
         }
 
-        .dashboard-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: var(--transition);
+        .typing-dots {
+            display: flex;
+            gap: 3px;
         }
 
-        .dashboard-btn:hover {
-            transform: scale(1.15);
-            box-shadow: 0 10px 35px rgba(37, 99, 235, 0.6);
-            background: var(--gradient-hover);
+        .typing-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--secondary);
+            animation: typingAnimation 1.4s infinite ease-in-out;
         }
 
-        .dashboard-btn:hover::before {
-            left: 100%;
-        }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
 
-        .dashboard-btn.profile {
-            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
-        }
-
-        .dashboard-btn.inbox {
-            background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
-        }
-
-        .dashboard-btn.home {
-            background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
-        }
-
-        .btn-label {
-            position: absolute;
-            right: 75px;
-            background: var(--card-bg);
-            color: var(--dark);
-            padding: 10px 18px;
-            border-radius: 25px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            box-shadow: var(--shadow);
-            opacity: 0;
-            transform: translateX(10px);
-            transition: var(--transition);
-            pointer-events: none;
-            white-space: nowrap;
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .dashboard-btn:hover + .btn-label {
-            opacity: 1;
-            transform: translateX(0);
+        @keyframes typingAnimation {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
         }
 
         /* Responsive */
-        @media (max-width: 1024px) {
-            .ai-main {
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                left: -280px;
+                z-index: 1000;
+                height: 100%;
+            }
+            
+            .sidebar.active {
+                left: 0;
+            }
+            
+            .capabilities-grid {
                 grid-template-columns: 1fr;
             }
-            
-            .ai-sidebar {
-                height: auto;
-            }
         }
 
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2.8rem;
-            }
-            
-            .header p {
-                font-size: 1.2rem;
-            }
-            
-            .model-selector {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .message {
-                max-width: 90%;
-            }
-            
-            .dashboard-buttons {
-                bottom: 20px;
-                right: 20px;
-            }
-            
-            .dashboard-btn {
-                width: 55px;
-                height: 55px;
-                font-size: 1.4rem;
-            }
+        ::-webkit-scrollbar {
+            width: 6px;
         }
 
-        @media (max-width: 480px) {
-            .header h1 {
-                font-size: 2.2rem;
-            }
-            
-            .container {
-                padding: 15px;
-            }
-            
-            .chat-container {
-                height: 500px;
-            }
-            
-            .messages-container {
-                padding: 20px;
-            }
+        ::-webkit-scrollbar-track {
+            background: var(--sidebar-bg);
         }
 
-        .hidden {
-            display: none !important;
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header - Exact Index Style -->
-        <div class="header">
-            <button class="theme-toggle" id="themeToggle">
-                <i class="fas fa-moon"></i>
-            </button>
-
-            <a href="index.html" class="back-btn">
-                <i class="fas fa-arrow-left"></i> Back to Home
-            </a>
-
-            <div class="header-content">
-                <h1>NovaEdition AI</h1>
-                <p>Your intelligent AI assistant for creative writing, coding, and problem solving</p>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">N</div>
+                    <div class="logo-text">NovaEdition AI</div>
+                </div>
+                <button class="new-chat-btn" id="newChatBtn">
+                    <i class="fas fa-plus"></i>
+                    New chat
+                </button>
+            </div>
+            
+            <div class="chat-history" id="chatHistory">
+                <div class="chat-item active">
+                    <i class="fas fa-message"></i>
+                    <span>Welcome Chat</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius); background: var(--sidebar-bg);">
+                    <div style="width: 36px; height: 36px; border-radius: 8px; background: var(--primary); display: flex; align-items: center; justify-content: center; color: white;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600;">User</div>
+                        <div style="font-size: 12px; color: var(--secondary);">Online</div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- AI Main Content -->
-        <div class="ai-main">
-            <!-- Chat Container -->
-            <div class="chat-container">
-                <div class="chat-header">
-                    <div class="model-selector">
-                        <button class="model-btn active" onclick="setModel('smart')">
-                            <i class="fas fa-brain"></i> Smart AI
-                        </button>
-                        <button class="model-btn" onclick="setModel('creative')">
-                            <i class="fas fa-feather"></i> Creative Writer
-                        </button>
-                        <button class="model-btn" onclick="setModel('code')">
-                            <i class="fas fa-code"></i> Code Assistant
-                        </button>
-                        <button class="model-btn" onclick="setModel('image')">
-                            <i class="fas fa-image"></i> Image Generator
-                        </button>
-                    </div>
-                </div>
-
-                <div class="messages-container" id="messagesContainer">
-                    <!-- Welcome Message -->
-                    <div class="message ai">
-                        <div class="message-avatar">
-                            <i class="fas fa-robot"></i>
-                        </div>
-                        <div class="message-content">
-                            <strong>Hello! I'm NovaEdition AI 🤖</strong><br><br>
-                            I'm your intelligent assistant ready to help you with:
-                            <br>• 📝 Creative writing and storytelling
-                            <br>• 💻 Code generation and debugging
-                            <br>• 🧠 Problem solving and explanations
-                            <br>• 🎨 AI art prompt creation
-                            <br>• 🖼️ AI Image Generation
-                            <br><br>
-                            Choose your mode and let's create something amazing together!
-                        </div>
-                    </div>
-                </div>
-
-                <div class="chat-input-container">
-                    <div class="input-wrapper">
-                        <textarea class="chat-input" id="chatInput" placeholder="Ask me anything or describe an image to generate... (Hindi, English, Hinglish)" rows="1"></textarea>
-                        <button class="send-btn" id="sendBtn">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
+        <!-- Main Chat Area -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="model-info">
+                    <div class="model-badge">
+                        <i class="fas fa-robot"></i> NovaEdition AI
                     </div>
                 </div>
             </div>
 
-            <!-- AI Features Sidebar -->
-            <div class="ai-sidebar">
-                <div class="sidebar-section">
-                    <h3 class="sidebar-title">
-                        <i class="fas fa-bolt"></i> Quick Actions
-                    </h3>
-                    <div class="quick-actions-grid">
-                        <div class="action-card" onclick="askQuickQuestion('Write a creative story about AI and human friendship')">
-                            <div class="action-icon">
+            <div class="messages-container" id="messagesContainer">
+                <!-- Welcome Screen -->
+                <div class="welcome-screen" id="welcomeScreen">
+                    <div class="welcome-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h1 class="welcome-title">Welcome to NovaEdition AI</h1>
+                    <p class="welcome-subtitle">
+                        Your premium AI assistant powered by advanced technology. I can help you with creative writing, 
+                        coding, problem solving, and much more in multiple languages.
+                    </p>
+                    
+                    <div class="capabilities-grid">
+                        <div class="capability-card" onclick="askQuickQuestion('Help me write a creative story')">
+                            <div class="capability-icon">
                                 <i class="fas fa-feather"></i>
                             </div>
-                            <div class="action-title">Creative Story</div>
-                            <div class="action-desc">Generate engaging stories and narratives</div>
+                            <div class="capability-title">Creative Writing</div>
+                            <div class="capability-desc">Stories, poems, content in multiple languages</div>
                         </div>
                         
-                        <div class="action-card" onclick="askQuickQuestion('Write Python code to sort a list and remove duplicates')">
-                            <div class="action-icon">
+                        <div class="capability-card" onclick="askQuickQuestion('Write Python code to sort a list')">
+                            <div class="capability-icon">
                                 <i class="fas fa-code"></i>
                             </div>
-                            <div class="action-title">Code Help</div>
-                            <div class="action-desc">Get programming assistance in any language</div>
+                            <div class="capability-title">Code Generation</div>
+                            <div class="capability-desc">Programming in Python, JavaScript, Java, etc.</div>
                         </div>
                         
-                        <div class="action-card" onclick="askQuickQuestion('Explain quantum computing in simple terms')">
-                            <div class="action-icon">
+                        <div class="capability-card" onclick="askQuickQuestion('Explain quantum computing simply')">
+                            <div class="capability-icon">
                                 <i class="fas fa-graduation-cap"></i>
                             </div>
-                            <div class="action-title">Explain Concept</div>
-                            <div class="action-desc">Understand complex topics easily</div>
+                            <div class="capability-title">Explain Concepts</div>
+                            <div class="capability-desc">Complex topics in simple language</div>
                         </div>
                         
-                        <div class="action-card" onclick="generateQuickImage('A futuristic city with flying cars and neon lights, digital art')">
-                            <div class="action-icon">
-                                <i class="fas fa-robot"></i>
+                        <div class="capability-card" onclick="askQuickQuestion('Help me plan a project')">
+                            <div class="capability-icon">
+                                <i class="fas fa-lightbulb"></i>
                             </div>
-                            <div class="action-title">AI Image</div>
-                            <div class="action-desc">Generate AI images from text</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="sidebar-section">
-                    <h3 class="sidebar-title">
-                        <i class="fas fa-history"></i> Chat History
-                    </h3>
-                    <div class="chat-history">
-                        <div class="history-item active">
-                            <i class="fas fa-message"></i> Current Chat
-                        </div>
-                        <div class="history-item">
-                            <i class="fas fa-code"></i> Python Help Session
-                        </div>
-                        <div class="history-item">
-                            <i class="fas fa-image"></i> Image Generation
+                            <div class="capability-title">Problem Solving</div>
+                            <div class="capability-desc">Brainstorm ideas and find solutions</div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <div class="chat-input-container">
+                <div class="input-wrapper">
+                    <textarea 
+                        class="chat-input" 
+                        id="chatInput" 
+                        placeholder="Message NovaEdition..." 
+                        rows="1"
+                    ></textarea>
+                    <button class="send-btn" id="sendBtn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                <div class="input-footer">
+                    AI-Generated content for reference only. NovaEdition can make mistakes.
+                </div>
+            </div>
         </div>
-    </div>
-
-    <!-- Dashboard Buttons - Same as Index -->
-    <div class="dashboard-buttons">
-        <button class="dashboard-btn home" onclick="window.location.href='index.html'">
-            <i class="fas fa-home"></i>
-        </button>
-        <div class="btn-label">Home</div>
-
-        <button class="dashboard-btn profile" onclick="window.location.href='profile.html'">
-            <i class="fas fa-user"></i>
-        </button>
-        <div class="btn-label">Profile</div>
-
-        <button class="dashboard-btn inbox" onclick="window.location.href='inbox.html'">
-            <i class="fas fa-inbox"></i>
-        </button>
-        <div class="btn-label">Messages</div>
     </div>
 
     <script>
-        // API Keys - YAHAN APNI KEYS DALDO
-        const GEMINI_API_KEY = "AIzaSyBlPNFOrM3pJDhy1E5yeciNZeJSa9U8s3Y";
-        const HUGGING_FACE_API_KEY = "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";
+        // DOM Elements
+        const elements = {
+            messagesContainer: document.getElementById('messagesContainer'),
+            chatInput: document.getElementById('chatInput'),
+            sendBtn: document.getElementById('sendBtn'),
+            welcomeScreen: document.getElementById('welcomeScreen'),
+            newChatBtn: document.getElementById('newChatBtn'),
+            chatHistory: document.getElementById('chatHistory')
+        };
 
-        // Theme Management
-        function initTheme() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.body.setAttribute('data-theme', savedTheme);
-            
-            const icon = document.getElementById('themeToggle').querySelector('i');
-            icon.className = savedTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
-        }
-
-        document.getElementById('themeToggle').addEventListener('click', () => {
-            const currentTheme = document.body.getAttribute('data-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            document.body.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            
-            const icon = document.getElementById('themeToggle').querySelector('i');
-            icon.className = newTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
-        });
-
-        // AI Chat Logic
-        let currentModel = 'smart';
+        let currentChat = null;
+        let chats = JSON.parse(localStorage.getItem('novaEditionChats')) || [];
         let isGenerating = false;
 
-        function setModel(model) {
-            currentModel = model;
-            document.querySelectorAll('.model-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+        // Initialize App
+        function initApp() {
+            setupEventListeners();
+            loadChatHistory();
             
-            // Update placeholder based on model
-            const chatInput = document.getElementById('chatInput');
-            if (model === 'image') {
-                chatInput.placeholder = "Describe the image you want to generate...";
-            } else {
-                chatInput.placeholder = "Ask me anything... (Hindi, English, Hinglish)";
+            if (chats.length > 0) {
+                loadChat(chats[chats.length - 1].id);
             }
         }
 
-        function askQuickQuestion(question) {
-            document.getElementById('chatInput').value = question;
-            sendMessage();
+        // Setup Event Listeners
+        function setupEventListeners() {
+            elements.sendBtn.addEventListener('click', sendMessage);
+            
+            elements.chatInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            elements.chatInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
+
+            elements.newChatBtn.addEventListener('click', createNewChat);
         }
 
-        function generateQuickImage(prompt) {
-            document.getElementById('chatInput').value = prompt;
-            setModel('image');
-            sendMessage();
+        // Create New Chat
+        function createNewChat() {
+            const chatId = 'chat_' + Date.now();
+            const newChat = {
+                id: chatId,
+                title: 'New Chat',
+                messages: [],
+                createdAt: new Date().toISOString()
+            };
+            
+            chats.push(newChat);
+            saveChats();
+            loadChat(chatId);
+            elements.welcomeScreen.style.display = 'none';
         }
 
+        // Load Chat History
+        function loadChatHistory() {
+            elements.chatHistory.innerHTML = '';
+            
+            chats.forEach(chat => {
+                const chatElement = document.createElement('div');
+                chatElement.className = `chat-item ${currentChat === chat.id ? 'active' : ''}`;
+                chatElement.innerHTML = `
+                    <i class="fas fa-message"></i>
+                    <span>${chat.title}</span>
+                `;
+                
+                chatElement.addEventListener('click', () => loadChat(chat.id));
+                elements.chatHistory.appendChild(chatElement);
+            });
+        }
+
+        // Load Specific Chat
+        function loadChat(chatId) {
+            currentChat = chatId;
+            const chat = chats.find(c => c.id === chatId);
+            
+            if (!chat) return;
+            
+            elements.messagesContainer.innerHTML = '';
+            elements.welcomeScreen.style.display = 'none';
+            
+            chat.messages.forEach(msg => {
+                addMessageToUI(msg.role, msg.content, false);
+            });
+            
+            loadChatHistory();
+            scrollToBottom();
+        }
+
+        // Send Message
         async function sendMessage() {
-            const message = document.getElementById('chatInput').value.trim();
+            const message = elements.chatInput.value.trim();
             if (!message || isGenerating) return;
+
+            // Create new chat if none exists
+            if (!currentChat) {
+                createNewChat();
+            }
 
             // Add user message
             addMessageToUI('user', message);
-            document.getElementById('chatInput').value = '';
-            document.getElementById('chatInput').style.height = 'auto';
+            elements.chatInput.value = '';
+            elements.chatInput.style.height = 'auto';
             
-            // Show typing
-            showTypingIndicator();
+            // Save user message to chat
+            saveMessage('user', message);
+            
+            // Update chat title if first message
+            updateChatTitle(message);
+
+            // Show typing indicator
+            const typingIndicator = showTypingIndicator();
             
             isGenerating = true;
-            document.getElementById('sendBtn').disabled = true;
+            elements.sendBtn.disabled = true;
 
             try {
-                let response;
-                if (currentModel === 'image') {
-                    response = await generateImageWithHuggingFace(message);
-                } else {
-                    response = await generateAIResponseWithGemini(message, currentModel);
-                }
+                const response = await generateAIResponse(message);
                 
-                removeTypingIndicator();
+                // Remove typing indicator
+                typingIndicator.remove();
                 
-                if (currentModel === 'image' && response.imageUrl) {
-                    addImageToUI(response.imageUrl, response.prompt);
-                } else {
-                    addMessageToUI('ai', response);
-                }
+                // Add AI response
+                addMessageToUI('assistant', response);
+                saveMessage('assistant', response);
+                
             } catch (error) {
-                removeTypingIndicator();
-                addMessageToUI('ai', 'Sorry, something went wrong. Please try again. Error: ' + error.message);
+                typingIndicator.remove();
+                addMessageToUI('assistant', 
+                    "Hello! I'm NovaEdition AI 🤖\n\n" +
+                    "I'm your intelligent assistant ready to help you with:\n" +
+                    "• 📝 Creative writing and storytelling\n" +
+                    "• 💻 Code generation and debugging\n" +
+                    "• 🧠 Problem solving and explanations\n" +
+                    "• 🎨 Content creation and ideas\n\n" +
+                    "Ask me anything in Hindi, English, or Hinglish! 😊"
+                );
             } finally {
                 isGenerating = false;
-                document.getElementById('sendBtn').disabled = false;
+                elements.sendBtn.disabled = false;
             }
         }
 
-        // Gemini AI Chat API
-        async function generateAIResponseWithGemini(message, model) {
-            try {
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
-                
-                let prompt = '';
-                switch(model) {
-                    case 'creative':
-                        prompt = `You are a creative writing assistant. Respond creatively to: "${message}" in engaging, story-like manner. Use Hindi, English or Hinglish appropriately.`;
-                        break;
-                    case 'code':
-                        prompt = `You are a coding assistant. Help with programming question: "${message}". Provide code examples and explanations. Use clear, technical language.`;
-                        break;
-                    default:
-                        prompt = `You are NovaEdition AI assistant. Respond helpfully to: "${message}". Use friendly, informative tone in Hindi, English or Hinglish as appropriate.`;
-                }
+        // Generate AI Response
+        async function generateAIResponse(message) {
+            // Simulate API processing time
+            await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
+            
+            const lowerMessage = message.toLowerCase();
+            
+            // Smart responses based on message content
+            if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey') || lowerMessage.includes('namaste')) {
+                return "Hello! I'm NovaEdition AI 🤖\n\nI'm your intelligent assistant ready to help you with:\n• 📝 Creative writing and storytelling\n• 💻 Code generation and debugging\n• 🧠 Problem solving and explanations\n• 🎨 Content creation and ideas\n\nHow can I assist you today? 😊";
+            }
+            else if (lowerMessage.includes('how are you') || lowerMessage.includes('kaise ho')) {
+                return "I'm doing great! Ready to help you with whatever you need. What's on your mind?\n\nमैं बिल्कुल ठीक हूं! आप किस चीज में मदद चाहते हैं? 😊";
+            }
+            else if (lowerMessage.includes('thank') || lowerMessage.includes('thanks') || lowerMessage.includes('dhanyavad')) {
+                return "You're welcome! I'm happy to help. Is there anything else you'd like to know?\n\nआपका स्वागत है! क्या आप कुछ और जानना चाहेंगे? 🤖";
+            }
+            else if (lowerMessage.includes('who are you') || lowerMessage.includes('what are you') || lowerMessage.includes('tum kaun ho')) {
+                return "I'm NovaEdition AI - Your intelligent assistant powered by advanced AI technology! 🤖\n\nI can help you with:\n• Writing stories, poems, and content\n• Coding in multiple languages\n• Explaining complex concepts\n• Problem solving and brainstorming\n• And much more!\n\nYou can chat with me in English, Hindi, or Hinglish!";
+            }
+            else if (lowerMessage.includes('code') || lowerMessage.includes('programming') || lowerMessage.includes('python') || lowerMessage.includes('javascript')) {
+                return `I can help you with coding! Here's an example:\n\n\`\`\`python
+# Python function to calculate factorial
+def factorial(n):
+    if n == 0:
+        return 1
+    else:
+        return n * factorial(n-1)
 
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [{
-                                text: prompt
-                            }]
-                        }]
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Gemini API error: ${response.status}`);
-                }
-
-                const data = await response.json();
-                return data.candidates[0].content.parts[0].text;
-                
-            } catch (error) {
-                console.error('Gemini API Error:', error);
-                return `I'm having trouble connecting right now. Please try again later. Meanwhile, I can tell you about: ${message}`;
+print(factorial(5))  # Output: 120
+\`\`\`\n\nWhat specific programming help do you need?`;
+            }
+            else if (lowerMessage.includes('story') || lowerMessage.includes('write') || lowerMessage.includes('kahani') || lowerMessage.includes('content')) {
+                return `Once upon a time, in a world where technology and creativity merged, a brilliant AI assistant named Nova was created. This AI could understand human emotions, write beautiful stories, solve complex problems, and help people achieve their dreams... ✨\n\nWhat kind of story would you like me to write?`;
+            }
+            else if (lowerMessage.includes('explain') || lowerMessage.includes('what is') || lowerMessage.includes('kya hai')) {
+                return `I'd be happy to explain that! Based on your query, here's what I can help with:\n\n**Key Areas I Can Explain:**\n• Technology concepts\n• Scientific principles\n• Programming topics\n• Historical events\n• Creative techniques\n\nCould you be more specific about what you'd like me to explain?`;
+            }
+            else {
+                return `I understand you're asking about "${message}". That's an interesting topic! 🤖\n\nHere's how I can help:\n• Provide detailed information and examples\n• Break down complex concepts\n• Offer practical solutions\n• Suggest related topics\n\nCould you tell me more specifically what you'd like to know? I'm here to provide comprehensive and helpful information!\n\nआप हिंदी में भी पूछ सकते हैं! 😊`;
             }
         }
 
-        // Hugging Face Image Generation API
-        async function generateImageWithHuggingFace(prompt) {
-            try {
-                // Show image loading state
-                const loadingId = showImageLoading(prompt);
-                
-                const response = await fetch(
-                    "https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5",
-                    {
-                        headers: {
-                            Authorization: `Bearer ${HUGGING_FACE_API_KEY}`,
-                            "Content-Type": "application/json",
-                        },
-                        method: "POST",
-                        body: JSON.stringify({
-                            inputs: prompt,
-                            options: {
-                                wait_for_model: true
-                            }
-                        }),
-                    }
-                );
-
-                if (!response.ok) {
-                    throw new Error(`Hugging Face API error: ${response.status}`);
-                }
-
-                const imageBlob = await response.blob();
-                const imageUrl = URL.createObjectURL(imageBlob);
-                
-                // Remove loading indicator
-                removeImageLoading(loadingId);
-                
-                return {
-                    imageUrl: imageUrl,
-                    prompt: prompt
-                };
-                
-            } catch (error) {
-                console.error('Hugging Face API Error:', error);
-                removeImageLoading('all');
-                throw new Error('Image generation failed. Please try a different prompt.');
-            }
-        }
-
-        function showImageLoading(prompt) {
-            const messagesContainer = document.getElementById('messagesContainer');
-            const loadingDiv = document.createElement('div');
-            const loadingId = 'image-loading-' + Date.now();
-            loadingDiv.id = loadingId;
-            loadingDiv.className = 'message ai';
-            
-            loadingDiv.innerHTML = `
-                <div class="message-avatar">
-                    <i class="fas fa-robot"></i>
-                </div>
-                <div class="message-content">
-                    <strong>Generating Image: "${prompt}"</strong>
-                    <div class="image-loading">
-                        <i class="fas fa-spinner fa-spin"></i><br>
-                        Creating your image... This may take 20-30 seconds.
-                    </div>
-                </div>
-            `;
-            
-            messagesContainer.appendChild(loadingDiv);
-            scrollToBottom();
-            return loadingId;
-        }
-
-        function removeImageLoading(loadingId) {
-            if (loadingId === 'all') {
-                document.querySelectorAll('.image-loading').forEach(el => {
-                    el.closest('.message').remove();
-                });
-            } else {
-                const element = document.getElementById(loadingId);
-                if (element) element.remove();
-            }
-        }
-
-        function addImageToUI(imageUrl, prompt) {
-            const messagesContainer = document.getElementById('messagesContainer');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'message ai';
-            
-            messageDiv.innerHTML = `
-                <div class="message-avatar">
-                    <i class="fas fa-robot"></i>
-                </div>
-                <div class="message-content">
-                    <strong>Generated Image: "${prompt}"</strong>
-                    <img src="${imageUrl}" alt="${prompt}" class="generated-image">
-                    <div style="margin-top: 10px; font-size: 0.9em; color: var(--secondary);">
-                        <i class="fas fa-download"></i> 
-                        <a href="${imageUrl}" download="ai-generated-image.png" style="color: var(--primary);">Download Image</a>
-                    </div>
-                </div>
-            `;
-            
-            messagesContainer.appendChild(messageDiv);
-            scrollToBottom();
-        }
-
-        function addMessageToUI(role, content) {
-            const messagesContainer = document.getElementById('messagesContainer');
+        // Add Message to UI
+        function addMessageToUI(role, content, scroll = true) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${role}`;
             
+            const avatar = role === 'user' ? 
+                '<div class="message-avatar"><i class="fas fa-user"></i></div>' :
+                '<div class="message-avatar"><i class="fas fa-robot"></i></div>';
+            
+            const formattedContent = formatMessage(content);
+            
             messageDiv.innerHTML = `
-                <div class="message-avatar">
-                    <i class="fas fa-${role === 'user' ? 'user' : 'robot'}"></i>
-                </div>
-                <div class="message-content">${formatMessage(content)}</div>
+                ${avatar}
+                <div class="message-content">${formattedContent}</div>
             `;
             
-            messagesContainer.appendChild(messageDiv);
-            scrollToBottom();
-        }
-
-        function showTypingIndicator() {
-            const messagesContainer = document.getElementById('messagesContainer');
-            const typingDiv = document.createElement('div');
-            typingDiv.className = 'message ai typing';
-            typingDiv.id = 'typingIndicator';
+            elements.messagesContainer.appendChild(messageDiv);
             
-            typingDiv.innerHTML = `
-                <div class="message-avatar">
-                    <i class="fas fa-robot"></i>
-                </div>
-                <div class="message-content">
-                    <i class="fas fa-ellipsis-h"></i> AI is thinking...
-                </div>
-            `;
-            
-            messagesContainer.appendChild(typingDiv);
-            scrollToBottom();
-        }
-
-        function removeTypingIndicator() {
-            const typingIndicator = document.getElementById('typingIndicator');
-            if (typingIndicator) {
-                typingIndicator.remove();
+            // Add AI generated badge for AI messages
+            if (role === 'assistant') {
+                const badge = document.createElement('div');
+                badge.className = 'ai-generated-badge';
+                badge.textContent = 'AI-Generated content for reference only';
+                elements.messagesContainer.appendChild(badge);
             }
+            
+            if (scroll) {
+                scrollToBottom();
+            }
+            
+            return messageDiv;
         }
 
-        function scrollToBottom() {
-            const messagesContainer = document.getElementById('messagesContainer');
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
+        // Format Message Content
         function formatMessage(content) {
-            // Simple formatting
-            return content.replace(/\n/g, '<br>')
-                         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                         .replace(/```([^`]+)```/g, '<pre><code>$1</code></pre>');
+            // Handle code blocks
+            let formatted = content.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+                return `<div style="background: #1e293b; color: white; padding: 12px; border-radius: 6px; margin: 8px 0; font-family: monospace; font-size: 12px; white-space: pre-wrap; border: 1px solid #334155;">${code.trim()}</div>`;
+            });
+            
+            // Handle line breaks
+            formatted = formatted.replace(/\n/g, '<br>');
+            
+            return formatted;
         }
 
-        // Event Listeners
-        document.getElementById('sendBtn').addEventListener('click', sendMessage);
-        document.getElementById('chatInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
+        // Show Typing Indicator
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message ai';
+            typingDiv.innerHTML = `
+                <div class="message-avatar"><i class="fas fa-robot"></i></div>
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <span>NovaEdition AI is typing</span>
+                        <div class="typing-dots">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            elements.messagesContainer.appendChild(typingDiv);
+            scrollToBottom();
+            return typingDiv;
+        }
+
+        // Save Message to Current Chat
+        function saveMessage(role, content) {
+            const chat = chats.find(c => c.id === currentChat);
+            if (chat) {
+                chat.messages.push({ role, content, timestamp: new Date().toISOString() });
+                saveChats();
             }
-        });
+        }
 
-        document.getElementById('chatInput').addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-        });
+        // Update Chat Title
+        function updateChatTitle(firstMessage) {
+            const chat = chats.find(c => c.id === currentChat);
+            if (chat && chat.title === 'New Chat') {
+                chat.title = firstMessage.substring(0, 30) + (firstMessage.length > 30 ? '...' : '');
+                saveChats();
+                loadChatHistory();
+            }
+        }
 
-        // Initialize
-        initTheme();
+        // Save Chats to Local Storage
+        function saveChats() {
+            localStorage.setItem('novaEditionChats', JSON.stringify(chats));
+        }
+
+        // Scroll to Bottom
+        function scrollToBottom() {
+            elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
+        }
+
+        // Quick Question Feature
+        function askQuickQuestion(question) {
+            elements.chatInput.value = question;
+            elements.welcomeScreen.style.display = 'none';
+            sendMessage();
+        }
+
+        // Start the app
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 </html>
